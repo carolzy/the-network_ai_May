@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network AI</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .title {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #4f86f7; /* Bright blue color for NETWORK AI */
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            color: #f8fafc;
+            font-weight: 400;
+            margin-bottom: 2rem;
+        }
+        
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+        
+        .card {
+            background-color: #1e293b;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .card-description {
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .btn {
+            background-color: #4f86f7;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #3b72e7;
+        }
+        
+        @media (max-width: 768px) {
+            .cards-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .title {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">NETWORK AI</h1>
+            <p class="tagline">Connect. Invest. Grow. With Just One Question.</p>
+        </div>
+        
+        <div class="cards-container">
+            <!-- Startup Founder Card -->
+            <div class="card">
+                <div class="card-icon">👩‍💼</div>
+                <h2 class="card-title">Startup Founder</h2>
+                <p class="card-description">
+                    Find the right event to fuel your startup – connect with customers, future teams, partners, investors and valuable networks.
+                </p>
+                <a href="/founder" class="btn">Fuel My Startup</a>
+            </div>
+            
+            <!-- Venture Capitalist Card -->
+            <div class="card">
+                <div class="card-icon">💰</div>
+                <h2 class="card-title">Venture Capitalist</h2>
+                <p class="card-description">
+                    Invest smarter – find events where you can meet founders, discover startups, and stay ahead of industry trends.
+                </p>
+                <a href="/vc" class="btn">Spark My Growth</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

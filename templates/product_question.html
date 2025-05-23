@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Network AI - Product Information{% endblock %}
+
+{% block styles %}
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #0f172a;
+        color: #f8fafc;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .back-button {
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        color: #f8fafc;
+        font-size: 24px;
+        text-decoration: none;
+    }
+    
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .title {
+        font-size: 4rem;
+        font-weight: 700;
+        background: linear-gradient(90deg, #4f86f7, #ab68ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+        font-size: 1.2rem;
+        color: #f8fafc;
+        font-weight: 400;
+        margin-bottom: 2rem;
+    }
+    
+    .question-container {
+        background-color: #1e293b;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .question {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: #f8fafc;
+        background-color: #2d3748;
+        border-radius: 8px;
+        padding: 12px 15px;
+    }
+    
+    .input-container {
+        margin-bottom: 1.5rem;
+    }
+    
+    .text-input {
+        width: 100%;
+        padding: 12px 15px;
+        background-color: #2d3748;
+        border: 1px solid #4a5568;
+        border-radius: 8px;
+        color: #f8fafc;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .text-input:focus {
+        outline: none;
+        border-color: #4f86f7;
+        box-shadow: 0 0 0 2px rgba(79, 134, 247, 0.3);
+    }
+    
+    .text-input::placeholder {
+        color: #a0aec0;
+    }
+    
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .button {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        border: none;
+        text-align: center;
+    }
+    
+    .primary-button {
+        background-color: #4f86f7;
+        color: white;
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .primary-button:hover {
+        background-color: #3b72e7;
+    }
+    
+    .secondary-button {
+        background-color: #4a5568;
+        color: white;
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .secondary-button:hover {
+        background-color: #2d3748;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="/" class="back-button">←</a>
+
+<div class="container">
+    <div class="header">
+        <h1 class="title">NETWORK AI</h1>
+        <p class="subtitle">AI-Powered Event Matching For Startup Founders.</p>
+    </div>
+    
+    <div class="question-container">
+        <div class="question">
+            {{ question }}
+        </div>
+        
+        <form id="productForm" method="POST" action="/api/onboarding">
+            <div class="input-container">
+                <input type="text" id="answer" name="answer" class="text-input" placeholder="Paste your business URL (e.g. your website) or describe your product." required>
+                <input type="hidden" name="step" value="product">
+            </div>
+            
+            <div class="button-container">
+                <button type="submit" class="button primary-button">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% include 'loading_indicator.html' %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const productForm = document.getElementById('productForm');
+        
+        productForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const answer = document.getElementById('answer').value.trim();
+            if (!answer) {
+                alert('Please enter your product information or website URL.');
+                return;
+            }
+            
+            // Show loading indicator
+            showLoading('Analyzing your business information...');
+            
+            // Submit the form with AJAX to get the next question
+            const formData = new FormData(this);
+            
+            fetch('/api/onboarding', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Complete the progress bar
+                    completeProgress();
+                    
+                    // If there's a redirect, go to that page
+                    if (data.redirect) {
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 500);
+                    }
+                } else {
+                    // Hide loading indicator
+                    hideLoading();
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                // Hide loading indicator
+                hideLoading();
+                console.error('Error:', error);
+                alert('An error occurred while submitting your information.');
+            });
+        });
+    });
+</script>
+{% endblock %}

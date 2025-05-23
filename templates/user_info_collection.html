@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Network AI - User Information{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #121212;
+        color: #ffffff;
+        margin: 0;
+        padding: 20px;
+    }
+    
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    h1 {
+        text-align: center;
+        color: #4fd1c5;
+        margin-bottom: 30px;
+    }
+    
+    .form-container {
+        background-color: #1e1e1e;
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #e0e0e0;
+    }
+    
+    input[type="text"], input[type="email"] {
+        width: 100%;
+        padding: 12px 15px;
+        background-color: #333;
+        border: 1px solid #444;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 16px;
+        line-height: 1.5;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    
+    input[type="text"]:focus, input[type="email"]:focus {
+        border-color: #4fd1c5;
+        box-shadow: 0 0 0 2px rgba(79, 209, 197, 0.3);
+        outline: none;
+    }
+    
+    .field-hint {
+        font-size: 14px;
+        color: #888;
+        margin-top: 5px;
+        margin-bottom: 0;
+        font-style: italic;
+    }
+    
+    .required-indicator {
+        color: #ff6b6b;
+        margin-left: 5px;
+    }
+    
+    button {
+        background-color: #4fd1c5;
+        color: #121212;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 16px;
+        width: 100%;
+    }
+    
+    button:hover {
+        background-color: #38b2ac;
+    }
+    
+    .skip-button {
+        background-color: transparent;
+        border: 1px solid #4fd1c5;
+        color: #4fd1c5;
+        margin-top: 15px;
+    }
+    
+    .skip-button:hover {
+        background-color: rgba(79, 209, 197, 0.1);
+    }
+    
+    .info-message {
+        background-color: rgba(79, 209, 197, 0.1);
+        border-left: 4px solid #4fd1c5;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 0 5px 5px 0;
+    }
+    
+    .error-message {
+        color: #ff6b6b;
+        font-size: 14px;
+        margin-top: 5px;
+        display: none;
+    }
+    
+    .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 10px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Network AI</h1>
+    
+    <div class="form-container">
+        <div class="info-message">
+            <p><strong>Almost there!</strong> Please provide your information to see the events we've found for you.</p>
+            <p>We'll use this to personalize your experience and save your preferences.</p>
+        </div>
+        
+        <form id="userInfoForm">
+            <div class="form-group">
+                <label for="userName">Your Name<span class="required-indicator">*</span></label>
+                <input type="text" id="userName" name="userName" required>
+                <div id="userNameError" class="error-message">Please enter your name</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="userEmail">Email Address<span class="required-indicator">*</span></label>
+                <input type="email" id="userEmail" name="userEmail" required>
+                <p class="field-hint">Company email preferred for better networking opportunities</p>
+                <div id="userEmailError" class="error-message">Please enter a valid email address</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="companyName">Company Name</label>
+                <input type="text" id="companyName" name="companyName">
+                <p class="field-hint">Optional, but suggested as we do surface great companies to investors</p>
+            </div>
+            
+            <button type="submit" id="submitButton">Show My Events</button>
+            <button type="button" id="skipButton" class="skip-button">Skip for Now (Events Will Be Limited)</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userInfoForm = document.getElementById('userInfoForm');
+        const submitButton = document.getElementById('submitButton');
+        const skipButton = document.getElementById('skipButton');
+        
+        // Get query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const keywords = urlParams.get('keywords') || '';
+        const summary = urlParams.get('summary') || '';
+        const fromOnboarding = urlParams.get('fromOnboarding') === 'true';
+        
+        // Form submission handler
+        userInfoForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            const userName = document.getElementById('userName').value.trim();
+            const userEmail = document.getElementById('userEmail').value.trim();
+            const companyName = document.getElementById('companyName').value.trim();
+            
+            let isValid = true;
+            
+            // Validate name
+            if (!userName) {
+                document.getElementById('userNameError').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('userNameError').style.display = 'none';
+            }
+            
+            // Validate email
+            if (!userEmail || !isValidEmail(userEmail)) {
+                document.getElementById('userEmailError').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('userEmailError').style.display = 'none';
+            }
+            
+            if (!isValid) {
+                return;
+            }
+            
+            // Show loading state
+            submitButton.innerHTML = '<span class="loading"></span> Processing...';
+            submitButton.disabled = true;
+            
+            try {
+                // Submit user information
+                const response = await fetch('/api/save_user_info', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_name: userName,
+                        email: userEmail,
+                        company_name: companyName,
+                        keywords: keywords,
+                        user_summary: summary,
+                        from_onboarding: fromOnboarding
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Redirect to event search page
+                    window.location.href = '/event_search_page?keywords=' + encodeURIComponent(keywords) + 
+                                          '&summary=' + encodeURIComponent(summary);
+                } else {
+                    // Show error
+                    alert('Error saving user information: ' + (data.error || 'Unknown error'));
+                    submitButton.innerHTML = 'Show My Events';
+                    submitButton.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+                submitButton.innerHTML = 'Show My Events';
+                submitButton.disabled = false;
+            }
+        });
+        
+        // Skip button handler
+        skipButton.addEventListener('click', function() {
+            // Redirect to event search page with limited functionality flag
+            window.location.href = '/event_search_page?keywords=' + encodeURIComponent(keywords) + 
+                                  '&summary=' + encodeURIComponent(summary) + 
+                                  '&limited=true';
+        });
+        
+        // Email validation function
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Network AI - Event Goals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #0f172a;
+        color: #f8fafc;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .back-button {
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        color: #f8fafc;
+        font-size: 24px;
+        text-decoration: none;
+    }
+    
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .title {
+        font-size: 4rem;
+        font-weight: 700;
+        background: linear-gradient(90deg, #4f86f7, #ab68ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+        font-size: 1.2rem;
+        color: #f8fafc;
+        font-weight: 400;
+        margin-bottom: 1rem;
+    }
+    
+    .question {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .button {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        border: none;
+        text-align: center;
+    }
+    
+    .primary-button {
+        background-color: #4f86f7;
+        color: white;
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .primary-button:hover {
+        background-color: #3b72e7;
+    }
+    
+    .secondary-button {
+        background-color: #4a5568;
+        color: white;
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .secondary-button:hover {
+        background-color: #2d3748;
+    }
+    
+    /* Option styles */
+    .goal-option {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        border-radius: 12px;
+        background-color: #1e293b;
+        cursor: pointer;
+        position: relative;
+        user-select: none;
+        transition: all 0.2s ease;
+    }
+    
+    .goal-option:hover {
+        background-color: #334155;
+    }
+    
+    .goal-option.selected {
+        background-color: #334155;
+        border: 2px solid #4f86f7;
+    }
+    
+    .goal-checkbox {
+        width: 24px;
+        height: 24px;
+        margin-right: 15px;
+        display: none;
+    }
+    
+    .goal-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background-color: #4f86f7;
+        color: white;
+        border-radius: 50%;
+        margin-right: 15px;
+        font-weight: bold;
+    }
+    
+    .goal-text {
+        flex-grow: 1;
+        font-size: 16px;
+    }
+    
+    .goal-star {
+        color: #555;
+        font-size: 24px;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: all 0.2s ease;
+        padding: 5px;
+    }
+    
+    .goal-star:hover {
+        color: #FFD700;
+        transform: scale(1.1);
+    }
+    
+    .goal-star.selected {
+        color: #FFD700 !important;
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    }
+    
+    .instructions {
+        text-align: center;
+        color: #94a3b8;
+        font-style: italic;
+        margin-bottom: 20px;
+    }
+</style>
+</head>
+
+<body>
+<a href="javascript:history.back()" class="back-button">←</a>
+
+<div class="container">
+    <div class="header">
+        <h1 class="title">NETWORK AI</h1>
+        <p class="subtitle">AI-Powered Event Matching For Startup Founders.</p>
+    </div>
+    
+    <div class="question">
+        What is your main goal of networking? (You can select multiple options and put a star next to your most important goal)
+    </div>
+    
+    <div class="instructions">
+        Select at least one option and mark your primary goal with a star.
+    </div>
+    
+    <form id="eventGoalForm" method="POST" action="/business_profile">
+        <input type="hidden" name="step" value="event_interests">
+        <input type="hidden" id="selected_goals" name="answer" value="">
+        <input type="hidden" id="primary_goal" name="primary_goal" value="">
+        <input type="hidden" name="action" value="see_events">
+        
+        <!-- REMOVED ALL onclick HANDLERS -->
+        <div class="goal-option" data-value="find_buyers">
+            <input type="checkbox" class="goal-checkbox">
+            <div class="goal-number">1</div>
+            <div class="goal-text">Find more buyers/users of your product/service</div>
+            <div class="goal-star">★</div>
+        </div>
+        
+        <div class="goal-option" data-value="recruit_talent">
+            <input type="checkbox" class="goal-checkbox">
+            <div class="goal-number">2</div>
+            <div class="goal-text">Recruit talent for your team</div>
+            <div class="goal-star">★</div>
+        </div>
+        
+        <div class="goal-option" data-value="business_partners">
+            <input type="checkbox" class="goal-checkbox">
+            <div class="goal-number">3</div>
+            <div class="goal-text">Meet meaningful business partners</div>
+            <div class="goal-star">★</div>
+        </div>
+        
+        <div class="goal-option" data-value="investors">
+            <input type="checkbox" class="goal-checkbox">
+            <div class="goal-number">4</div>
+            <div class="goal-text">Connect with strategic investors</div>
+            <div class="goal-star">★</div>
+        </div>
+        
+        <div class="goal-option" data-value="networking">
+            <input type="checkbox" class="goal-checkbox">
+            <div class="goal-number">5</div>
+            <div class="goal-text">Just meet interesting people, learning new things</div>
+            <div class="goal-star">★</div>
+        </div>
+        
+        <div class="button-container">
+            <button type="submit" class="button primary-button">See Events</button>
+            <button type="button" id="tellMeMoreButton" class="button secondary-button">Tell Me More</button>
+        </div>
+    </form>
+</div>
+
+{% include 'loading_indicator.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, initializing event goals...');
+        
+        // Global variables to track selections
+        let selectedGoals = [];
+        let primaryGoal = null;
+        
+        // Get all necessary elements
+        const goalOptions = document.querySelectorAll('.goal-option');
+        const goalStars = document.querySelectorAll('.goal-star');
+        const eventGoalForm = document.getElementById('eventGoalForm');
+        const tellMeMoreButton = document.getElementById('tellMeMoreButton');
+        const selectedGoalsInput = document.getElementById('selected_goals');
+        const primaryGoalInput = document.getElementById('primary_goal');
+        
+        console.log('Found elements:', {
+            goalOptions: goalOptions.length,
+            goalStars: goalStars.length,
+            form: !!eventGoalForm,
+            tellMeMoreButton: !!tellMeMoreButton
+        });
+        
+        // Function to update hidden inputs
+        function updateHiddenInputs() {
+            if (selectedGoalsInput && primaryGoalInput) {
+                selectedGoalsInput.value = JSON.stringify(selectedGoals);
+                primaryGoalInput.value = primaryGoal || '';
+                console.log('Updated hidden inputs:', { selectedGoals, primaryGoal });
+            }
+        }
+        
+        // Function to reset all stars
+        function resetAllStars() {
+            goalStars.forEach(star => {
+                star.style.color = '#555';
+                star.classList.remove('selected');
+            });
+        }
+        
+        // Add click event listeners to goal options
+        goalOptions.forEach((option) => {
+            option.addEventListener('click', function(e) {
+                // Ignore if star was clicked (let star handler deal with it)
+                if (e.target.classList.contains('goal-star')) {
+                    return;
+                }
+                
+                const value = this.getAttribute('data-value');
+                const checkbox = this.querySelector('.goal-checkbox');
+                
+                console.log('Goal option clicked:', value);
+                
+                // Toggle selection
+                this.classList.toggle('selected');
+                if (checkbox) {
+                    checkbox.checked = this.classList.contains('selected');
+                }
+                
+                if (this.classList.contains('selected')) {
+                    // Add to selected goals if not already included
+                    if (!selectedGoals.includes(value)) {
+                        selectedGoals.push(value);
+                        console.log('Added goal:', value);
+                    }
+                } else {
+                    // Remove from selected goals
+                    const index = selectedGoals.indexOf(value);
+                    if (index !== -1) {
+                        selectedGoals.splice(index, 1);
+                        console.log('Removed goal:', value);
+                    }
+                    
+                    // If this was the primary goal, clear it
+                    if (primaryGoal === value) {
+                        primaryGoal = null;
+                        const star = this.querySelector('.goal-star');
+                        if (star) {
+                            star.style.color = '#555';
+                            star.classList.remove('selected');
+                        }
+                        console.log('Cleared primary goal');
+                    }
+                }
+                
+                updateHiddenInputs();
+            });
+        });
+        
+        // Add click event listeners to stars
+        goalStars.forEach((star) => {
+            star.addEventListener('click', function(e) {
+                // Prevent event bubbling to the option
+                e.stopPropagation();
+                e.preventDefault();
+                
+                const option = this.closest('.goal-option');
+                if (!option) return;
+                
+                const value = option.getAttribute('data-value');
+                console.log('Star clicked for:', value);
+                
+                // If option is not selected, select it first
+                if (!option.classList.contains('selected')) {
+                    option.classList.add('selected');
+                    const checkbox = option.querySelector('.goal-checkbox');
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                    
+                    // Add to selected goals
+                    if (!selectedGoals.includes(value)) {
+                        selectedGoals.push(value);
+                        console.log('Auto-selected goal because star was clicked:', value);
+                    }
+                }
+                
+                // Check if this star is already the primary goal
+                if (primaryGoal === value) {
+                    // Deselect it
+                    primaryGoal = null;
+                    this.style.color = '#555';
+                    this.classList.remove('selected');
+                    console.log('Deselected primary goal:', value);
+                } else {
+                    // Select this as the new primary goal
+                    resetAllStars(); // Reset all other stars
+                    primaryGoal = value;
+                    this.style.color = '#FFD700';
+                    this.classList.add('selected');
+                    console.log('Set new primary goal:', value);
+                }
+                
+                updateHiddenInputs();
+            });
+        });
+        
+        // Handle form submission (See Events button)
+        if (eventGoalForm) {
+            eventGoalForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                console.log('Form submission attempted');
+                
+                if (selectedGoals.length === 0) {
+                    alert('Please select at least one networking goal.');
+                    return;
+                }
+                
+                // Ensure we have a primary goal - use the first selected goal if none is explicitly marked
+                if (!primaryGoal && selectedGoals.length > 0) {
+                    primaryGoal = selectedGoals[0];
+                    console.log('Auto-setting primary goal to:', primaryGoal);
+                    
+                    // Update the display
+                    goalOptions.forEach(option => {
+                        if (option.getAttribute('data-value') === primaryGoal) {
+                            const star = option.querySelector('.goal-star');
+                            if (star) {
+                                resetAllStars();
+                                star.style.color = '#FFD700';
+                                star.classList.add('selected');
+                            }
+                        }
+                    });
+                }
+                
+                updateHiddenInputs();
+                
+                console.log('Final form data before submission:', {
+                    selectedGoals: selectedGoalsInput.value,
+                    primaryGoal: primaryGoalInput.value
+                });
+                
+                // Show loading indicator
+                if (typeof showLoading === 'function') {
+                    showLoading('Generating your business profile and target events...');
+                }
+                
+                // Submit the form
+                this.submit();
+            });
+        }
+        
+        // Handle Tell Me More button
+        if (tellMeMoreButton) {
+            tellMeMoreButton.addEventListener('click', function() {
+                console.log('Tell Me More clicked');
+                
+                if (selectedGoals.length === 0) {
+                    alert('Please select at least one networking goal before proceeding.');
+                    return;
+                }
+                
+                // Ensure we have a primary goal
+                if (!primaryGoal && selectedGoals.length > 0) {
+                    primaryGoal = selectedGoals[0];
+                    updateHiddenInputs();
+                }
+                
+                // Show loading indicator
+                if (typeof showLoading === 'function') {
+                    showLoading('Preparing follow-up questions based on your goals...');
+                }
+                
+                // Create form data
+                const formData = new FormData(eventGoalForm);
+                formData.set('action', 'tell_me_more');
+                
+                // Submit via AJAX
+                fetch('/api/onboarding', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Tell Me More API Response:', data);
+                    if (data.success) {
+                        if (typeof completeProgress === 'function') {
+                            completeProgress();
+                        }
+                        
+                        if (data.redirect) {
+                            console.log('Redirecting to:', data.redirect);
+                            window.location.href = data.redirect;
+                        } else {
+                            if (typeof hideLoading === 'function') {
+                                hideLoading();
+                            }
+                        }
+                    } else {
+                        if (typeof hideLoading === 'function') {
+                            hideLoading();
+                        }
+                        alert('Error: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    if (typeof hideLoading === 'function') {
+                        hideLoading();
+                    }
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting your information.');
+                });
+            });
+        }
+        
+        console.log('Event goals initialization complete');
+    });
+</script>
+</body>
+</html>

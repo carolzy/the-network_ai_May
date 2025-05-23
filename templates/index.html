@@ -1,0 +1,1086 @@
+{% extends "base.html" %}
+
+{% block title %}Network AI - Find your ideal events{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+    /* Drag and drop styles */
+    .chat-box.drag-active {
+        border: 2px dashed var(--primary-color);
+        background-color: rgba(65, 105, 225, 0.1);
+    }
+    
+    .drag-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        border-radius: 12px;
+    }
+    
+    .drag-text {
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        background-color: var(--primary-color);
+        padding: 15px 30px;
+        border-radius: 8px;
+    }
+    
+    :root {
+        --primary-color: #4169E1;
+        --primary-hover: #3A5FCC;
+        --secondary-color: #9370DB;
+        --dark-bg: #111111;
+        --dark-card: #222222;
+        --dark-input: #333333;
+        --text-light: #FFFFFF;
+        --text-muted: #888888;
+        --accent-green: #228B22;
+        --accent-purple: #8A2BE2;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        background-color: var(--dark-bg);
+        color: var(--text-light);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+    }
+    
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    
+    .logo-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+    
+    .logo-header img {
+        height: 40px;
+        margin-right: 10px;
+    }
+    
+    .logo-header h2 {
+        font-size: 24px;
+        margin: 0;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-purple));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+    }
+    
+    h1 {
+        font-size: 48px;
+        text-align: center;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+    
+    .subtitle {
+        text-align: center;
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    
+    .tagline {
+        text-align: center;
+        font-size: 16px;
+        color: var(--primary-color);
+        margin-bottom: 40px;
+    }
+    
+    .chat-container {
+        display: flex;
+        width: 100%;
+        gap: 20px;
+    }
+    
+    .chat-box {
+        flex: 7;
+        background-color: var(--dark-card);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .info-panel {
+        flex: 3;
+        background-color: var(--dark-card);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .chat-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .chat-messages {
+        height: 400px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+    
+    .message {
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 10px;
+        max-width: 80%;
+    }
+    
+    .user-message {
+        background-color: var(--primary-color);
+        margin-left: auto;
+    }
+    
+    .ai-message {
+        background-color: var(--dark-input);
+    }
+    
+    .chat-input-container {
+        display: flex;
+        flex-direction: column;
+        margin-top: 20px;
+        width: 100%;
+        position: relative;
+    }
+    
+    .chat-input input {
+        flex: 1;
+        padding: 15px;
+        border: none;
+        border-radius: 25px;
+        background-color: var(--dark-input);
+        color: var(--text-light);
+    }
+    
+    .send-button {
+        padding: 15px 30px;
+        background-color: var(--primary-color);
+        color: var(--text-light);
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+    }
+    
+    .info-title {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .info-section {
+        margin-bottom: 30px;
+    }
+    
+    .section-title {
+        font-size: 18px;
+        margin-bottom: 10px;
+        color: var(--secondary-color);
+    }
+    
+    .tag {
+        display: inline-block;
+        background-color: var(--dark-input);
+        padding: 8px 15px;
+        border-radius: 20px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .tag.active {
+        background-color: var(--primary-color);
+    }
+    
+    .tag.b2b {
+        background-color: var(--accent-green);
+    }
+    
+    .tag.market {
+        background-color: var(--accent-green);
+    }
+    
+    .tag.company {
+        background-color: var(--accent-green);
+    }
+    
+    .loading-spinner {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border-left-color: var(--primary-color);
+        animation: spin 1s linear infinite;
+        margin-right: 15px;
+    }
+    
+    .spinner-text {
+        font-size: 18px;
+        color: var(--primary-color);
+    }
+    
+    .important-message {
+        background-color: rgba(79, 209, 197, 0.1);
+        border-left: 4px solid #4fd1c5;
+        color: #ffffff;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 0 5px 5px 0;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        line-height: 1.5;
+    }
+    
+    .image-upload-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: var(--dark-input);
+        color: var(--text-light);
+        cursor: pointer;
+        margin-right: 10px;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    
+    .image-upload-btn:hover {
+        background-color: var(--secondary-color);
+    }
+    
+    .upload-tooltip {
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--dark-card);
+        color: var(--text-light);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s ease;
+    }
+    
+    .image-upload-btn:hover .upload-tooltip {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .drag-drop-area {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        position: relative;
+        border: 2px dashed transparent;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        padding: 5px;
+    }
+    
+    .drag-drop-area.active {
+        border-color: var(--secondary-color);
+        background-color: rgba(147, 112, 219, 0.1);
+    }
+    
+    .drag-drop-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: var(--secondary-color);
+        font-weight: bold;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+    
+    .drag-drop-area.active .drag-drop-message {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    #image-preview-container {
+        position: relative;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .remove-image-btn {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .user-profile {
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    
+    .user-profile-empty {
+        color: var(--text-muted);
+        font-style: italic;
+        padding: 10px;
+    }
+    
+    .user-profile-item {
+        background-color: var(--dark-input);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        border-left: 3px solid var(--primary-color);
+    }
+    
+    .user-profile-item p {
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .keyword-badge {
+        display: inline-block;
+        background-color: var(--dark-input);
+        padding: 8px 15px;
+        border-radius: 20px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+    
+    /* Loading dots animation */
+    .loading-dots {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--text-light);
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+    
+    .dot:nth-child(2) {
+        animation-delay: 0.3s;
+    }
+    
+    .dot:nth-child(3) {
+        animation-delay: 0.6s;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(0.8);
+            opacity: 0.6;
+        }
+        50% {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Find your ideal customers at the <strong>Right events</strong></h1>
+    <div class="subtitle">AI-powered event matching for startup founders</div>
+    <div class="tagline">Tell us about your business. We'll find your best opportunities.</div>
+<div style="text-align: center; margin-bottom: 30px;">
+    <a href="/browser_visualization" style="display: inline-block; padding: 12px 24px; background-color: var(--secondary-color); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+        <i class="fas fa-globe"></i> Try Browser Visualization Mode
+    </a>
+</div>
+    
+    <div class="chat-container">
+        <div class="chat-box">
+            <div class="chat-title">
+                <h3 style="margin: 0 0 10px 0; color: var(--primary-color);">Tell me about your product</h3>
+                <div class="onboarding-progress" style="display: flex; margin-bottom: 15px;">
+                    <div class="progress-step active" style="flex: 1; height: 6px; background-color: var(--primary-color); margin-right: 4px; border-radius: 3px;" data-step="product"></div>
+                    <div class="progress-step" style="flex: 1; height: 6px; background-color: #444; margin-right: 4px; border-radius: 3px;" data-step="market"></div>
+                    <div class="progress-step" style="flex: 1; height: 6px; background-color: #444; margin-right: 4px; border-radius: 3px;" data-step="unique_value"></div>
+                    <div class="progress-step" style="flex: 1; height: 6px; background-color: #444; margin-right: 4px; border-radius: 3px;" data-step="team_differentiation"></div>
+                    <div class="progress-step" style="flex: 1; height: 6px; background-color: #444; margin-right: 4px; border-radius: 3px;" data-step="pitch_strategy"></div>
+                    <div class="progress-step" style="flex: 1; height: 6px; background-color: #444; border-radius: 3px;" data-step="use_case"></div>
+                </div>
+                <p style="margin: 0; color: #ccc; font-size: 14px;">Step 1 of 6: Product Information</p>
+            </div>
+            <div class="chat-messages" id="chat-body">
+                <!-- Initial greeting message -->
+                <div class="message ai-message">
+                    <div class="important-message" style="background-color: rgba(79, 209, 197, 0.15); border-left: 4px solid #4fd1c5; padding: 20px; margin-bottom: 20px; border-radius: 0 8px 8px 0;">
+                        <h4 style="margin-top: 0; color: #4fd1c5;">Help us find the perfect events for you</h4>
+                        <p style="margin-bottom: 0;">The more details you provide about your product, the more accurately we can match you with relevant events and potential customers.</p>
+                    </div>
+                    
+                    {% if first_question %}
+                    <p style="margin-top: 15px; font-size: 16px; line-height: 1.5;">Let's start simple - what's the website that best describes what you're selling? (This could be your product, company, or personal site)</p>
+                    <p style="color: #aaa; font-size: 14px; font-style: italic;">You can also upload a screenshot or simply describe your product if you don't have a website yet.</p>
+                    {% else %}
+                    <p style="margin-top: 15px; font-size: 16px; line-height: 1.5;">What specific problem does your product solve?</p>
+                    <p style="color: #aaa; font-size: 14px; font-style: italic;">Be as detailed as possible to help us understand your value proposition.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="chat-input-container drag-drop-area" id="drag-drop-area" style="background-color: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-top: 20px; border: 1px solid #444;">
+                <label for="answer" style="display: block; margin-bottom: 8px; color: #e0e0e0; font-weight: 600;">Your Response:</label>
+                <input type="text" id="answer" placeholder="Type your answer here..." style="width: 100%; padding: 15px; border-radius: 8px; background-color: var(--dark-input); color: var(--text-light); border: 1px solid #555; font-size: 16px;">
+                
+                <div class="chat-actions" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; gap: 15px;">
+                    <!-- Upload screenshot button commented out as requested
+                    <div class="upload-section" style="display: flex; align-items: center;">
+                        <label class="image-upload-btn" for="image-upload" style="display: flex; align-items: center; justify-content: center; padding: 10px 18px; border-radius: 8px; background-color: var(--primary-color); color: white; cursor: pointer; border: none; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: all 0.2s ease;">
+                            <i class="fas fa-image" style="margin-right: 8px; font-size: 16px;"></i>
+                            <span>Upload Screenshot</span>
+                        </label>
+                        <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                    </div>
+                    -->
+                    <button class="send-button" id="submit-btn" onclick="submitAnswer(); return false;" style="padding: 12px 25px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Send</button>
+                </div>
+                <div id="image-preview-container" style="display: none;">
+                    <img id="image-preview" src="" alt="Preview" style="max-width: 100px; max-height: 100px; margin-top: 10px;">
+                    <button id="remove-image" class="remove-image-btn">×</button>
+                </div>
+                
+                <!-- Skip buttons with improved visual distinction -->
+                <div class="skip-options" style="margin-top: 25px; border-top: 1px solid #444; padding-top: 20px;">
+                    <h4 style="margin-top: 0; margin-bottom: 15px; color: #e0e0e0; font-size: 16px; text-align: center; font-weight: 600;">OPTIONS</h4>
+                    <div style="display: flex; justify-content: center; gap: 15px;">
+                        <form method="POST" action="/api/onboarding" style="margin: 0;">
+                            <input type="hidden" name="step" value="{{ initial_step }}">
+                            <input type="hidden" name="answer" value="[Skipped]">
+                            <button type="submit" class="skip-button" style="padding: 12px 20px; border-radius: 8px; border: 2px solid var(--secondary-color); cursor: pointer; font-size: 14px; background-color: rgba(147, 112, 219, 0.1); color: var(--secondary-color); display: flex; align-items: center; font-weight: bold; transition: all 0.2s ease;">
+                                <i class="fas fa-step-forward" style="margin-right: 8px;"></i>
+                                Skip to next question
+                            </button>
+                        </form>
+                        <form method="GET" action="/event_search_page" style="margin: 0;">
+                            <button type="submit" class="skip-to-events-button" style="padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; background-color: var(--secondary-color); color: white; display: flex; align-items: center; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.2s ease;">
+                                <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                                Go directly to events
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-panel" style="background-color: rgba(65, 105, 225, 0.05); border: 1px solid #333;">
+            <div class="info-title" style="color: var(--primary-color); font-size: 18px; font-weight: 600; border-bottom: 1px solid #444; padding-bottom: 12px; margin-bottom: 20px;">
+                <i class="fas fa-lightbulb" style="margin-right: 8px;"></i>
+                Your Profile Summary
+            </div>
+            
+            <div class="info-section" style="margin-bottom: 25px; background-color: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px;">
+                <div class="section-title" style="color: #e0e0e0; font-size: 16px; margin-bottom: 12px; display: flex; align-items: center;">
+                    <i class="fas fa-user-circle" style="margin-right: 8px; color: var(--primary-color);"></i>
+                    <span>Business Profile</span>
+                </div>
+                <div class="user-profile" id="user-profile-container" style="color: #ddd;">
+                    <div class="user-profile-empty" id="user-profile-empty" style="color: #888; font-style: italic; padding: 10px;">Your business profile will appear here as you answer questions...</div>
+                    <!-- User profile items will be added here -->
+                </div>
+            </div>
+            
+            <div class="info-section" style="background-color: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px;">
+                <div class="section-title" style="color: #e0e0e0; font-size: 16px; margin-bottom: 12px; display: flex; align-items: center;">
+                    <i class="fas fa-tags" style="margin-right: 8px; color: var(--primary-color);"></i>
+                    <span>Identified Keywords</span>
+                </div>
+                <div id="keywords-cloud" style="line-height: 2.2;">
+                    <!-- Keywords will be added here dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="loading-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <div class="spinner-text">Searching for the best events to help you sell</div>
+    </div>
+</div>
+
+<script>
+    /******************************************
+     * GLOBAL VARIABLES
+     ******************************************/
+    // Initialize the current step from the template
+    let currentStep = "{{ initial_step }}";
+    console.log('Initial step:', currentStep);
+    let onboardingSteps = ['product', 'market', 'unique_value', 'team_differentiation', 'pitch_strategy', 'use_case'];
+    
+    /******************************************
+     * INITIALIZATION
+     ******************************************/
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM content loaded");
+
+        // Set up event listeners
+        const submitBtn = document.querySelector('.send-button');
+        if (submitBtn) {
+            console.log('Found submit button, adding event listener');
+            submitBtn.addEventListener('click', submitAnswer);
+        } else {
+            console.error('Submit button not found!');
+        }
+        
+        // Also allow pressing Enter to submit
+        document.getElementById('answer').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitAnswer();
+            }
+        });
+        
+        const imageUpload = document.getElementById('image-upload');
+        const imagePreview = document.getElementById('image-preview');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const removeImageBtn = document.getElementById('remove-image');
+        let uploadedImage = null;
+        
+        // Add event listeners for skip buttons
+        const skipBtn = document.getElementById('skip-btn');
+        const skipToEventsBtn = document.getElementById('skip-to-events-btn');
+        
+        if (skipBtn) {
+            skipBtn.addEventListener('click', skipCurrentQuestion);
+        }
+        
+        if (skipToEventsBtn) {
+            skipToEventsBtn.addEventListener('click', skipToEvents);
+        }
+        
+        // File input change handler
+        imageUpload.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                handleImageFile(file);
+            }
+        });
+        
+        // Handle image file processing
+        function handleImageFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                uploadedImage = file;
+                imagePreview.src = URL.createObjectURL(file);
+                imagePreviewContainer.style.display = 'block';
+            }
+        }
+        
+        // Remove image button handler
+        removeImageBtn.addEventListener('click', function() {
+            uploadedImage = null;
+            imagePreview.src = '';
+            imagePreviewContainer.style.display = 'none';
+            imageUpload.value = '';
+        });
+        
+        // Create a visual indicator for drag and drop
+        const dragIndicator = document.createElement('div');
+        dragIndicator.className = 'drag-indicator';
+        dragIndicator.innerHTML = '<div class="drag-text">Drop image here</div>';
+        dragIndicator.style.display = 'none';
+        document.querySelector('.chat-box').appendChild(dragIndicator);
+        
+        // Drag and drop handlers
+        const dragDropArea = document.querySelector('.chat-box');
+        
+        // Prevent default behavior for drag events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        // Highlight drop area when dragging over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            console.log('Highlighting drop area');
+            dragIndicator.style.display = 'flex';
+            dragDropArea.classList.add('drag-active');
+        }
+        
+        function unhighlight() {
+            console.log('Unhighlighting drop area');
+            dragIndicator.style.display = 'none';
+            dragDropArea.classList.remove('drag-active');
+        }
+        
+        // Handle dropped files
+        dragDropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            console.log('File dropped');
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            if (file && file.type.startsWith('image/')) {
+                console.log('Valid image file dropped:', file.name);
+                handleImageFile(file);
+            } else {
+                console.log('Invalid file type dropped');
+            }
+        }
+    });
+    
+    /******************************************
+     * SKIP FUNCTIONS
+     ******************************************/
+    // Skip the current question and move to the next one
+    async function skipCurrentQuestion() {
+        console.log("Skipping current question:", currentStep);
+        
+        try {
+            // Show loading state
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('loadingSpinner').style.display = 'flex';
+            
+            // Add a skipped message to the chat
+            addMessageToChat('user', '[Skipped]');
+            
+            // Submit an empty answer to skip this question
+            const formData = new FormData();
+            formData.append('step', currentStep);
+            formData.append('answer', '[Skipped]');
+            
+            const response = await fetch('/api/onboarding', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            console.log('Skip response from server:', data);
+            
+            // Hide loading state
+            document.getElementById('submit-btn').disabled = false;
+            document.getElementById('loadingSpinner').style.display = 'none';
+            
+            // Check if onboarding is completed
+            if (data.completed) {
+                console.log('Onboarding completed, redirecting to:', data.redirect || '/event_search_page');
+                // Show a message that we're redirecting
+                addMessageToChat('assistant', 'Thanks for completing the onboarding! Redirecting to event search page...');
+                // Redirect to the event search page
+                setTimeout(() => {
+                    window.location.href = data.redirect || '/event_search_page';
+                }, 2000);
+                return;
+            }
+            
+            // Display the next question
+            if (data.question) {
+                addMessageToChat('assistant', data.question);
+            }
+            
+            // Update step
+            if (data.step) {
+                currentStep = data.step;
+            }
+        } catch (error) {
+            console.error("Error skipping question:", error);
+            document.getElementById('submit-btn').disabled = false;
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+    }
+    
+    // Skip straight to the event search page
+    function skipToEvents() {
+        console.log("Skipping to events page");
+        // Use a direct assignment for immediate navigation
+        window.location.href = '/event_search_page';
+    }
+    
+    /******************************************
+     * ONBOARDING FLOW
+     ******************************************/
+    async function submitAnswer() {
+        const answer = document.getElementById('answer').value.trim();
+        if (!answer) return;
+
+        // Show loading state
+        document.getElementById('submit-btn').disabled = true;
+        document.getElementById('submit-btn').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        // Add user message to chat
+        addMessageToChat('user', answer);
+        
+        // Clear input
+        document.getElementById('answer').value = '';
+        
+        try {
+            const response = await fetch('/api/onboarding', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    step: currentStep,
+                    answer: answer
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update keywords if available
+                if (data.keywords && Array.isArray(data.keywords)) {
+                    updateKeywords(data.keywords);
+                }
+                
+                // Update user summary if available
+                if (data.user_summary) {
+                    displayUserSummary(data.user_summary);
+                }
+                
+                if (data.completed) {
+                    // Handle completion
+                    handleOnboardingComplete(data);
+                } else {
+                    // Update to next question
+                    currentStep = data.step;
+                    
+                    // Check if this is the event_interests step with option buttons
+                    if (data.option_buttons_html && currentStep === 'event_interests') {
+                        // Add the question to the chat
+                        addMessageToChat('assistant', data.question);
+                        
+                        // Add the option buttons to the chat
+                        const chatBody = document.getElementById('chat-body');
+                        const optionsDiv = document.createElement('div');
+                        optionsDiv.className = 'message ai-message';
+                        optionsDiv.innerHTML = data.option_buttons_html;
+                        chatBody.appendChild(optionsDiv);
+                        
+                        // Initialize the option buttons
+                        initializeOptionButtons();
+                        
+                        // Hide the regular input
+                        document.querySelector('.chat-input-container').style.display = 'none';
+                    } else {
+                        // Regular question, just add it to the chat
+                        addMessageToChat('assistant', data.question);
+                        
+                        // Show the regular input
+                        document.querySelector('.chat-input-container').style.display = 'block';
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            addMessageToChat('assistant', 'Sorry, something went wrong. Please try again.');
+        } finally {
+            // Reset button state
+            document.getElementById('submit-btn').disabled = false;
+            document.getElementById('submit-btn').innerHTML = 'Send';
+        }
+    }
+    
+    /******************************************
+     * CHAT INTERFACE
+     ******************************************/
+    // Add message to chat
+    function addMessageToChat(role, message) {
+        console.log(`Adding ${role} message:`, message);
+        
+        // Get the chat body
+        const chatBody = document.getElementById('chat-body');
+        if (!chatBody) {
+            console.error('Chat body element not found');
+            return;
+        }
+        
+        // Create the message div
+        const messageDiv = document.createElement('div');
+        messageDiv.className = role === 'user' ? 'message user-message' : 'message ai-message';
+        messageDiv.innerHTML = message;
+        
+        // Add the message to the chat
+        chatBody.appendChild(messageDiv);
+        
+        // Scroll to the bottom
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
+    // Initialize option buttons
+    function initializeOptionButtons() {
+        console.log('Initializing option buttons');
+        
+        // Initialize selected options array
+        window.selectedOptions = [];
+        
+        // Add click event listeners to option buttons
+        document.querySelectorAll('.option-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                
+                // Toggle selection
+                if (this.classList.contains('selected')) {
+                    // Remove from selected
+                    this.classList.remove('selected');
+                    this.style.backgroundColor = 'var(--dark-input)';
+                    this.style.borderColor = '#555';
+                    
+                    // Remove from array
+                    const index = window.selectedOptions.indexOf(value);
+                    if (index > -1) {
+                        window.selectedOptions.splice(index, 1);
+                    }
+                } else {
+                    // Add to selected
+                    this.classList.add('selected');
+                    this.style.backgroundColor = 'rgba(65, 105, 225, 0.2)';
+                    this.style.borderColor = 'var(--primary-color)';
+                    
+                    // Add to array
+                    window.selectedOptions.push(value);
+                }
+                
+                console.log('Selected options:', window.selectedOptions);
+            });
+        });
+        
+        // Add click event listener to submit button
+        document.getElementById('submit-options').addEventListener('click', function() {
+            if (window.selectedOptions.length === 0) {
+                alert('Please select at least one option');
+                return;
+            }
+            
+            // Format the selected options for display
+            const optionTexts = {
+                '1': 'Find more buyers/users of your product/service',
+                '2': 'Recruit talent for your team',
+                '3': 'Meet meaningful business partners',
+                '4': 'Connect with strategic investors'
+            };
+            
+            let displayText = window.selectedOptions.map(opt => optionTexts[opt]).join(', ');
+            
+            // Add the selection to the chat as a user message
+            const answer = window.selectedOptions.join(',');
+            
+            // Set the answer in the input field
+            document.getElementById('answer').value = answer;
+            
+            // Show the regular input container again
+            document.querySelector('.chat-input-container').style.display = 'block';
+            
+            // Submit the form
+            submitAnswer();
+        });
+    }
+    
+    /******************************************
+     * USER PROFILE & KEYWORDS
+     ******************************************/
+    // Display user summary in the UI
+    function displayUserSummary(summary) {
+        console.log('Displaying user summary:', summary);
+        
+        if (!summary) {
+            console.warn('No summary provided to displayUserSummary');
+            return;
+        }
+        
+        // Get the user profile container
+        const userProfileContainer = document.getElementById('user-profile-container');
+        if (!userProfileContainer) {
+            console.error('User profile container not found');
+            return;
+        }
+        
+        // Remove the empty state if it exists
+        const emptyState = document.getElementById('user-profile-empty');
+        if (emptyState) {
+            emptyState.style.display = 'none';
+        }
+        
+        // Clear existing profile items
+        const existingItems = userProfileContainer.querySelectorAll('.user-profile-item');
+        existingItems.forEach(item => item.remove());
+        
+        // Create a profile item for the user summary
+        const profileItem = document.createElement('div');
+        profileItem.className = 'user-profile-item';
+        profileItem.innerHTML = `<p>${summary}</p>`;
+        userProfileContainer.appendChild(profileItem);
+    }
+    
+    // Update keywords
+    function updateKeywords(keywords) {
+        console.log('Updating keywords:', keywords);
+        
+        // Limit to 15 keywords max
+        if (keywords && keywords.length > 15) {
+            keywords = keywords.slice(0, 15);
+            console.log('Limited keywords to 15:', keywords);
+        }
+        
+        const keywordsCloud = document.getElementById('keywords-cloud');
+        if (!keywordsCloud) {
+            console.error('Keywords cloud element not found');
+            return;
+        }
+        
+        // Clear existing keywords
+        keywordsCloud.innerHTML = '';
+        
+        // Add keywords to the cloud with enhanced styling
+        if (keywords && keywords.length > 0) {
+            keywords.forEach(keyword => {
+                const keywordSpan = document.createElement('div');
+                keywordSpan.className = 'tag';
+                keywordSpan.textContent = keyword;
+                
+                // Randomly assign some keywords special classes for visual variety
+                const random = Math.random();
+                if (random < 0.25) {
+                    keywordSpan.classList.add('b2b');
+                } else if (random < 0.5) {
+                    keywordSpan.classList.add('market');
+                } else if (random < 0.75) {
+                    keywordSpan.classList.add('company');
+                } else {
+                    keywordSpan.classList.add('active');
+                }
+                
+                keywordsCloud.appendChild(keywordSpan);
+            });
+        } else {
+            keywordsCloud.innerHTML = '<div class="user-profile-empty">Keywords will appear as you answer questions...</div>';
+        }
+    }
+    
+    // Update the keywords cloud with the provided keywords
+    function updateKeywordsCloud(keywords) {
+        const keywordsCloud = document.getElementById('keywords-cloud');
+        if (!keywordsCloud) return;
+        
+        // Clear existing keywords
+        keywordsCloud.innerHTML = '';
+        
+        if (!keywords || keywords.length === 0) {
+            keywordsCloud.innerHTML = '<div class="empty-keywords">No keywords generated yet</div>';
+            return;
+        }
+        
+        // Add each keyword as a badge
+        keywords.forEach(keyword => {
+            const keywordBadge = document.createElement('span');
+            keywordBadge.className = 'keyword-badge';
+            keywordBadge.textContent = keyword;
+            keywordsCloud.appendChild(keywordBadge);
+        });
+    }
+
+    // Update the user profile with the provided data
+    function updateUserProfile(data) {
+        const userProfileContainer = document.getElementById('user-profile-container');
+        const userProfileEmpty = document.getElementById('user-profile-empty');
+        
+        if (!userProfileContainer || !userProfileEmpty) return;
+        
+        // If we have a user summary, display it
+        if (data.user_summary) {
+            userProfileEmpty.style.display = 'none';
+            
+            // Clear any existing profile items
+            const existingItems = userProfileContainer.querySelectorAll('.user-profile-item');
+            existingItems.forEach(item => item.remove());
+            
+            // Create a profile item for the user summary
+            const profileItem = document.createElement('div');
+            profileItem.className = 'user-profile-item';
+            profileItem.innerHTML = `<p>${data.user_summary}</p>`;
+            userProfileContainer.appendChild(profileItem);
+        } else {
+            userProfileEmpty.style.display = 'block';
+        }
+    }
+    
+    // Handle onboarding completion
+    function handleOnboardingComplete(data) {
+        console.log('Onboarding complete with data:', data);
+        
+        // Update the user profile with final information
+        updateUserProfile(data);
+        
+        // Update keywords cloud with final keywords
+        updateKeywordsCloud(data.keywords || []);
+        
+        // If there's a redirect URL, navigate to it after a short delay
+        if (data.redirect) {
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 500); // Short delay to allow the user to see the completion message
+        }
+    }
+</script>
+{% endblock %}

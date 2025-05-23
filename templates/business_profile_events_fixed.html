@@ -1,0 +1,3383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* Animation for search log entries */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #4f86f7, #ab68ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+        }
+        
+        .search-container, .events-container, .event-card {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        /* Button styles for new features */
+        .tell-me-more-btn {
+            background-color: #3182ce;
+            color: #e0e0e0;
+            border: 1px solid #2c5282;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-right: 5px;
+        }
+        
+        .network-btn {
+            background-color: #805ad5;
+            color: #e0e0e0;
+            border: 1px solid #553c9a;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .tell-me-more-btn:hover {
+            background-color: #2b6cb0;
+            color: white;
+        }
+        
+        .network-btn:hover {
+            background-color: #6b46c1;
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #333;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            line-height: 1.5;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        input[type="text"]:focus, textarea:focus {
+            border-color: #4fd1c5;
+            box-shadow: 0 0 0 2px rgba(79, 209, 197, 0.3);
+            outline: none;
+        }
+        
+        textarea {
+            height: 120px;
+            resize: vertical;
+            font-family: 'Inter', sans-serif;
+            padding: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #e0e0e0;
+            font-size: 16px;
+        }
+        
+        .field-hint {
+            font-size: 14px;
+            color: #888;
+            margin-top: 5px;
+            margin-bottom: 0;
+            font-style: italic;
+        }
+        
+        .matching-keyword {
+            background-color: #e0f7fa;
+            color: #006064;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-right: 5px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        
+        .matching-keyword-static {
+            background-color: #e0f7fa;
+            color: #006064;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+            font-size: 0.8rem;
+        }
+        
+        button {
+            background-color: #4fd1c5;
+            color: #121212;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #38b2ac;
+        }
+        
+        .keywords-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .keyword {
+            background-color: #2a2a2a;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .keyword:hover {
+            background-color: #4fd1c5;
+            color: #121212;
+        }
+        
+        .keyword.selected {
+            background-color: #4fd1c5;
+            color: #121212;
+        }
+        
+        #progressContainer {
+            margin-top: 30px;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #2a2a2a;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #4fd1c5;
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+            background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+            background-size: 1rem 1rem;
+            animation: progress-bar-stripes 1s linear infinite;
+        }
+        
+        @keyframes progress-bar-stripes {
+            from { background-position: 1rem 0; }
+            to { background-position: 0 0; }
+        }
+        
+        .progress-status {
+            font-size: 14px;
+            color: #b3b3b3;
+            margin-bottom: 15px;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .progress-notification {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .events-container {
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        .notification-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        
+        .notification-button:hover {
+            background-color: #0069d9;
+        }
+        
+        .events-container {
+            display: none;
+        }
+        
+        .event-card {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .event-title {
+            margin: 0;
+            color: #4fd1c5;
+        }
+        
+        .event-date, .event-location {
+            color: #aaa;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .event-description {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .event-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+        
+        .event-score {
+            display: flex;
+            align-items: center;
+            background-color: #2a2a2a;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .score-value {
+            font-weight: bold;
+            margin-left: 5px;
+            color: #4fd1c5;
+        }
+        
+        .matching-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .matching-keyword {
+            background-color: #2a2a2a;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #2a2a2a;
+            border-radius: 5px;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: #4fd1c5;
+        }
+        
+        .section-content {
+            padding: 10px;
+            background-color: #252525;
+            border-radius: 5px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .section-content ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .section-content li {
+            margin-bottom: 12px;
+        }
+        
+        .speaker-links, .starter-link {
+            margin-top: 4px;
+            font-size: 0.9em;
+        }
+        
+        .speaker-links a, .starter-link a {
+            color: #4a6fa5;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .speaker-links a:hover, .starter-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .speaker-reason {
+            font-style: italic;
+            color: #666;
+            margin-top: 4px;
+            font-size: 0.9em;
+        }
+        
+        .alert {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            color: #ff6b6b;
+        }
+        
+        /* Removed user-type-selector styles as requested */
+        
+        .conversation-starters {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        
+        .conversation-starters h4 {
+            margin-top: 0;
+            color: #4fd1c5;
+        }
+        
+        .conversation-starters ul {
+            padding-left: 20px;
+        }
+        
+        .conversation-starters li {
+            margin-bottom: 5px;
+        }
+        
+        .event-link {
+            color: #4fd1c5;
+            text-decoration: none;
+        }
+        
+        .event-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Event actions styles */
+        .event-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .event-link-btn, .bookmark-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .event-link-btn {
+            background-color: #4fd1c5;
+            color: #121212;
+            text-decoration: none;
+        }
+        
+        .event-link-btn:hover {
+            background-color: #38b2ac;
+            text-decoration: none;
+        }
+        
+        .bookmark-btn {
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+        
+        .bookmark-btn:hover {
+            background-color: #3a3a3a;
+            color: #4fd1c5;
+        }
+        
+        /* Event action buttons styles */
+        .event-action-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .event-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+            gap: 8px;
+            min-width: 150px;
+        }
+        
+        .event-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .event-action-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .event-action-btn i {
+            font-size: 16px;
+        }
+        
+        /* Save Event button - teal */
+        .event-action-btn:nth-of-type(1) {
+            background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+        }
+        
+        .event-action-btn:nth-of-type(1):hover {
+            background: linear-gradient(135deg, #319795 0%, #2c7a7b 100%);
+        }
+        
+        /* Deep Research button - purple */
+        .deep-research-btn {
+            background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%);
+        }
+        
+        .deep-research-btn:hover {
+            background: linear-gradient(135deg, #6b46c1 0%, #553c9a 100%);
+        }
+        
+        /* Auto Register button - orange */
+        .auto-register-btn {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+        
+        .auto-register-btn:hover {
+            background: linear-gradient(135deg, #dd6b20 0%, #c05621 100%);
+        }
+        
+        /* Network button - blue */
+        .network-btn-small {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        }
+        
+        .network-btn-small:hover {
+            background: linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%);
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+        }
+        
+        .modal-content {
+            background-color: #1e1e1e;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #fff;
+        }
+        
+        .modal-form {
+            margin-top: 20px;
+        }
+        
+        .modal-form input[type="text"],
+        .modal-form input[type="email"],
+        .modal-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #333;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+        }
+        
+        .modal-form textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .form-section {
+            margin-bottom: 20px;
+        }
+        
+        .form-section h4 {
+            margin-bottom: 10px;
+            color: #4fd1c5;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+        
+        .checkbox-section {
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkbox-section input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .modal-form button {
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        .registration-status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .registration-success {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .registration-error {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+        
+        /* Trade Show Specific Styles */
+        .trade-show-card {
+            border-left: 4px solid #ffc107;
+            background-color: #1e1e1e;
+        }
+        
+        .trade-show-badge {
+            display: inline-block;
+            background-color: #ffc107;
+            color: #121212;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        
+        .trade-show-section {
+            background-color: #2d2d1e;
+        }
+        
+        .trade-show-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .trade-show-keyword {
+            background-color: #3a3a2a;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #e6e6b8;
+        }
+        
+        /* Search logs styles */
+        .search-logs-container {
+            margin-top: 20px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .search-logs-container h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #4fd1c5;
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-logs-container h3::before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #4fd1c5;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+        
+        .search-logs {
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #b3b3b3;
+            background-color: #222;
+            padding: 10px;
+            border-radius: 5px;
+            flex-grow: 1;
+            scrollbar-width: thin;
+            scrollbar-color: #4fd1c5 #222;
+        }
+        
+        .search-logs::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .search-logs::-webkit-scrollbar-track {
+            background: #222;
+        }
+        
+        .search-logs::-webkit-scrollbar-thumb {
+            background-color: #4fd1c5;
+            border-radius: 4px;
+        }
+        
+        .search-log-entry {
+            margin-bottom: 5px;
+            padding: 3px 0;
+            border-bottom: 1px solid #333;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .search-log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        /* Enhanced Tab styles for better visibility */
+        .events-tabs {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tabs-header {
+            display: flex;
+            background-color: #2a2a2a;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        
+        .tab-button {
+            padding: 18px 24px;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            flex: 1;
+            transition: all 0.3s;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+            position: relative;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-button:hover {
+            background-color: #333;
+        }
+        
+        .tab-button.active {
+            background-color: #4fd1c5;
+            color: #121212;
+            border-bottom: 3px solid #38a89d;
+        }
+        
+        .tabs-content {
+            padding: 20px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .no-events-message {
+            text-align: center;
+            padding: 30px;
+            color: #aaa;
+        }
+        
+        .search-status-notification {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        .modal-content {
+            background-color: #1e1e1e;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: #fff;
+        }
+        
+        .modal-header {
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: #f8fafc;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-footer {
+            padding-top: 15px;
+            border-top: 1px solid #333;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .modal-btn {
+            padding: 8px 16px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+        }
+        
+        .modal-btn-primary {
+            background-color: #3182ce;
+            color: white;
+        }
+        
+        .modal-btn-secondary {
+            background-color: #4a5568;
+            color: white;
+        }
+        
+        .modal-btn-premium {
+            background-color: #805ad5;
+            color: white;
+        }
+        
+        .modal-btn-premium:hover {
+            background-color: #6b46c1;
+        }
+        
+        /* Upgrade message styles */
+        .upgrade-message {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .upgrade-message h3 {
+            color: #38b2ac;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .upgrade-message p {
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+        
+        .upgrade-feature {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            text-align: left;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .upgrade-feature:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .upgrade-feature i {
+            font-size: 2rem;
+            margin-right: 15px;
+            color: #4fd1c5;
+        }
+        
+        .upgrade-feature h4 {
+            color: #e2e8f0;
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+        
+        .upgrade-feature p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #cbd5e0;
+        }
+        
+        .networking-goals {
+            margin-bottom: 15px;
+        }
+        
+        .goal-specific-questions {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 3px solid #4fd1c5;
+            transition: all 0.3s ease;
+        }
+        
+        .goal-specific-questions p strong {
+            color: #4fd1c5;
+        }
+        
+        .networking-goals div {
+            margin-bottom: 8px;
+        }
+        
+        .networking-goals label {
+            margin-left: 8px;
+            cursor: pointer;
+        }
+        
+        .small-text {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .target-events-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .tell-me-more-btn-top {
+            background: linear-gradient(135deg, #4fd1c5 0%, #38a89d 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .tell-me-more-btn-top:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(79, 209, 197, 0.3);
+        }
+        
+        .network-btn {
+            background: linear-gradient(135deg, #553c9a 0%, #805ad5 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            margin-left: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .network-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(128, 90, 213, 0.3);
+        }
+        
+        .research-btn {
+            background: linear-gradient(135deg, #c05621 0%, #ed8936 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            margin-left: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .research-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(237, 137, 54, 0.3);
+        }
+        
+        .research-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .research-features {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .research-feature {
+            background-color: #2d3748;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .research-feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .research-feature h3 {
+            color: #ed8936;
+            margin-top: 0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .research-feature p {
+            margin: 0;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .star-btn {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 0 5px;
+            transition: color 0.3s;
+        }
+        
+        .star-btn:hover {
+            color: #ffc107;
+        }
+        
+        .star-btn.active {
+            color: #ffc107;
+        }
+        
+        .keywords-container {
+            margin-bottom: 30px;
+        }
+        
+        .keywords-container h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #e2e8f0;
+        }
+        
+        .keyword {
+            display: inline-block;
+            background-color: rgba(49, 130, 206, 0.1);
+            border: 1px solid rgba(49, 130, 206, 0.4);
+            color: #63b3ed;
+            padding: 4px 10px;
+            margin: 4px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .target-event-keyword {
+            background-color: rgba(72, 187, 120, 0.1);
+            border: 1px solid rgba(72, 187, 120, 0.4);
+            color: #68d391;
+        }
+        
+        .highlighted-entity {
+            background-color: rgba(236, 201, 75, 0.2);
+            border-bottom: 1px solid rgba(236, 201, 75, 0.7);
+            padding: 0 2px;
+            color: #ecc94b;
+            font-weight: 500;
+        }
+        
+        mark, .mark {
+            background-color: rgba(79, 209, 197, 0.2);
+            border-bottom: 1px solid rgba(79, 209, 197, 0.7);
+            padding: 0 2px;
+            color: #4fd1c5;
+            font-weight: 500;
+        }
+        
+        mark-user, .mark-user {
+            background-color: rgba(72, 187, 120, 0.2);
+            border-bottom: 1px solid rgba(72, 187, 120, 0.7);
+            padding: 0 2px;
+            color: #48bb78;
+            font-weight: 500;
+        }
+        
+        mark-target, .mark-target {
+            background-color: rgba(236, 201, 75, 0.2);
+            border-bottom: 1px solid rgba(236, 201, 75, 0.7);
+            padding: 0 2px;
+            color: #ecc94b;
+            font-weight: 500;
+        }
+        
+        /* Premium features styling */
+        .premium-button {
+            background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .premium-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #38b2ac 0%, #2b6cb0 100%);
+        }
+        
+        .premium-modal-content {
+            max-width: 900px;
+            width: 90%;
+        }
+        
+        .premium-header {
+            background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 100%);
+            color: white;
+            padding: 20px;
+        }
+        
+        .premium-intro {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .premium-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .premium-category {
+            background-color: #2d3748;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .premium-category h3 {
+            color: #4fd1c5;
+            margin-top: 0;
+            border-bottom: 1px solid #4a5568;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .premium-category ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .premium-category li {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .feature-name {
+            color: #ecc94b;
+            font-weight: bold;
+        }
+        
+        .pricing-tiers {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        
+        .pricing-tier {
+            background-color: #2d3748;
+            border-radius: 8px;
+            padding: 25px;
+            width: 250px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .pricing-tier:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .featured-tier {
+            border: 2px solid #4fd1c5;
+            transform: scale(1.05);
+        }
+        
+        .featured-tier:hover {
+            transform: scale(1.05) translateY(-5px);
+        }
+        
+        .most-popular {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .pricing-tier h3 {
+            text-align: center;
+            margin-top: 10px;
+            color: white;
+        }
+        
+        .price {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4fd1c5;
+            margin: 15px 0;
+        }
+        
+        .price span {
+            font-size: 1rem;
+            color: #a0aec0;
+            font-weight: normal;
+        }
+        
+        .pricing-tier ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 30px;
+        }
+        
+        .pricing-tier li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .pricing-tier li:before {
+            content: '\2713';
+            color: #4fd1c5;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        .tier-button {
+            display: block;
+            width: 100%;
+            background-color: #4a5568;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tier-button:hover {
+            background-color: #718096;
+        }
+        
+        .featured-button {
+            background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 100%);
+        }
+        
+        .featured-button:hover {
+            background: linear-gradient(135deg, #38b2ac 0%, #2b6cb0 100%);
+        }
+        
+        .premium-cta {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .premium-cta:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .premium-cta i {
+            font-size: 1.3rem;
+        }
+        
+        .event-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .auto-register-btn {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .auto-register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+        
+        .tell-me-more-btn-top {
+            background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tell-me-more-btn-top:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #38b2ac 0%, #2b6cb0 100%);
+        }
+        
+        .network-option {
+            background-color: #2d3748;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .network-option:hover {
+            background-color: #3a4a61;
+        }
+        
+        .network-option h3 {
+            margin-top: 0;
+            color: #f8fafc;
+        }
+        
+        .premium-badge {
+            display: inline-block;
+            background-color: #805ad5;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 10px;
+        }
+        
+        .floating-tell-me-more {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .floating-tell-me-more:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .network-btn {
+            background: linear-gradient(135deg, #805ad5 0%, #3182ce 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        .network-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #6b46c1 0%, #2c5282 100%);
+        }
+        
+        .network-btn-small {
+            background: linear-gradient(135deg, #805ad5 0%, #3182ce 100%);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .network-btn-small:hover {
+            background: linear-gradient(135deg, #6b46c1 0%, #2c5282 100%);
+        }
+        
+        .target-personas {
+            font-weight: bold;
+            color: #f472b6;
+        }
+        
+        .question-form {
+            margin-top: 15px;
+        }
+        
+        .question-form textarea {
+            width: 100%;
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+            color: #f8fafc;
+            padding: 10px;
+            border-radius: 5px;
+            min-height: 100px;
+            margin-bottom: 15px;
+        }
+        
+        /* Highlighting for important entities */
+        .highlight-tech {
+            color: #4ade80; /* green */
+            font-weight: bold;
+        }
+        
+        .highlight-company {
+            color: #f472b6; /* pink */
+            font-weight: bold;
+        }
+        
+        .highlight-product {
+            color: #60a5fa; /* blue */
+            font-weight: bold;
+        }
+        
+        .highlight-person {
+            color: #fb923c; /* orange */
+            font-weight: bold;
+        }
+        
+        mark-event, .mark-event {
+            color: #f97316; /* bright orange */
+            font-weight: bold;
+            font-size: 1.1em;
+            text-decoration: underline;
+        }
+        
+        mark-persona, .mark-persona {
+            color: #ec4899; /* pink */
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Network AI</h1>
+        
+        <div class="search-container">
+            <form id="searchForm">
+                <!-- Removed user type selector as requested -->
+                
+                <!-- Target Events Section -->
+                <div class="form-group target-events-section">
+                    <div class="target-events-header">
+                        <label>We found events based on these themes matching your profile</label>
+                        <button type="button" class="tell-me-more-btn-top" onclick="showTellMeMoreModal('profile', 'Profile')" style="font-size: 1.2rem; padding: 12px 25px;">
+                            <i class="fas fa-info-circle"></i> Tell Me More About You
+                        </button>
+                    </div>
+                    <div id="targetEventsText" class="target-events-content" style="max-height: none; padding: 15px; border: 1px solid #334155; border-radius: 8px; margin-top: 10px; background-color: #1e293b; white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">
+                        {{ target_events|safe }}
+                    </div>
+                    <button type="button" class="network-btn" onclick="showNetworkModal()">
+                        <i class="fas fa-users"></i> Let me Network
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="userSummary">About You</label>
+                    <textarea id="userSummary" placeholder="Tell us about yourself, your company, or what you're looking for..." rows="6">{{ user_summary }}</textarea>
+                    <p class="field-hint">Describe your business, target audience, and what you're looking to achieve.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="keywords">Keywords</label>
+                    <div id="keywordsCloud" class="keywords-cloud"></div>
+                    <input type="hidden" id="keywords" value="{{ ','.join(keywords) if keywords else '' }}">
+                    <p class="field-hint">These keywords will be used to find relevant events. Click to toggle selection.</p>
+                </div>
+                
+                <input type="hidden" id="location" name="location" value="sf bay area">
+                
+                <button type="submit">Find Events</button>
+            </form>
+            
+            <div id="progressContainer" style="display: none; margin-top: 20px; background-color: #2a2a2a; border-radius: 8px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="progress-status" id="progressStatus">Searching...</div>
+                <div class="progress-notification">
+                    <p><strong>We're cooking up something special!</strong></p>
+                    <p>Our AI is analyzing events and generating personalized insights. This may take up to a minute.</p>
+                    <button id="notificationButton" class="notification-button">Notify me when ready</button>
+                </div>
+                
+                <!-- Search log display area -->
+                <div class="search-logs-container">
+                    <h3>Search Progress</h3>
+                    <div id="searchLogs" class="search-logs" style="max-height: 300px; overflow-y: auto; padding: 15px; margin-top: 15px; background-color: #1a1a1a; border: 1px solid #333; border-radius: 5px; font-family: monospace; font-size: 14px; line-height: 1.5;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="events-container" id="eventsContainer"></div>
+        
+        <script>
+            // Web Push Notification functionality
+            let notificationPermission = false;
+            
+            // Function to request notification permission
+            async function requestNotificationPermission() {
+                if (!('Notification' in window)) {
+                    alert('This browser does not support desktop notifications');
+                    return false;
+                }
+                
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        notificationPermission = true;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Error requesting notification permission:', error);
+                    return false;
+                }
+            }
+            
+            // Function to show notification
+            function showNotification(title, body) {
+                if (notificationPermission) {
+                    const notification = new Notification(title, {
+                        body: body,
+                        icon: '/static/images/logo.png' // Replace with your logo path
+                    });
+                    
+                    notification.onclick = function() {
+                        window.focus();
+                        this.close();
+                    };
+                }
+            }
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchForm = document.getElementById('searchForm');
+                const userSummaryInput = document.getElementById('userSummary');
+                const keywordsInput = document.getElementById('keywords');
+                const locationInput = document.getElementById('location');
+                const keywordsCloud = document.getElementById('keywordsCloud');
+                const progressContainer = document.getElementById('progressContainer');
+                const progressBar = document.getElementById('progressBar');
+                const progressStatus = document.getElementById('progressStatus');
+                const eventsContainer = document.getElementById('eventsContainer');
+                
+                let userType = 'founder'; // Default user type
+                
+                // Add notification button functionality
+                const notificationButton = document.getElementById('notificationButton');
+                notificationButton.addEventListener('click', async function() {
+                    const permissionGranted = await requestNotificationPermission();
+                    if (permissionGranted) {
+                        this.textContent = 'You will be notified when ready';
+                        this.disabled = true;
+                        this.style.backgroundColor = '#6c757d';
+                    } else {
+                        this.textContent = 'Notification permission denied';
+                    }
+                });
+                
+                searchForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const userSummary = userSummaryInput.value.trim();
+                    const keywords = keywordsInput.value.trim();
+                    const location = locationInput.value.trim();
+                    
+                    if (!keywords) {
+                        alert('Please enter at least one keyword');
+                        return;
+                    }
+                    
+                    // Clear previous search logs
+                    const searchLogs = document.getElementById('searchLogs');
+                    searchLogs.innerHTML = '';
+                    
+                    // Show progress container with animation
+                    progressContainer.style.opacity = '0';
+                    progressContainer.style.display = 'block';
+                    setTimeout(() => {
+                        progressContainer.style.opacity = '1';
+                        progressContainer.style.transition = 'opacity 0.3s ease-in-out';
+                    }, 50);
+                    
+                    // Hide events container
+                    eventsContainer.style.display = 'none';
+                    eventsContainer.innerHTML = '';
+                    
+                    // Scroll to progress container
+                    setTimeout(() => {
+                        progressContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                    
+                    // Get the keywords array
+                    const keywordsArray = keywords.split(',').map(k => k.trim());
+                    
+                    updateProgress(10, 'Understanding you and your product...');
+                    addLogEntry(`Starting search with keywords: ${keywordsArray.join(', ')}`);
+                    addLogEntry(`User type: ${userType}`);
+                    
+                    // Set up event source for real-time updates with reconnection logic
+                    let eventSource;
+                    let connectionAttempts = 0;
+                    const maxConnectionAttempts = 10; // Increased from 3 to 10
+                    let lastHeartbeatTime = Date.now();
+                    let heartbeatTimeout = 8000; // Increased from 5000 to 8000 ms
+                    let heartbeatInterval;
+                    let isReconnecting = false;
+                    
+                    function setupEventSource() {
+                        // Close existing connection if any
+                        if (eventSource) {
+                            eventSource.close();
+                        }
+                        
+                        console.log('Setting up EventSource connection');
+                        eventSource = new EventSource('/api/search_events/progress');
+                        
+                        // Add event listeners for the EventSource
+                        eventSource.onopen = function() {
+                            console.log('EventSource connection established');
+                            addLogEntry('Connection established for real-time updates');
+                            connectionAttempts = 0; // Reset connection attempts on successful connection
+                            lastHeartbeatTime = Date.now(); // Reset heartbeat timer
+                            isReconnecting = false;
+                            
+                            // Hide reconnect button if it exists
+                            const reconnectBtn = document.getElementById('reconnectButton');
+                            if (reconnectBtn) {
+                                reconnectBtn.style.display = 'none';
+                            }
+                        };
+                        
+                        eventSource.onmessage = function(event) {
+                            try {
+                                const data = JSON.parse(event.data);
+                                console.log('Received SSE update:', data);
+                                
+                                // Update last heartbeat time for any message
+                                lastHeartbeatTime = Date.now();
+                                
+                                if (data.type === 'heartbeat') {
+                                    console.log('Heartbeat received at', new Date().toLocaleTimeString());
+                                    // No need to display heartbeats to the user
+                                } else if (data.type === 'log') {
+                                    addLogEntry(data.message);
+                                } else if (data.type === 'progress') {
+                                    updateProgress(data.percent || 0, data.status || 'Processing...');
+                                } else if (data.type === 'error') {
+                                    addLogEntry('Error: ' + data.message);
+                                    updateProgress(100, 'Error occurred');
+                                    eventSource.close();
+                                    showReconnectButton();
+                                } else if (data.type === 'warning') {
+                                    addLogEntry('Warning: ' + data.message);
+                                    // Don't close on warnings, but display them
+                                } else if (data.type === 'complete') {
+                                    addLogEntry('Search complete!');
+                                    updateProgress(100, 'Done!');
+                                    // Safely close the connection when complete
+                                    eventSource.close();
+                                }
+                            } catch (e) {
+                                console.error('Error parsing SSE data:', e, event.data);
+                                addLogEntry('Error processing update');
+                            }
+                        };
+                        
+                        eventSource.onerror = function(error) {
+                            console.error('EventSource error:', error);
+                            addLogEntry('Connection error. Attempting to reconnect...');
+                            
+                            // Close the current connection
+                            eventSource.close();
+                            
+                            // Attempt to reconnect if we haven't exceeded max attempts
+                            if (connectionAttempts < maxConnectionAttempts && !isReconnecting) {
+                                isReconnecting = true;
+                                connectionAttempts++;
+                                addLogEntry(`Reconnection attempt ${connectionAttempts} of ${maxConnectionAttempts}...`);
+                                setTimeout(setupEventSource, 2000); // Wait 2 seconds before reconnecting
+                            } else if (connectionAttempts >= maxConnectionAttempts) {
+                                addLogEntry('Maximum reconnection attempts reached.');
+                                showReconnectButton();
+                            }
+                        };
+                    }
+                    
+                    // Function to show reconnect button
+                    function showReconnectButton() {
+                        // Check if button already exists
+                        let reconnectBtn = document.getElementById('reconnectButton');
+                        
+                        if (!reconnectBtn) {
+                            // Create reconnect button
+                            reconnectBtn = document.createElement('button');
+                            reconnectBtn.id = 'reconnectButton';
+                            reconnectBtn.className = 'notification-button';
+                            reconnectBtn.style.backgroundColor = '#4CAF50';
+                            reconnectBtn.style.marginTop = '15px';
+                            reconnectBtn.textContent = 'Reconnect';
+                            reconnectBtn.onclick = function() {
+                                connectionAttempts = 0;
+                                isReconnecting = false;
+                                setupEventSource();
+                                addLogEntry('Manually reconnecting...');
+                                this.style.display = 'none';
+                            };
+                            
+                            // Add button to the search logs container
+                            const searchLogsContainer = document.querySelector('.search-logs-container');
+                            if (searchLogsContainer) {
+                                searchLogsContainer.appendChild(reconnectBtn);
+                            }
+                        } else {
+                            reconnectBtn.style.display = 'block';
+                        }
+                    }
+                    
+                    // Set up heartbeat check interval
+                    function setupHeartbeatCheck() {
+                        // Clear existing interval if any
+                        if (heartbeatInterval) {
+                            clearInterval(heartbeatInterval);
+                        }
+                        
+                        heartbeatInterval = setInterval(function() {
+                            const now = Date.now();
+                            if (now - lastHeartbeatTime > heartbeatTimeout && !isReconnecting) {
+                                console.warn('No heartbeat received for', (now - lastHeartbeatTime) / 1000, 'seconds');
+                                addLogEntry('Analyzing events and keywords to find the best matches for your business...');
+                                
+                                // Try to reconnect if we haven't exceeded max attempts
+                                if (connectionAttempts < maxConnectionAttempts) {
+                                    isReconnecting = true;
+                                    connectionAttempts++;
+                                    setupEventSource();
+                                } else {
+                                    clearInterval(heartbeatInterval);
+                                    addLogEntry('Maximum reconnection attempts reached.');
+                                    showReconnectButton();
+                                }
+                            }
+                        }, 3000); // Check every 3 seconds (increased from 2)
+                    }
+                    
+                    // Clean up function for page unload
+                    window.addEventListener('beforeunload', function() {
+                        if (eventSource) {
+                            eventSource.close();
+                        }
+                        if (heartbeatInterval) {
+                            clearInterval(heartbeatInterval);
+                        }
+                    });
+                    
+                    // Initial setup
+                    setupEventSource();
+                    setupHeartbeatCheck();
+                    
+                    try {
+                        updateProgress(20, 'Searching entire world of events tailored for your need...');
+                        addLogEntry('Searching for events that match your keywords...');
+
+                        try {
+                            // Use the correct API endpoint
+                            const response = await fetch('/api/search_events', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    user_summary: userSummary,
+                                    keywords: keywordsArray,
+                                    location: location,
+                                    user_type: userType,
+                                    target_events: document.getElementById('targetEventsText')?.textContent || ''
+                                })
+                            });
+                            
+                            if (heartbeatInterval) {
+                                clearInterval(heartbeatInterval);
+                            }
+                            
+                            updateProgress(60, 'Processing results...');
+                            addLogEntry('Processing search results...');
+                            
+                            const data = await response.json();
+                            
+                            if (!data.success) {
+                                throw new Error(data.error || 'Unknown error');
+                            }
+                            
+                            updateProgress(80, 'Preparing event recommendations...');
+                            
+                            const tradeShows = data.trade_shows || [];
+                            const localEvents = data.local_events || [];
+                            
+                            if (tradeShows.length === 0 && localEvents.length === 0) {
+                                eventsContainer.innerHTML = '<div class="search-container"><div class="alert">No events found matching your criteria. Try different keywords or location.</div></div>';
+                                eventsContainer.style.display = 'block';
+                                return;
+                            }
+                            
+                            // Create container with tabs for both event types
+                            let eventsHTML = `
+                                <div class="events-tabs">
+                                    <div class="tabs-header">
+                                        <div class="tab-button active" onclick="showTab('trade-shows-tab')">Trade Shows (${tradeShows.length})</div>
+                                        <div class="tab-button" onclick="showTab('local-events-tab')">Local Events (${localEvents.length})</div>
+                                    </div>
+                                    <div class="tabs-content">
+                            `;
+                            
+                            // Add trade shows tab
+                            eventsHTML += `
+                                <div id="trade-shows-tab" class="tab-content active">
+                                    <div class="event-section trade-shows-section">
+                            `;
+                            
+                            if (tradeShows.length > 0) {
+                                // Add each trade show
+                                tradeShows.forEach(event => {
+                                    eventsHTML += createEventCard(event, userType, true);
+                                });
+                            } else {
+                                eventsHTML += `
+                                    <div class="no-events-message">
+                                        <p>No trade shows found matching your criteria.</p>
+                                    </div>
+                                `;
+                            }
+                            
+                            eventsHTML += `
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Add local events tab
+                            eventsHTML += `
+                                <div id="local-events-tab" class="tab-content">
+                                    <div class="event-section local-events-section">
+                            `;
+                            
+                            if (localEvents.length > 0) {
+                                // Add each local event
+                                localEvents.forEach(event => {
+                                    eventsHTML += createEventCard(event, userType, false);
+                                });
+                            } else {
+                                eventsHTML += `
+                                    <div class="no-events-message">
+                                        <p>No local events found matching your criteria.</p>
+                                    </div>
+                                `;
+                            }
+                            
+                            eventsHTML += `
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Add notification when trade shows are found but local events search is still ongoing
+                            if (tradeShows.length > 0 && localEvents.length === 0) {
+                                eventsHTML += `
+                                    <div class="search-status-notification">
+                                        <p><strong>Local events search is still ongoing!</strong></p>
+                                        <p>We've found trade shows that match your criteria. Local events search is still in progress - check back soon for more results.</p>
+                                    </div>
+                                `;
+                            }
+                            
+                            // Close tabs container
+                            eventsHTML += `
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Update the container with all events
+                            eventsContainer.innerHTML = eventsHTML;
+                            eventsContainer.style.display = 'block';
+                            
+                            // Show the upgrade modal after a short delay
+                            setTimeout(() => {
+                                showUpgradeModal();
+                            }, 1500);
+                            
+                            // Add tab switching function to global scope
+                            window.showTab = function(tabId) {
+                                // Hide all tab contents
+                                document.querySelectorAll('.tab-content').forEach(tab => {
+                                    tab.classList.remove('active');
+                                });
+                                
+                                // Show selected tab content
+                                document.getElementById(tabId).classList.add('active');
+                                
+                                // Update tab buttons
+                                document.querySelectorAll('.tab-button').forEach(button => {
+                                    button.classList.remove('active');
+                                });
+                                
+                                // Find and activate the button that corresponds to this tab
+                                const tabIndex = tabId === 'trade-shows-tab' ? 0 : 1;
+                                document.querySelectorAll('.tab-button')[tabIndex].classList.add('active');
+                            };
+                            
+                            // Show notification if permission was granted
+                            if (notificationPermission) {
+                                const totalEvents = (data.trade_shows?.length || 0) + (data.local_events?.length || 0);
+                                showNotification('Event Search Complete', `Found ${totalEvents} events matching your criteria`);
+                            }
+                            
+                            updateProgress(100, 'Done!');
+                        } catch (error) {
+                            console.error(error);
+                            eventsContainer.innerHTML = '<div class="search-container"><div class="alert">An error occurred while searching.</div></div>';
+                            eventsContainer.style.display = 'block';
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        eventsContainer.innerHTML = '<div class="search-container"><div class="alert">An unexpected error occurred.</div></div>';
+                        eventsContainer.style.display = 'block';
+                    }
+                    
+                    // Function to create an event card
+                    function createEventCard(event, userType, isTradeShow) {
+                        // Determine which score to display based on user type
+                        let scoreValue, scoreLabel;
+                        if (userType === 'founder') {
+                            scoreValue = event.business_value_score || event.score || Math.round(event.conversion_potential * 100) || 0;
+                            scoreLabel = 'Conversion Potential';
+                        } else {
+                            scoreValue = event.investment_potential_score || event.score || Math.round(event.conversion_potential * 100) || 0;
+                            scoreLabel = 'Investment Potential';
+                        }                      
+                        let eventContent = `
+                            <div class="event-card ${isTradeShow ? 'trade-show-card' : ''}">
+                                <div class="event-header">
+                                    <div>
+                                        <h3 class="event-title">${event.name || 'Unnamed Event'}</h3>
+                                        ${isTradeShow ? '<span class="trade-show-badge">Trade Show</span>' : ''}
+                                        <p class="event-date">${event.date || 'Date not specified'}</p>
+                                        <p class="event-location">${event.location || 'Location not specified'}</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="event-description">
+                                    ${event.highlighted_description ? event.highlighted_description : event.description || 'No description available'}
+                                </div>
+                                
+                                ${event.conversion_path ? `
+                                <div class="conversion-path">
+                                    <h4>Conversion Path:</h4>
+                                    <p>${event.highlighted_conversion_path ? event.highlighted_conversion_path : event.conversion_path}</p>
+                                </div>
+                                ` : ''}
+                                
+                                ${!isTradeShow && event.speakers ? `
+                                <div class="event-speakers">
+                                    <h4>Featured Speakers:</h4>
+                                    <p>${event.speakers}</p>
+                                </div>
+                                ` : ''}
+                                
+                                <div class="event-meta">
+                                    <div class="event-score">
+                                        <span>${scoreLabel}:</span>
+                                        <span class="score-value">${scoreValue}%</span>
+                                    </div>
+                                    
+                                    <div class="matching-keywords">
+                                        ${event.highlight ? `<span class="matching-keyword-static">${event.highlight}</span>` : ''}
+                                    </div>
+                                    
+                                    <div class="event-actions">
+                                        <div class="event-action-btns">
+                                            <button class="event-action-btn" onclick="bookmarkEvent('${event.id || event.name.replace(/\s+/g, '-').toLowerCase()}', '${event.name.replace(/'/g, "\\'")}')">
+                                                <i class="fas fa-bookmark"></i> Save Event
+                                            </button>
+                                            <button class="event-action-btn deep-research-btn" onclick="showDeepResearchModal('${event.name.replace(/'/g, "\\'")}')">
+                                                <i class="fas fa-search-plus"></i> Deep Research
+                                            </button>
+                                            <button class="event-action-btn auto-register-btn" onclick="upgradeAccount()">
+                                                <i class="fas fa-calendar-check"></i> Auto Register
+                                            </button>
+                                            <button class="event-action-btn network-btn-small" onclick="showNetworkModal()">
+                                                <i class="fas fa-users"></i> Let me Network
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            if (event.url) {
+                                eventContent += `
+                                    <div class="section-title" onclick="toggleSection('link-${event.name.replace(/\s+/g, '-').toLowerCase()}')">
+                                        <i class="fas fa-link"></i>
+                                        <h4>Event Link</h4>
+                                    </div>
+                                    <div class="section-content" id="link-${event.name.replace(/\s+/g, '-').toLowerCase()}">
+                                        <a href="${event.url}" target="_blank" class="event-link">${event.url}</a>
+                                    </div>
+                                `;
+                            }
+                            
+                            // Add "Conversion Paths" section for trade shows
+                            if (event.conversion_paths) {
+                                eventContent += `
+                                    <div class="section-title" onclick="toggleSection('why-${event.name.replace(/\s+/g, '-').toLowerCase()}')">
+                                        <i class="fas fa-bullseye"></i>
+                                        <h4>Conversion Paths</h4>
+                                    </div>
+                                    <div class="section-content" id="why-${event.name.replace(/\s+/g, '-').toLowerCase()}">
+                                        <p>${event.conversion_paths}</p>
+                                    </div>
+                                `;
+                            }
+                            
+                            // Add trade show specific sections
+                            if (isTradeShow) {
+                                // Add Exhibitors section for trade shows
+                                if (event.exhibitors) {
+                                    eventContent += `
+                                        <div class="section-title trade-show-section" onclick="toggleSection('exhibitors-${event.name.replace(/\s+/g, '-').toLowerCase()}')">
+                                            <i class="fas fa-building"></i>
+                                            <h4>Exhibitors</h4>
+                                        </div>
+                                        <div class="section-content" id="exhibitors-${event.name.replace(/\s+/g, '-').toLowerCase()}">
+                                            <p>${event.exhibitors}</p>
+                                        </div>
+                                    `;
+                                }
+                                
+                                // Add Event Insights section for trade shows
+                                if (event.event_insight) {
+                                    eventContent += `
+                                        <div class="section-title trade-show-section" onclick="toggleSection('insight-${event.name.replace(/\s+/g, '-').toLowerCase()}')">
+                                            <i class="fas fa-lightbulb"></i>
+                                            <h4>Event Insights</h4>
+                                        </div>
+                                        <div class="section-content" id="insight-${event.name.replace(/\s+/g, '-').toLowerCase()}">
+                                            <p>${event.event_insight}</p>
+                                        </div>
+                                    `;
+                                }
+                                
+                                // Add Event Keywords section for trade shows
+                                if (event.event_keywords && (Array.isArray(event.event_keywords) || typeof event.event_keywords === 'string')) {
+                                    const keywordsDisplay = Array.isArray(event.event_keywords) 
+                                        ? event.event_keywords.map(k => `<span class="trade-show-keyword">${k}</span>`).join(' ') 
+                                        : event.event_keywords;
+                                        
+                                    eventContent += `
+                                        <div class="section-title trade-show-section" onclick="toggleSection('keywords-${event.name.replace(/\s+/g, '-').toLowerCase()}')">
+                                            <i class="fas fa-tags"></i>
+                                            <h4>Event Keywords</h4>
+                                        </div>
+                                        <div class="section-content" id="keywords-${event.name.replace(/\s+/g, '-').toLowerCase()}">
+                                            <div class="trade-show-keywords">${keywordsDisplay}</div>
+                                        </div>
+                                    `;
+                                }
+                            }
+                            
+                            if (event.relevant_people) {
+                                eventContent += `
+                                    <div class="section-title" onclick="toggleSection('speakers-${event.name.replace(/\s+/g, '-').toLowerCase()}')">
+                                        <i class="fas fa-users"></i>
+                                        <h4>Relevant Speakers and Hosts</h4>
+                                    </div>
+                                    <div class="section-content" id="speakers-${event.name.replace(/\s+/g, '-').toLowerCase()}">
+                                        <ul>
+                                            ${Array.isArray(event.relevant_people) ? 
+                                                event.relevant_people.map(speaker => {
+                                                    if (typeof speaker === 'object') {
+                                                        // Handle speaker object format
+                                                        const name = speaker.name || '';
+                                                        const role = speaker.role || speaker.title || '';
+                                                        const company = speaker.company || '';
+                                                        const linkedin = speaker.linkedin ? `<a href="${speaker.linkedin}" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>` : '';
+                                                        const roleCompany = role && company ? `${role}, ${company}` : role || company;
+                                                        
+                                                        return `<li>
+                                                            <strong>${name}</strong>${roleCompany ? ` - ${roleCompany}` : ''}
+                                                            ${linkedin ? `<div class="speaker-links">${linkedin}</div>` : ''}
+                                                            ${speaker.reason ? `<div class="speaker-reason">${speaker.reason}</div>` : ''}
+                                                        </li>`;
+                                                    } else {
+                                                        // Handle string format
+                                                        return `<li>${speaker}</li>`;
+                                                    }
+                                                }).join('') : 
+                                                `<li>${event.relevant_speakers_hosts}</li>`}
+                                        </ul>
+                                    </div>
+                                `;
+                            }
+                            
+                            // Add Speaker Insights section if available
+                            if (event.speaker_insight) {
+                                eventContent += `
+                                    <div class="section-title" onclick="toggleSection('insight-${event.name.replace(/\s+/g, '-').toLowerCase()}')">
+                                        <i class="fas fa-lightbulb"></i>
+                                        <h4>Speaker Insights</h4>
+                                    </div>
+                                    <div class="section-content" id="insight-${event.name.replace(/\s+/g, '-').toLowerCase()}">
+                                        <div class="speaker-insight">
+                                            <p>${event.speaker_insight}</p>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                            
+                            if (event.conversation_starters) {
+                                eventContent += `
+                                    <div class="section-title" onclick="toggleSection('starters-${event.name.replace(/\s+/g, '-').toLowerCase()}')">
+                                        <i class="fas fa-comments"></i>
+                                        <h4>Conversation Starters</h4>
+                                    </div>
+                                    <div class="section-content" id="starters-${event.name.replace(/\s+/g, '-').toLowerCase()}">
+                                        <ul>
+                                            ${Array.isArray(event.conversation_starters) ? 
+                                                event.conversation_starters.map(starter => {
+                                                    if (typeof starter === 'object') {
+                                                        // Handle starter object format with link
+                                                        const starterText = starter.starter || '';
+                                                        const link = starter.link ? `<a href="${starter.link}" target="_blank"><i class="fas fa-external-link-alt"></i> Reference</a>` : '';
+                                                        
+                                                        return `<li>
+                                                            ${starterText}
+                                                            ${link ? `<div class="starter-link">${link}</div>` : ''}
+                                                        </li>`;
+                                                    } else {
+                                                        // Handle string format
+                                                        return `<li>${starter}</li>`;
+                                                    }
+                                                }).join('') : 
+                                                `<li>${event.conversation_starters}</li>`}
+                                        </ul>
+                                    </div>
+                                `;
+                            }
+                            
+                            // Conversion Paths section moved up after event link
+                            
+                            // Add "How to Prepare" section
+                            if (event.preparation_guide) {
+                                eventContent += `
+                                    <div class="section-title" onclick="toggleSection('prepare-${event.name.replace(/\s+/g, '-').toLowerCase()}')">
+                                        <i class="fas fa-clipboard-check"></i>
+                                        <h4>How to Prepare and What to Do</h4>
+                                    </div>
+                                    <div class="section-content" id="prepare-${event.name.replace(/\s+/g, '-').toLowerCase()}">
+                                        <p>${event.preparation_guide}</p>
+                                    </div>
+                                `;
+                            }
+                            
+                            // Add "Key Persons to Meet" section
+                            if (event.key_persons_to_meet) {
+                                eventContent += `
+                                    <div class="section-title" onclick="toggleSection('key-persons-${event.name.replace(/\s+/g, '-').toLowerCase()}')">
+                                        <i class="fas fa-user-friends"></i>
+                                        <h4>Key Persons to Meet</h4>
+                                    </div>
+                                    <div class="section-content" id="key-persons-${event.name.replace(/\s+/g, '-').toLowerCase()}">
+                                        <p>${event.key_persons_to_meet}</p>
+                                    </div>
+                                `;
+                            }
+                            
+                            eventContent += `</div>`;
+                            
+                            return eventContent;
+                        }
+
+                });
+                
+                // Function to update the progress bar and status
+                function updateProgress(percent, status) {
+                    console.log('Updating progress:', percent, status);
+                    
+                    // Make sure progress container is visible
+                    if (progressContainer.style.display !== 'block') {
+                        progressContainer.style.display = 'block';
+                        progressContainer.style.opacity = '1';
+                    }
+                    
+                    // Ensure percent is a number and between 0-100
+                    percent = Math.min(100, Math.max(0, parseInt(percent) || 0));
+                    
+                    // Animate the progress bar smoothly
+                    progressBar.style.transition = 'width 0.5s ease-in-out';
+                    progressBar.style.width = percent + '%';
+                    
+                    // Update the status text with a fade effect
+                    if (progressStatus.textContent !== status) {
+                        progressStatus.style.opacity = '0';
+                        setTimeout(() => {
+                            progressStatus.textContent = status || 'Processing...';
+                            progressStatus.style.opacity = '1';
+                            progressStatus.style.fontWeight = 'bold';
+                            progressStatus.style.color = '#4fd1c5';
+                            progressStatus.style.fontSize = '16px';
+                        }, 200);
+                    }
+                    
+                    // Scroll to ensure progress is visible
+                    const searchLogs = document.getElementById('searchLogs');
+                    if (searchLogs) {
+                        searchLogs.scrollTop = searchLogs.scrollHeight;
+                    }
+                    
+                    // When search is complete, show the results container
+                    if (percent >= 100) {
+                        // Add a final log entry
+                        addLogEntry('Search complete! Displaying results...');
+                        
+                        // Wait a moment before hiding the progress container
+                        setTimeout(() => {
+                            // Fade out progress container
+                            progressContainer.style.opacity = '0';
+                            setTimeout(() => {
+                                progressContainer.style.display = 'none';
+                                // Fade in events container
+                                eventsContainer.style.display = 'block';
+                                eventsContainer.style.opacity = '0';
+                                setTimeout(() => {
+                                    eventsContainer.style.opacity = '1';
+                                    // Scroll to events container
+                                    eventsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }, 50);
+                            }, 500);
+                        }, 1000);
+                    }
+                }
+                
+                // Function to add a log entry to the search logs
+                function addLogEntry(message) {
+                    console.log('Adding log entry:', message);
+                    if (!message) return; // Don't add empty messages
+                    
+                    // Make sure progress container is visible
+                    if (progressContainer.style.display !== 'block') {
+                        progressContainer.style.display = 'block';
+                        progressContainer.style.opacity = '1';
+                    }
+                    
+                    const searchLogs = document.getElementById('searchLogs');
+                    const logEntry = document.createElement('div');
+                    logEntry.className = 'search-log-entry';
+                    
+                    // Add animation
+                    logEntry.style.animation = 'fadeIn 0.3s ease-in-out';
+                    
+                    // Format the timestamp
+                    const now = new Date();
+                    const timestamp = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                    
+                    // Create timestamp span with special styling
+                    const timestampSpan = document.createElement('span');
+                    timestampSpan.className = 'log-timestamp';
+                    timestampSpan.textContent = `[${timestamp}] `;
+                    timestampSpan.style.color = '#4fd1c5';
+                    timestampSpan.style.fontWeight = 'bold';
+                    
+                    // Create message span with appropriate styling
+                    const messageSpan = document.createElement('span');
+                    messageSpan.textContent = message;
+                    
+                    // Style based on message content
+                    if (message.includes('Error')) {
+                        messageSpan.style.color = '#ff6b6b';
+                        messageSpan.style.fontWeight = 'bold';
+                    } else if (message.includes('complete') || message.includes('success')) {
+                        messageSpan.style.color = '#69db7c';
+                        messageSpan.style.fontWeight = 'bold';
+                    } else if (message.includes('Analyzing') || message.includes('Processing')) {
+                        messageSpan.style.color = '#ffd43b';
+                    }
+                    
+                    // Add the spans to the log entry
+                    logEntry.appendChild(timestampSpan);
+                    logEntry.appendChild(messageSpan);
+                    
+                    // Add the log entry to the search logs
+                    searchLogs.appendChild(logEntry);
+                    
+                    // Auto-scroll to the bottom
+                    searchLogs.scrollTop = searchLogs.scrollHeight;
+                    
+                    // Scroll the page to make sure the logs are visible
+                    setTimeout(() => {
+                        searchLogs.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    }, 100);
+                }
+                
+                function toggleSection(id) {
+                    const section = document.getElementById(id);
+                    if (section.style.display === 'block') {
+                        section.style.display = 'none';
+                    } else {
+                        section.style.display = 'block';
+                    }
+                }
+                
+                function setActiveUserType(element, type) {
+                    // Remove active class from all options
+                    document.querySelectorAll('.user-type-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked option
+                    element.classList.add('active');
+                    
+                    // Set user type
+                    userType = type;
+                }
+                
+                // Initialize keywords cloud
+                function initKeywordsCloud() {
+                    // Clear existing keywords
+                    keywordsCloud.innerHTML = '';
+                    
+                    // Get keywords from input
+                    const keywordsList = keywordsInput.value.split(',').filter(k => k.trim());
+                    
+                    // Create keyword elements
+                    keywordsList.forEach(keyword => {
+                        const keywordElem = document.createElement('div');
+                        keywordElem.className = 'keyword selected';
+                        keywordElem.textContent = keyword.trim();
+                        
+                        keywordElem.addEventListener('click', function() {
+                            this.classList.toggle('selected');
+                            updateKeywordsInput();
+                        });
+                        
+                        keywordsCloud.appendChild(keywordElem);
+                    });
+                }
+                
+                // Update keywords input based on selected keywords
+                function updateKeywordsInput() {
+                    const selectedKeywords = Array.from(document.querySelectorAll('.keyword.selected'))
+                        .map(elem => elem.textContent.trim());
+                    
+                    keywordsInput.value = selectedKeywords.join(', ');
+                }
+                
+                // Initialize keywords cloud on page load
+                initKeywordsCloud();
+                
+                // Auto-submit the form to show events immediately
+                setTimeout(function() {
+                    console.log("Auto-submitting search form...");
+                    searchForm.dispatchEvent(new Event('submit'));
+                }, 1000);
+            });
+            
+            function toggleSection(id) {
+                const section = document.getElementById(id);
+                if (section.style.display === 'block') {
+                    section.style.display = 'none';
+                } else {
+                    section.style.display = 'block';
+                }
+            }
+            
+            function setActiveUserType(element, type) {
+                // Remove active class from all options
+                document.querySelectorAll('.user-type-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Add active class to clicked option
+                element.classList.add('active');
+                
+                // Set user type
+                window.userType = type;
+            }
+            
+            // Function to bookmark an event
+            async function bookmarkEvent(eventId, eventName) {
+                try {
+                    const response = await fetch('/api/bookmark_event', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            event_id: eventId,
+                            event_name: eventName
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Show success message
+                        alert(`Event "${eventName}" has been bookmarked!`);
+                    } else {
+                        // If there's a redirect, go to the user info page
+                        if (data.redirect) {
+                            if (confirm("You need to provide your information before bookmarking events. Would you like to do that now?")) {
+                                window.location.href = data.redirect;
+                            }
+                        } else {
+                            // Show error message
+                            alert(data.error || 'Error bookmarking event');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error bookmarking event:', error);
+                    alert('An error occurred while bookmarking the event');
+                }
+            }
+        </script>
+    </div>
+    
+    <!-- Registration Modal -->
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRegistrationModal()">&times;</span>
+            <h3>Register for <span id="eventTitle"></span></h3>
+            <div class="modal-form">
+                <!-- Basic Info Section -->
+                <div class="form-section">
+                    <h4>Basic Information</h4>
+                    <input type="text" id="userName" placeholder="Your Name" required>
+                    <input type="email" id="userEmail" placeholder="Your Email" required>
+                </div>
+                
+                <!-- Professional Info Section -->
+                <div class="form-section">
+                    <h4>Professional Information</h4>
+                    <input type="text" id="userCompany" placeholder="Company/Organization">
+                    <input type="text" id="userTitle" placeholder="Job Title">
+                </div>
+                
+                <!-- Additional Info Section -->
+                <div class="form-section">
+                    <h4>Additional Information</h4>
+                    <textarea id="userInterests" placeholder="Why are you interested in this event?"></textarea>
+                </div>
+                
+                <!-- Save Profile Checkbox -->
+                <div class="form-section checkbox-section">
+                    <label>
+                        <input type="checkbox" id="saveProfile" checked>
+                        Save this information for future registrations
+                    </label>
+                </div>
+                
+                <button onclick="registerForEvent()">Register Now</button>
+                <div id="registrationStatus" class="registration-status"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables for registration
+        let currentEventUrl = '';
+        let userProfile = null;
+        
+        // Load user profile from API
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('/api/user_profile');
+                const data = await response.json();
+                if (data.success) {
+                    userProfile = data.profile;
+                    return userProfile;
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+            return {};
+        }
+        
+        // Fill form with user profile data
+        function fillFormWithProfile(profile) {
+            if (!profile) return;
+            
+            // Fill basic fields
+            if (profile.name) document.getElementById('userName').value = profile.name;
+            if (profile.email) document.getElementById('userEmail').value = profile.email;
+            if (profile.company) document.getElementById('userCompany').value = profile.company;
+            if (profile.title) document.getElementById('userTitle').value = profile.title;
+            
+            // Fill interests if available
+            if (profile.interests) document.getElementById('userInterests').value = profile.interests;
+        }
+        
+        // Open registration modal
+        async function openRegistrationModal(eventUrl, eventTitle) {
+            currentEventUrl = eventUrl;
+            document.getElementById('eventTitle').textContent = eventTitle;
+            document.getElementById('registrationStatus').style.display = 'none';
+            document.getElementById('registrationModal').style.display = 'block';
+            
+            // Load user profile and fill form
+            if (!userProfile) {
+                userProfile = await loadUserProfile();
+            }
+            fillFormWithProfile(userProfile);
+        }
+        
+        // Close registration modal
+        function closeRegistrationModal() {
+            document.getElementById('registrationModal').style.display = 'none';
+        }
+        
+        // Register for event
+        async function registerForEvent() {
+            const name = document.getElementById('userName').value.trim();
+            const email = document.getElementById('userEmail').value.trim();
+            const company = document.getElementById('userCompany').value.trim();
+            const title = document.getElementById('userTitle').value.trim();
+            const interests = document.getElementById('userInterests').value.trim();
+            const saveProfile = document.getElementById('saveProfile').checked;
+            const statusElement = document.getElementById('registrationStatus');
+            
+            if (!name || !email) {
+                statusElement.textContent = 'Please enter both name and email.';
+                statusElement.className = 'registration-status registration-error';
+                statusElement.style.display = 'block';
+                return;
+            }
+            
+            statusElement.textContent = 'Processing registration...';
+            statusElement.className = 'registration-status';
+            statusElement.style.display = 'block';
+            
+            // Prepare additional information
+            const additionalInfo = {
+                company: company,
+                title: title,
+                interests: interests
+            };
+            
+            try {
+                const response = await fetch('/api/register_event', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        event_url: currentEventUrl,
+                        name: name,
+                        email: email,
+                        additional_info: additionalInfo,
+                        save_profile: saveProfile
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update local user profile if saved
+                    if (saveProfile) {
+                        userProfile = {
+                            name: name,
+                            email: email,
+                            company: company,
+                            title: title,
+                            interests: interests
+                        };
+                    }
+                    
+                    statusElement.textContent = 'Successfully registered! Check your email for confirmation.';
+                    statusElement.className = 'registration-status registration-success';
+                    
+                    // Close modal after 3 seconds on success
+                    setTimeout(() => {
+                        closeRegistrationModal();
+                    }, 3000);
+                } else {
+                    statusElement.textContent = data.error || 'Registration failed. Please try again.';
+                    statusElement.className = 'registration-status registration-error';
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                statusElement.textContent = 'An error occurred during registration. Please try again.';
+                statusElement.className = 'registration-status registration-error';
+            }
+        }
+        
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('registrationModal');
+            if (event.target === modal) {
+                closeRegistrationModal();
+            }
+        }
+    </script>
+    
+    <!-- Deep Research Modal -->
+    <div id="deepResearchModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDeepResearchModal()">&times;</span>
+            <div class="modal-header">
+                <h2>Deep Research Events & Advanced Matching</h2>
+            </div>
+            <div class="modal-body">
+                <p>This premium feature provides comprehensive research on the event and handles registration for you.</p>
+                
+                <div class="research-feature">
+                    <h3><i class="fas fa-search"></i> Deep Event Analysis</h3>
+                    <p>Get detailed insights on the event's relevance to your business, including potential opportunities and competitive landscape.</p>
+                </div>
+                
+                <div class="research-feature">
+                    <h3><i class="fas fa-users"></i> Attendee Analysis</h3>
+                    <p>Get detailed insights on who's attending, including company profiles, roles, and potential business opportunities.</p>
+                </div>
+                
+                <div class="research-feature">
+                    <h3><i class="fas fa-microphone"></i> Speaker Deep Dive</h3>
+                    <p>Access comprehensive profiles of all speakers, including their past interviews, publications, and areas of expertise.</p>
+                </div>
+                
+                <div class="research-feature">
+                    <h3><i class="fas fa-calendar-check"></i> Auto Registration</h3>
+                    <p>We'll handle the entire registration process for you, including form filling and payment processing.</p>
+                </div>
+                
+                <div class="research-feature">
+                    <h3><i class="fas fa-ticket-alt"></i> Guaranteed Admission</h3>
+                    <p>Secure your spot even for sold-out or exclusive events with our guaranteed admission service.</p>
+                </div>
+                
+                <div class="research-feature">
+                    <h3><i class="fas fa-star"></i> Exclusive Invite</h3>
+                    <p>Gain access to VIP areas and exclusive networking sessions not available to general attendees.</p>
+                </div>
+                
+                <div class="research-feature">
+                    <h3><i class="fas fa-file-alt"></i> Custom Briefing Document</h3>
+                    <p>Receive a tailored briefing document with strategic insights and networking opportunities specific to your business goals.</p>
+                </div>
+                <div class="modal-actions">
+                    <button class="premium-button" onclick="closeDeepResearchModal()">Upgrade to Premium</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upgrade Account Modal -->
+    <div id="upgradeAccountModal" class="modal">
+        <div class="modal-content premium-modal-content">
+            <span class="close-modal" onclick="closeUpgradeModal()">&times;</span>
+            <div class="modal-header premium-header">
+                <h2><i class="fas fa-crown"></i> Upgrade Your Account</h2>
+            </div>
+            <div class="modal-body">
+                <p class="premium-intro">Unlock powerful features to maximize your networking potential and event success.</p>
+                
+                <div class="premium-categories">
+                    <div class="premium-category">
+                        <h3><i class="fas fa-search"></i> Research & Intelligence</h3>
+                        <ul>
+                            <li><span class="feature-name">Deep Event Analysis</span> - Comprehensive insights on event relevance</li>
+                            <li><span class="feature-name">Speaker Deep Dive</span> - Access speaker profiles, past interviews, and publications</li>
+                            <li><span class="feature-name">Attendee Analysis</span> - Detailed insights on attendee companies and roles</li>
+                            <li><span class="feature-name">Custom Briefing Documents</span> - Tailored strategic insights for each event</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="premium-category">
+                        <h3><i class="fas fa-handshake"></i> Networking & Matching</h3>
+                        <ul>
+                            <li><span class="feature-name">Advanced Matching</span> - AI-powered connections with relevant attendees</li>
+                            <li><span class="feature-name">Conversation Starters</span> - Personalized talking points for key contacts</li>
+                            <li><span class="feature-name">Meeting Scheduler</span> - Automated meeting setup with prospects</li>
+                            <li><span class="feature-name">Follow-up Templates</span> - Customized post-event engagement messages</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="premium-category">
+                        <h3><i class="fas fa-ticket-alt"></i> Event Access & Registration</h3>
+                        <ul>
+                            <li><span class="feature-name">Auto Registration</span> - Automated event registration service</li>
+                            <li><span class="feature-name">Guaranteed Admission</span> - Secure spots at sold-out events</li>
+                            <li><span class="feature-name">Exclusive Invites</span> - Access to VIP areas and networking sessions</li>
+                            <li><span class="feature-name">Early Bird Notifications</span> - First access to high-value events</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="premium-category">
+                        <h3><i class="fas fa-chart-line"></i> Analytics & ROI Tracking</h3>
+                        <ul>
+                            <li><span class="feature-name">Event ROI Calculator</span> - Measure the value of your event attendance</li>
+                            <li><span class="feature-name">Networking Performance Metrics</span> - Track your networking effectiveness</li>
+                            <li><span class="feature-name">Lead Quality Scoring</span> - Prioritize your most valuable connections</li>
+                            <li><span class="feature-name">Opportunity Pipeline Integration</span> - Connect events to your sales process</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="pricing-tiers">
+                    <div class="pricing-tier">
+                        <h3>Professional</h3>
+                        <p class="price">$49<span>/month</span></p>
+                        <ul>
+                            <li>Basic research features</li>
+                            <li>Limited event registrations</li>
+                            <li>Basic networking tools</li>
+                        </ul>
+                        <button class="tier-button">Select Plan</button>
+                    </div>
+                    
+                    <div class="pricing-tier featured-tier">
+                        <div class="most-popular">Most Popular</div>
+                        <h3>Business</h3>
+                        <p class="price">$99<span>/month</span></p>
+                        <ul>
+                            <li>All research features</li>
+                            <li>10 event registrations/month</li>
+                            <li>Advanced networking tools</li>
+                            <li>ROI tracking</li>
+                        </ul>
+                        <button class="tier-button featured-button">Select Plan</button>
+                    </div>
+                    
+                    <div class="pricing-tier">
+                        <h3>Enterprise</h3>
+                        <p class="price">$249<span>/month</span></p>
+                        <ul>
+                            <li>All premium features</li>
+                            <li>Unlimited event registrations</li>
+                            <li>Team access (5 users)</li>
+                            <li>Dedicated account manager</li>
+                        </ul>
+                        <button class="tier-button">Select Plan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tell Me More Modal -->
+    <div id="tellMeMoreModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeTellMeMoreModal()">&times;</span>
+            <div class="modal-header">
+                <h2>Tell Me More About You</h2>
+            </div>
+            <div class="modal-body">
+                <p>Help us refine our recommendations by providing more information about you and your business.</p>
+                
+                <div id="tellMeMoreQuestions">
+                    <div class="question-form">
+                        <p><strong>What is your main goal of networking?</strong></p>
+                        <div class="networking-goals">
+                            <div>
+                                <input type="checkbox" id="goal1" name="networkingGoal" value="1" onchange="showGoalSpecificQuestions()">
+                                <label for="goal1">1. Find more buyers/users of your product/service</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="goal2" name="networkingGoal" value="2" onchange="showGoalSpecificQuestions()">
+                                <label for="goal2">2. Recruit talent for your team</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="goal3" name="networkingGoal" value="3" onchange="showGoalSpecificQuestions()">
+                                <label for="goal3">3. Meet meaningful business partners</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="goal4" name="networkingGoal" value="4" onchange="showGoalSpecificQuestions()">
+                                <label for="goal4">4. Connect with strategic investors</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="goal5" name="networkingGoal" value="5" onchange="showGoalSpecificQuestions()">
+                                <label for="goal5">5. Just meet interesting people, learning new things</label>
+                            </div>
+                            <p class="small-text">You can select multiple options</p>
+                        </div>
+                        
+                        <!-- Goal-specific questions - initially hidden -->
+                        <div id="goal1Questions" class="goal-specific-questions" style="display: none;">
+                            <p><strong>Who are your ideal buyers?</strong></p>
+                            <textarea id="idealBuyers" name="idealBuyers" rows="2" class="form-input" placeholder="Describe your ideal customer profile..."></textarea>
+                            
+                            <p><strong>What's your current sales cycle length?</strong></p>
+                            <textarea id="salesCycle" name="salesCycle" rows="2" class="form-input" placeholder="How long does it typically take to close a deal?"></textarea>
+                        </div>
+                        
+                        <div id="goal2Questions" class="goal-specific-questions" style="display: none;">
+                            <p><strong>Tell me about the specific function you want to hire</strong></p>
+                            <textarea id="hiringFunction" name="hiringFunction" rows="2" class="form-input" placeholder="Describe the role you're looking to fill..."></textarea>
+                            
+                            <p><strong>Detailed role - similar to which LinkedIn profile?</strong></p>
+                            <textarea id="linkedinProfile" name="linkedinProfile" rows="2" class="form-input" placeholder="Share a LinkedIn profile that matches your ideal candidate..."></textarea>
+                        </div>
+                        
+                        <div id="goal3Questions" class="goal-specific-questions" style="display: none;">
+                            <p><strong>What type of business partners are you looking for?</strong></p>
+                            <textarea id="partnerType" name="partnerType" rows="2" class="form-input" placeholder="Describe your ideal business partner..."></textarea>
+                            
+                            <p><strong>What would make a partnership valuable to you?</strong></p>
+                            <textarea id="partnershipValue" name="partnershipValue" rows="2" class="form-input" placeholder="What are you hoping to gain from a partnership?"></textarea>
+                        </div>
+                        
+                        <div id="goal4Questions" class="goal-specific-questions" style="display: none;">
+                            <p><strong>What stage of funding are you seeking?</strong></p>
+                            <textarea id="fundingStage" name="fundingStage" rows="2" class="form-input" placeholder="Pre-seed, Seed, Series A, etc..."></textarea>
+                            
+                            <p><strong>What's your ideal investor profile?</strong></p>
+                            <textarea id="investorProfile" name="investorProfile" rows="2" class="form-input" placeholder="Industry focus, check size, value-add, etc..."></textarea>
+                        </div>
+                        
+                        <div id="goal5Questions" class="goal-specific-questions" style="display: none;">
+                            <p><strong>What topics or industries are you most interested in?</strong></p>
+                            <textarea id="interestTopics" name="interestTopics" rows="2" class="form-input" placeholder="What subjects would you like to learn more about?"></textarea>
+                        </div>
+                        
+                        <!-- Common questions for all goals -->
+                        <p><strong>How many active customers are you currently serving?</strong></p>
+                        <textarea id="activeCustomers" name="activeCustomers" rows="2" class="form-input" placeholder="Tell us about your customer base..."></textarea>
+                        
+                        <p><strong>What is your estimated ARR or revenue?</strong></p>
+                        <textarea id="revenue" name="revenue" rows="2" class="form-input" placeholder="Share information about your revenue..."></textarea>
+                        
+                        <p><strong>What do customers say are the reasons they want your product?</strong></p>
+                        <textarea id="customerReasons" name="customerReasons" rows="4" class="form-input" placeholder="Share what your customers love about your product..."></textarea>
+                    </div>
+                    
+                    <p><strong>What's your target market?</strong></p>
+                    <textarea id="targetMarket" placeholder="E.g., Enterprise companies in the financial sector, SMBs in healthcare, etc."></textarea>
+                    
+                    <p><strong>What makes your product different?</strong></p>
+                    <textarea id="productDifferentiation" placeholder="E.g., Our voice technology has 98% accuracy in noisy environments"></textarea>
+                    
+                    <p><strong>Can you share a successful use case?</strong></p>
+                    <textarea id="successfulUseCase" placeholder="E.g., We helped a healthcare company reduce patient intake time by 40%"></textarea>
+                    
+                    <p><strong>Anything else you'd like to tell our agent?</strong></p>
+                    <textarea id="additionalInfo" placeholder="E.g., I'm specifically looking to connect with companies that have international presence"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-secondary" onclick="closeTellMeMoreModal()">Cancel</button>
+            <button class="modal-btn modal-btn-primary" onclick="submitTellMeMore()">Submit</button>
+        </div>
+    </div>
+</div>
+
+<!-- Let Me Network Modal -->
+<div id="networkModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeNetworkModal()">&times;</span>
+        <div class="modal-header">
+            <h2>Networking Options</h2>
+        </div>
+        <div class="modal-body">
+            <p>Network AI suggests <span class="target-personas">Personas</span> as your target buyers → upgrade your account so we will invite these buyers to the events you will attend.</p>
+            
+            <div class="network-option" onclick="showAnonymousInviteModal()">
+                <h3>Anonymous Invite <span class="premium-badge">Premium</span></h3>
+                <p>Set your target persona (or we'll suggest one) and Network AI will anonymously invite professionals within our network who match your target persona to this event.</p>
+                <p><strong>Example:</strong> Invite all AI chip founders to this event</p>
+                <p><em>We typically anonymously invite 50-100 people depending on the event capacity.</em></p>
+            </div>
+            
+            <div class="network-option" onclick="showOpenInviteModal()">
+                <h3>Open Invite <span class="premium-badge">Premium</span></h3>
+                <p>Network AI will invite people on your behalf with a product description you can edit (e.g., with your marketing website or success story).</p>
+                <p><strong>Example:</strong> "Join us at AI Summit to see our latest voice technology demo!"</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-secondary" onclick="closeNetworkModal()">Cancel</button>
+            <button class="modal-btn modal-btn-premium" onclick="upgradeAccount()">Upgrade Account</button>
+        </div>
+    </div>
+</div>
+
+<!-- Anonymous Invite Modal -->
+<div id="anonymousInviteModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeAnonymousInviteModal()">&times;</span>
+        <div class="modal-header">
+            <h2>Anonymous Invite</h2>
+        </div>
+        <div class="modal-body">
+            <p>This premium feature allows you to anonymously invite professionals who match your target persona.</p>
+            
+            <div class="question-form">
+                <p><strong>Define your target persona:</strong></p>
+                <textarea id="targetPersona" placeholder="E.g., AI chip founders, CTOs at fintech companies, VR/AR developers"></textarea>
+                
+                <p><strong>Suggested personas based on your profile:</strong></p>
+                <div id="suggestedPersonas">
+                    <div class="network-option">
+                        <p>Voice technology developers at companies with 50+ employees</p>
+                        <button class="modal-btn modal-btn-secondary">Select</button>
+                    </div>
+                    <div class="network-option">
+                        <p>Product managers working on AI assistants</p>
+                        <button class="modal-btn modal-btn-secondary">Select</button>
+                    </div>
+                    <div class="network-option">
+                        <p>CTOs at companies using voice interfaces</p>
+                        <button class="modal-btn modal-btn-secondary">Select</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-secondary" onclick="closeAnonymousInviteModal()">Back</button>
+            <button class="modal-btn modal-btn-premium" onclick="upgradeAccount()">Upgrade to Use</button>
+        </div>
+    </div>
+</div>
+
+<!-- Open Invite Modal -->
+<div id="openInviteModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeOpenInviteModal()">&times;</span>
+        <div class="modal-header">
+            <h2>Open Invite</h2>
+        </div>
+        <div class="modal-body">
+            <p>This premium feature allows Network AI to invite people on your behalf with a customized message.</p>
+            
+            <div class="question-form">
+                <p><strong>Customize your invitation message:</strong></p>
+                <textarea id="inviteMessage" placeholder="Join us at [Event Name] to see our latest voice technology demo! We're revolutionizing how people interact with devices through natural language."></textarea>
+                
+                <p><strong>Include links to:</strong></p>
+                <div>
+                    <input type="checkbox" id="includeWebsite" checked>
+                    <label for="includeWebsite">Your website</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="includeLinkedIn" checked>
+                    <label for="includeLinkedIn">Your LinkedIn profile</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="includeDemo">
+                    <label for="includeDemo">Product demo</label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-secondary" onclick="closeOpenInviteModal()">Back</button>
+            <button class="modal-btn modal-btn-premium" onclick="upgradeAccount()">Upgrade to Use</button>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+        <div class="modal-header">
+            <h2>Upgrade Your Account</h2>
+        </div>
+        <div class="modal-body">
+            <p>This is a premium feature. We are currently working on our payment system.</p>
+            <p>Soon you'll be able to unlock these powerful networking capabilities:</p>
+            <ul>
+                <li><strong>Anonymous Invites:</strong> Target specific personas to invite to events</li>
+                <li><strong>Open Invites:</strong> Let Network AI invite people on your behalf</li>
+                <li><strong>Advanced Matching:</strong> Get matched with the most relevant people at events</li>
+                <li><strong>Priority Access:</strong> Early access to exclusive industry events</li>
+            </ul>
+            <p>Please check back soon or contact us to be notified when these features are available.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-secondary" onclick="closePaymentModal()">Close</button>
+            <button class="modal-btn modal-btn-primary" onclick="joinWaitlist()">Join Waitlist</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tell Me More Modal Functions
+    function showTellMeMoreModal(eventId, eventName) {
+        document.getElementById('tellMeMoreModal').style.display = 'block';
+        // Store the event ID and name for later use
+        window.currentEventId = eventId;
+        window.currentEventName = eventName;
+        
+        // Reset any previously selected primary goal
+        window.primaryGoal = null;
+        const starButtons = document.querySelectorAll('.star-btn');
+        starButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Hide all goal-specific questions
+        hideAllGoalQuestions();
+    }
+    
+    function hideAllGoalQuestions() {
+        // Hide all goal-specific question sections
+        const goalQuestions = document.querySelectorAll('.goal-specific-questions');
+        goalQuestions.forEach(section => {
+            section.style.display = 'none';
+        });
+    }
+    
+    function showGoalSpecificQuestions() {
+        // First hide all goal-specific questions
+        hideAllGoalQuestions();
+        
+        // Then show questions for selected goals
+        for (let i = 1; i <= 5; i++) {
+            const goalCheckbox = document.getElementById('goal' + i);
+            const goalQuestions = document.getElementById('goal' + i + 'Questions');
+            
+            if (goalCheckbox && goalCheckbox.checked && goalQuestions) {
+                goalQuestions.style.display = 'block';
+            }
+        }
+    }
+    
+    function markAsPrimary(goalNumber) {
+        // First make sure the corresponding checkbox is checked
+        const checkbox = document.getElementById('goal' + goalNumber);
+        checkbox.checked = true;
+        
+        // Set this as the primary goal
+        window.primaryGoal = goalNumber;
+        
+        // Update the UI to show which goal is primary
+        const starButtons = document.querySelectorAll('.star-btn');
+        starButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Add active class to the clicked star button
+        const clickedButton = document.querySelector(`.star-btn[onclick="markAsPrimary(${goalNumber})"]`);
+        clickedButton.classList.add('active');
+    }
+    
+    function closeTellMeMoreModal() {
+        document.getElementById('tellMeMoreModal').style.display = 'none';
+    }
+    
+    function submitTellMeMore() {
+        // Get values from networking goals checkboxes
+        const goals = [];
+        
+        // Check which goals are selected
+        for (let i = 1; i <= 5; i++) {
+            const goalCheckbox = document.getElementById('goal' + i);
+            if (goalCheckbox.checked) {
+                goals.push(i);
+            }
+        }
+        
+        // Get values from other form fields
+        const activeCustomers = document.getElementById('activeCustomers').value;
+        const revenue = document.getElementById('revenue').value;
+        const customerReasons = document.getElementById('customerReasons').value;
+        const targetMarket = document.getElementById('targetMarket').value;
+        const productDifferentiation = document.getElementById('productDifferentiation').value;
+        const successfulUseCase = document.getElementById('successfulUseCase').value;
+        const additionalInfo = document.getElementById('additionalInfo').value;
+        
+        // Here you would normally send this data to the server
+        console.log('Tell Me More submission:', {
+            eventId: window.currentEventId,
+            eventName: window.currentEventName,
+            networkingGoals: goals,
+            activeCustomers: activeCustomers,
+            revenue: revenue,
+            customerReasons: customerReasons,
+            targetMarket: targetMarket,
+            productDifferentiation: productDifferentiation,
+            successfulUseCase: successfulUseCase,
+            additionalInfo: additionalInfo
+        });
+        
+        // Update the modal content to show upgrade message
+        const modalBody = document.querySelector('#tellMeMoreModal .modal-body');
+        const modalFooter = document.querySelector('#tellMeMoreModal .modal-footer');
+        
+        // Save the original content to restore later if needed
+        if (!window.originalTellMeMoreContent) {
+            window.originalTellMeMoreContent = modalBody.innerHTML;
+            window.originalTellMeMoreFooter = modalFooter.innerHTML;
+        }
+        
+        // Replace with upgrade message
+        modalBody.innerHTML = `
+            <div class="upgrade-message">
+                <h3>Thank you for sharing your information!</h3>
+                <p>We've activated advanced continuous learning about you, your product, and your company.</p>
+                <div class="upgrade-feature">
+                    <i class="fas fa-rocket"></i>
+                    <div>
+                        <h4>About to launch a new product?</h4>
+                        <p>Network AI helps you find target buyers at target events before the world sees your product!</p>
+                    </div>
+                </div>
+                <div class="upgrade-feature">
+                    <i class="fas fa-bell"></i>
+                    <div>
+                        <h4>Get personalized event notifications</h4>
+                        <p>Upgrade to receive alerts about events that match your specific business goals and target audience.</p>
+                    </div>
+                </div>
+                <div class="upgrade-feature">
+                    <i class="fas fa-users"></i>
+                    <div>
+                        <h4>Connect with decision makers</h4>
+                        <p>Our premium service identifies and connects you with key decision makers at every event.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Update footer with upgrade button
+        modalFooter.innerHTML = `
+            <button class="modal-btn modal-btn-secondary" onclick="closeTellMeMoreModal()">Maybe Later</button>
+            <button class="modal-btn modal-btn-premium" onclick="upgradeAccount()">Upgrade Now</button>
+        `;
+    }
+    
+    // Network Modal Functions
+    function showNetworkOptions(eventId, eventName) {
+        document.getElementById('networkModal').style.display = 'block';
+        // Store the event ID and name for later use
+        window.currentEventId = eventId;
+        window.currentEventName = eventName;
+    }
+    
+    function closeNetworkModal() {
+        document.getElementById('networkModal').style.display = 'none';
+    }
+    
+    function showAnonymousInvite() {
+        closeNetworkModal();
+        document.getElementById('anonymousInviteModal').style.display = 'block';
+    }
+    
+    function closeAnonymousInviteModal() {
+        document.getElementById('anonymousInviteModal').style.display = 'none';
+        showNetworkOptions(window.currentEventId, window.currentEventName);
+    }
+    
+    function showOpenInvite() {
+        closeNetworkModal();
+        document.getElementById('openInviteModal').style.display = 'block';
+    }
+    
+    function closeOpenInviteModal() {
+        document.getElementById('openInviteModal').style.display = 'none';
+        showNetworkOptions(window.currentEventId, window.currentEventName);
+    }
+    
+    function upgradeAccount() {
+        // Close all other modals
+        closeNetworkModal();
+        closeAnonymousInviteModal();
+        closeOpenInviteModal();
+        
+        // Show payment modal
+        document.getElementById('paymentModal').style.display = 'block';
+    }
+    
+    function closePaymentModal() {
+        document.getElementById('paymentModal').style.display = 'none';
+    }
+    
+    function joinWaitlist() {
+        alert('Thank you for joining our waitlist! We will notify you when these premium features become available.');
+        closePaymentModal();
+    }
+    
+    // Deep Research Modal Functions
+    function showDeepResearchModal(eventId, eventName) {
+        document.getElementById('deepResearchModal').style.display = 'block';
+        // Store the event ID and name for later use
+        window.currentEventId = eventId;
+        window.currentEventName = eventName;
+    }
+    
+    function closeDeepResearchModal() {
+        document.getElementById('deepResearchModal').style.display = 'none';
+    }
+    
+    function showUpgradeModal() {
+        document.getElementById('upgradeModal').style.display = 'flex';
+    }
+    
+    function closeUpgradeModal() {
+        document.getElementById('upgradeModal').style.display = 'none';
+    }
+    
+    function showNetworkModal() {
+        document.getElementById('networkModal').style.display = 'flex';
+    }
+    
+    function closeNetworkModal() {
+        document.getElementById('networkModal').style.display = 'none';
+    }
+    
+    function showAnonymousInviteModal() {
+        document.getElementById('networkModal').style.display = 'none';
+        document.getElementById('anonymousInviteModal').style.display = 'flex';
+    }
+    
+    function closeAnonymousInviteModal() {
+        document.getElementById('anonymousInviteModal').style.display = 'none';
+    }
+    
+    function showOpenInviteModal() {
+        document.getElementById('networkModal').style.display = 'none';
+        document.getElementById('openInviteModal').style.display = 'flex';
+    }
+    
+    function closeOpenInviteModal() {
+        document.getElementById('openInviteModal').style.display = 'none';
+    }
+</script>
+    <!-- Floating Tell Me More button -->
+    <button class="floating-tell-me-more" onclick="showTellMeMoreModal('profile', 'Profile')">
+        <i class="fas fa-info-circle"></i> Tell Me More
+    </button>
+</body>
+</html>

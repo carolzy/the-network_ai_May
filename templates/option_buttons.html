@@ -1,0 +1,154 @@
+<div class="option-buttons-container" style="margin-top: 15px;">
+    <div class="option-instructions" style="margin-bottom: 10px; color: #aaa; font-style: italic; font-size: 14px;">
+        Click to select multiple options. Click the star (★) next to an option to mark it as your most important goal.
+    </div>
+    <div class="option-buttons">
+        <button class="option-button" data-value="1" style="display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 12px 15px; background-color: var(--dark-input); color: var(--text-light); border: 1px solid #555; border-radius: 8px; cursor: pointer; font-size: 15px; transition: all 0.2s ease;">
+            <span class="option-number" style="display: inline-block; width: 24px; height: 24px; line-height: 24px; text-align: center; background-color: var(--primary-color); color: white; border-radius: 50%; margin-right: 10px;">1</span>
+            <span class="option-text">Find more buyers/users of your product/service</span>
+            <span class="star" style="color: #555; margin-left: 8px; font-size: 18px; cursor: pointer;">★</span>
+        </button>
+        <button class="option-button" data-value="2" style="display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 12px 15px; background-color: var(--dark-input); color: var(--text-light); border: 1px solid #555; border-radius: 8px; cursor: pointer; font-size: 15px; transition: all 0.2s ease;">
+            <span class="option-number" style="display: inline-block; width: 24px; height: 24px; line-height: 24px; text-align: center; background-color: var(--primary-color); color: white; border-radius: 50%; margin-right: 10px;">2</span>
+            <span class="option-text">Recruit talent for your team</span>
+            <span class="star" style="color: #555; margin-left: 8px; font-size: 18px; cursor: pointer;">★</span>
+        </button>
+        <button class="option-button" data-value="3" style="display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 12px 15px; background-color: var(--dark-input); color: var(--text-light); border: 1px solid #555; border-radius: 8px; cursor: pointer; font-size: 15px; transition: all 0.2s ease;">
+            <span class="option-number" style="display: inline-block; width: 24px; height: 24px; line-height: 24px; text-align: center; background-color: var(--primary-color); color: white; border-radius: 50%; margin-right: 10px;">3</span>
+            <span class="option-text">Meet meaningful business partners</span>
+            <span class="star" style="color: #555; margin-left: 8px; font-size: 18px; cursor: pointer;">★</span>
+        </button>
+        <button class="option-button" data-value="4" style="display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 12px 15px; background-color: var(--dark-input); color: var(--text-light); border: 1px solid #555; border-radius: 8px; cursor: pointer; font-size: 15px; transition: all 0.2s ease;">
+            <span class="option-number" style="display: inline-block; width: 24px; height: 24px; line-height: 24px; text-align: center; background-color: var(--primary-color); color: white; border-radius: 50%; margin-right: 10px;">4</span>
+            <span class="option-text">Connect with strategic investors</span>
+            <span class="star" style="color: #555; margin-left: 8px; font-size: 18px; cursor: pointer;">★</span>
+        </button>
+        <button class="option-button" data-value="5" style="display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 12px 15px; background-color: var(--dark-input); color: var(--text-light); border: 1px solid #555; border-radius: 8px; cursor: pointer; font-size: 15px; transition: all 0.2s ease;">
+            <span class="option-number" style="display: inline-block; width: 24px; height: 24px; line-height: 24px; text-align: center; background-color: var(--primary-color); color: white; border-radius: 50%; margin-right: 10px;">5</span>
+            <span class="option-text">Just meet interesting people, learning new things</span>
+            <span class="star" style="color: #555; margin-left: 8px; font-size: 18px; cursor: pointer;">★</span>
+        </button>
+    </div>
+    <div class="option-actions" style="margin-top: 15px; display: flex; justify-content: flex-end;">
+        <button id="submit-options" class="submit-options-btn" style="padding: 10px 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Submit Selection</button>
+    </div>
+</div>
+
+<script>
+    // Initialize selected options array and most important option
+    let selectedOptions = [];
+    let mostImportantOption = null;
+    
+    // Add click event listeners to option buttons
+    document.querySelectorAll('.option-button').forEach(button => {
+        // Single click to select/deselect the option
+        button.addEventListener('click', function(event) {
+            // Ignore clicks on the star
+            if (event.target.classList.contains('star')) {
+                return;
+            }
+            
+            const value = this.getAttribute('data-value');
+            
+            // Toggle selection
+            if (this.classList.contains('selected')) {
+                // Remove from selected
+                this.classList.remove('selected');
+                this.style.backgroundColor = 'var(--dark-input)';
+                this.style.borderColor = '#555';
+                
+                // Remove from array
+                const index = selectedOptions.indexOf(value);
+                if (index > -1) {
+                    selectedOptions.splice(index, 1);
+                }
+                
+                // If this was the most important option, reset the star color
+                if (mostImportantOption === value) {
+                    mostImportantOption = null;
+                    const starElement = this.querySelector('.star');
+                    if (starElement) {
+                        starElement.style.color = '#555';
+                    }
+                }
+            } else {
+                // Add to selected
+                this.classList.add('selected');
+                this.style.backgroundColor = 'rgba(65, 105, 225, 0.2)';
+                this.style.borderColor = 'var(--primary-color)';
+                
+                // Add to array
+                selectedOptions.push(value);
+            }
+            
+            console.log('Selected options:', selectedOptions);
+        });
+    });
+    
+    // Add click event listeners to stars
+    document.querySelectorAll('.star').forEach(star => {
+        star.addEventListener('click', function(event) {
+            // Stop event propagation to prevent triggering the button click
+            event.stopPropagation();
+            
+            const button = this.closest('.option-button');
+            const value = button.getAttribute('data-value');
+            
+            // Ensure the option is selected first
+            if (!button.classList.contains('selected')) {
+                // Add to selected
+                button.classList.add('selected');
+                button.style.backgroundColor = 'rgba(65, 105, 225, 0.2)';
+                button.style.borderColor = 'var(--primary-color)';
+                
+                // Add to array if not already there
+                if (!selectedOptions.includes(value)) {
+                    selectedOptions.push(value);
+                }
+            }
+            
+            // If this star is already active, deactivate it
+            if (mostImportantOption === value) {
+                this.style.color = '#555';
+                mostImportantOption = null;
+            } else {
+                // Reset all stars to grey
+                document.querySelectorAll('.star').forEach(s => {
+                    s.style.color = '#555';
+                });
+                
+                // Set this star to gold
+                this.style.color = 'gold';
+                mostImportantOption = value;
+            }
+            
+            console.log('Most important option:', mostImportantOption);
+        });
+    });
+    
+    // Add click event listener to submit button
+    document.getElementById('submit-options').addEventListener('click', function() {
+        if (selectedOptions.length === 0) {
+            alert('Please select at least one option');
+            return;
+        }
+        
+        // Format the selected options for display
+        const optionTexts = {
+            '1': 'Find more buyers/users of your product/service',
+            '2': 'Recruit talent for your team',
+            '3': 'Meet meaningful business partners',
+            '4': 'Connect with strategic investors',
+            '5': 'Just meet interesting people, learning new things'
+        };
+        
+        let displayText = selectedOptions.map(opt => optionTexts[opt]).join(', ');
+        
+        // Add the selection to the chat as a user message
+        const answer = selectedOptions.join(',');
+        document.getElementById('answer').value = answer;
+        
+        // Submit the form
+        submitAnswer();
+    });
+</script>

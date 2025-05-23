@@ -26,7 +26,12 @@ from website_analyzer import analyze_website, analyze_website_with_browser as br
 load_dotenv()
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s',
+                    handlers=[
+                        logging.FileHandler("app.log"),
+                        logging.StreamHandler()
+                    ])
 logger = logging.getLogger(__name__)
 
 # Create Quart app
@@ -172,8 +177,12 @@ async def business_profile():
     logger.info(f"Generated target events: {len(target_events) if target_events else 0} chars")
     
     # Store the target events text in the flow controller
-    from store_target_events import store_target_events_text
-    store_target_events_text(flow_controller, target_events)
+    flow_controller.target_events_text = target_events
+    
+    # Also save to the database if we have a product URL
+    if product_url:
+        from target_events_db import save_target_events
+        save_target_events(product_url, business_profile, flow_controller.keywords, target_events)
     
     # Extract keywords from target events and update the flow_controller keywords
     from target_events_keywords import extract_keywords_from_target_events
@@ -211,9 +220,17 @@ async def business_profile():
     # Prepare for event search
     auto_search = True
     
-    # Instead of rendering business_profile.html, redirect to business_profile_with_events
-    # This will skip the business_profile page and go directly to the events page
-    return redirect(url_for('business_profile_with_events'))
+    # Render the business_profile_events_fixed.html template with the current context
+    return await render_template(
+        "business_profile_events_fixed.html",
+        user_summary=business_profile,
+        target_events=target_events,
+        keywords=keywords,
+        location=location,
+        auto_search=auto_search,
+        product_url=product_url,
+        version=VERSION
+    )
 
 @app.route("/business_profile_with_events")
 async def business_profile_with_events():

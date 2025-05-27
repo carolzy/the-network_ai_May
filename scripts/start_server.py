@@ -29,8 +29,12 @@ def start_server():
     port = find_free_port()
     print(f"Starting server on port {port}")
     
+    # Get the path to app.py in the parent directory
+    app_path = os.path.join(os.path.dirname(os.getcwd()), 'app.py')
+    print(f"Using app.py at: {app_path}")
+    
     # Modify the app.py file to use this port
-    with open('app.py', 'r') as f:
+    with open(app_path, 'r') as f:
         content = f.read()
     
     # Replace the port in the app.py file
@@ -41,13 +45,15 @@ def start_server():
     if 'app.run(debug=True)' in content:
         new_content = content.replace('app.run(debug=True)', f'app.run(debug=True, port={port})')
     
-    with open('app.py', 'w') as f:
+    with open(app_path, 'w') as f:
         f.write(new_content)
     
     # Start the server
     try:
         print(f"Server will be available at: http://localhost:{port}")
         print(f"Press Ctrl+C to stop the server")
+        # Change to the parent directory before running app.py
+        os.chdir(os.path.dirname(os.getcwd()))
         subprocess.run(['python3', 'app.py'], check=True)
     except KeyboardInterrupt:
         print("Server stopped by user")

@@ -52,19 +52,6 @@ VERSION = str(int(time.time()))
 # Initialize the flow controller
 flow_controller = FlowController.get_instance()
 
-# Create a global message queue for search progress updates
-search_progress_queue = queue.Queue()
-
-# Function to add a message to the progress queue
-def add_progress_message(message_type, message, percent=None, status=None):
-    search_progress_queue.put({
-        "type": message_type,
-        "message": message,
-        "percent": percent,
-        "status": status,
-        "timestamp": time.time()
-    })
-
 # Initialize core components
 question_engine = QuestionEngine()
 
@@ -430,7 +417,7 @@ async def event_search():
     
     logger.info(f"Event search with summary: {summary[:50]}... and keywords: {keywords}")
     
-    # If use_gemini is true, search for tradeshows using Gemini-2.5-flash
+    # If use_gemini is true, search for tradeshows using Gemini-2.0-flash
     tradeshows = []
     if use_gemini and summary and keywords:
         try:
@@ -440,7 +427,7 @@ async def event_search():
                 target_events=target_events or "",
                 product_url=product_url or ""
             )
-            logger.info(f"Found {len(tradeshows)} tradeshows using Gemini-2.5-flash")
+            logger.info(f"Found {len(tradeshows)} tradeshows using Gemini-2.0-flash")
         except Exception as e:
             logger.error(f"Error searching tradeshows with Gemini: {str(e)}")
     
@@ -736,14 +723,7 @@ async def get_keywords():
 async def search_events():
     """Search for events based on keywords and location"""
     try:
-        # Clear the progress queue before starting a new search
-        while not search_progress_queue.empty():
-            search_progress_queue.get()
-        
-        # Add initial test messages to verify logs are working
-        add_progress_message("log", "Starting event search...", None, None)
-        add_progress_message("progress", "Initializing", 5, "Starting search")
-        
+        # Get parameters from either form data or URL query parameters
         form = await request.form
         
         # Check if we have form data
@@ -766,29 +746,11 @@ async def search_events():
         
         # No longer limiting keywords
         # keywords = keywords[:5]
-        add_progress_message("log", f"Searching with keywords: {', '.join(keywords)}", None, None)
-        add_progress_message("log", f"User type: {user_type}", None, None)
-        add_progress_message("progress", "Processing keywords", 15, "Analyzing keywords")
+        logger.info(f"Searching with keywords: {', '.join(keywords)}")
+        logger.info(f"User type: {user_type}")
         
         # Import the search_events function from the event_search_agent module
-        from event_search_agent import search_events as search_events_api, set_progress_callback, find_top_events
-        
-        # Set up the progress callback to send updates to our queue
-        set_progress_callback(add_progress_message)
-        
-        # Add more progress updates
-        add_progress_message("log", "Loading events from database...", None, None)
-        add_progress_message("progress", "Loading events", 25, "Loading events")
-        
-        # Add a small delay to ensure progress updates are visible
-        await asyncio.sleep(0.5)
-        
-        # Add more progress updates
-        add_progress_message("log", "Analyzing events for relevance...", None, None)
-        add_progress_message("progress", "Analyzing events", 40, "Analyzing events")
-        
-        # Add a small delay to ensure progress updates are visible
-        await asyncio.sleep(0.5)
+        from event_search_agent import search_events as search_events_api, find_top_events
         
         # Call the search_events function with jsonify - limit to 3 results for faster search
         data = {
@@ -800,13 +762,6 @@ async def search_events():
             "target_events": target_events
         }
         
-        # Add more progress updates
-        add_progress_message("log", "Finding top matching events...", None, None)
-        add_progress_message("progress", "Finding matches", 60, "Finding matches")
-        
-        # Add a small delay to ensure progress updates are visible
-        await asyncio.sleep(0.5)
-        
         # Call the event search agent to get local events
         logger.info(f"Calling event_search_agent with data: {data}")
         
@@ -817,7 +772,6 @@ async def search_events():
             keywords_list = data['keywords']
             
         # Call the find_top_events function to get local events
-        from event_search_agent import find_top_events
         events_result = await find_top_events(
             keywords=keywords_list,
             user_summary=data['user_summary'],
@@ -833,10 +787,6 @@ async def search_events():
         
         # Get tradeshows from Gemini API
         logger.info("Searching for tradeshows with Gemini API...")
-        add_progress_message("log", "Searching for relevant tradeshows...", None, None)
-        add_progress_message("progress", "Finding tradeshows", 75, "Finding tradeshows")
-        
-        # Call search_tradeshows_with_gemini to get tradeshows
         tradeshows = await search_tradeshows_with_gemini(
             user_summary=data['user_summary'],
             keywords=keywords_list,
@@ -937,15 +887,10 @@ async def search_events():
             "local_events": local_events
         }
         
-        # Add final progress updates
-        add_progress_message("log", "Search complete! Displaying results...", None, None)
-        add_progress_message("progress", "Search complete", 100, "Results ready")
-        
         return jsonify(response)
     except Exception as e:
         logger.error(f"Error in search_events: {str(e)}")
         traceback.print_exc()  # Print the full traceback for debugging
-        add_progress_message("error", f"Error in search: {str(e)}", 100, "Error occurred")
         return jsonify({"success": False, "error": str(e), "trade_shows": [], "local_events": []})
 
 
@@ -1212,90 +1157,6 @@ async def test_mcp():
     except Exception as e:
         logger.error(f"Error in test_mcp: {str(e)}")
         return jsonify({"success": False, "error": str(e)})
-
-@app.route("/api/search_events/progress")
-async def search_events_progress():
-    """Stream search progress updates using Server-Sent Events"""
-    async def send_events():
-        # Send initial message
-        yield "data: {\"type\": \"log\", \"message\": \"Connected to event stream\"}\n\n"
-        
-        # Add a test message to make sure logs are visible
-        add_progress_message("log", "Search progress updates will appear here", None, None)
-        add_progress_message("progress", "Initializing", 5, "Starting search")
-        
-        # Keep track of the last message we sent
-        last_message_time = time.time()
-        
-        # Send a heartbeat message every 0.5 seconds to keep the connection alive
-        heartbeat_interval = 0.5
-        
-        # Set a maximum connection time (3 minutes)
-        max_connection_time = 180
-        start_time = time.time()
-        
-        try:
-            while True:
-                # Check if there are messages in the queue
-                try:
-                    # Non-blocking get with timeout
-                    message = search_progress_queue.get_nowait()
-                    
-                    # Format the message as a SSE event
-                    data = json.dumps(message)
-                    yield f"data: {data}\n\n"
-                    
-                    # Update the last message time
-                    last_message_time = time.time()
-                    
-                    # If this is a completion message, break the loop to end the connection
-                    if message.get("type") == "complete":
-                        app.logger.info("Received completion message, ending SSE stream")
-                        # Send one final heartbeat and break
-                        heartbeat_data = {"type": "heartbeat", "timestamp": int(time.time()), "final": True}
-                        yield f"data: {json.dumps(heartbeat_data)}\n\n"
-                        break
-                except queue.Empty:
-                    # No messages in the queue
-                    # Send a heartbeat if needed
-                    current_time = time.time()
-                    if current_time - last_message_time > heartbeat_interval:
-                        heartbeat_data = {"type": "heartbeat", "timestamp": int(current_time)}
-                        yield f"data: {json.dumps(heartbeat_data)}\n\n"
-                        last_message_time = current_time
-                
-                # Check if we've exceeded the maximum connection time
-                current_time = time.time()
-                if current_time - start_time > max_connection_time:
-                    app.logger.warning(f"SSE connection exceeded maximum time of {max_connection_time} seconds")
-                    # Send a final message to the client
-                    warning_data = {"type": "warning", "message": "Connection timeout reached. Please refresh to see results."}
-                    yield f"data: {json.dumps(warning_data)}\n\n"
-                    break
-                
-                # Sleep to avoid high CPU usage
-                await asyncio.sleep(0.1)
-        except asyncio.CancelledError:
-            # Handle client disconnection
-            app.logger.info("Client disconnected from SSE stream")
-            raise
-        except Exception as e:
-            # Log any errors
-            app.logger.error(f"Error in SSE stream: {str(e)}")
-            # Send error to client
-            error_data = {"type": "error", "message": str(e)}
-            yield f"data: {json.dumps(error_data)}\n\n"
-            raise
-    
-    # Create a streaming response with the appropriate headers
-    headers = {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'X-Accel-Buffering': 'no'  # Disable buffering for Nginx
-    }
-    
-    return Response(send_events(), headers=headers)
 
 async def search_tradeshows_with_gemini(user_summary, keywords, target_events, product_url="", user_type="founder", location="sf"):
     """Search for tradeshows using Gemini-2.0-flash model with multiple parallel API calls

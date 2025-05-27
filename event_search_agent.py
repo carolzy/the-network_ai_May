@@ -395,8 +395,8 @@ try:
     if GEMINI_API_KEY:
         genai.configure(api_key=GEMINI_API_KEY)
         gemini = genai
-        # Use gemini-2.0-flash which supports structured output
-        GEMINI_MODEL = "gemini-2.0-flash"
+        # Use gemini-2.5-flash-preview-05-20 which supports structured output
+        GEMINI_MODEL = "gemini-2.5-flash-preview-05-20"
         logger.info(f"Gemini API initialized successfully with model {GEMINI_MODEL}")
     else:
         gemini = None
@@ -534,7 +534,7 @@ def analyze_event_relevance(event, keywords, user_summary=None, target_events=No
     
 # End of analyze_event_relevance function
         
-        # For gemini-2.0-flash, we need to include the schema in the prompt
+        # For gemini-2.5-flash-preview-05-20, we need to include the schema in the prompt
         schema_json = json.dumps(response_schema, indent=2)
         
         # Add the schema to the prompt
@@ -557,7 +557,7 @@ def analyze_event_relevance(event, keywords, user_summary=None, target_events=No
         
         # Process the structured output response
         try:
-            # With structured output from gemini-2.0-flash, we need to extract the JSON from the response
+            # With structured output from gemini-2.5-flash-preview-05-20, we need to extract the JSON from the response
             response_text = response.text
             
             # Try to parse the JSON response

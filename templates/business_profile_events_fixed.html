@@ -2119,7 +2119,15 @@
                                 ${!isTradeShow && event.speakers ? `
                                 <div class="event-speakers">
                                     <h4>Featured Speakers:</h4>
-                                    <p>${event.speakers}</p>
+                                    ${
+                                    Array.isArray(event.speakers)
+                                        ? `<ul>` + event.speakers.map(s =>
+                                            typeof s === 'object'
+                                              ? `<li>${s.linkedin ? `<a href="${s.linkedin}" target="_blank">${s.name || ''}${s.role ? ' (' + s.role + ')' : ''}${s.company ? ' at ' + s.company : ''}</a>` : `${s.name || ''}${s.role ? ' (' + s.role + ')' : ''}${s.company ? ' at ' + s.company : ''}`}</li>`
+                                              : `<li>${s}</li>`
+                                          ).join('') + `</ul>`
+                                        : event.speakers
+                                    }
                                 </div>
                                 ` : ''}
                                 

@@ -14,13 +14,13 @@ import urllib.parse
 from pathlib import Path
 from functools import partial
 from quart import Quart, render_template, request, jsonify, send_file, Response, redirect, url_for
-from flow_controller import FlowController
-from question_engine import QuestionEngine
+from core.flow_controller import FlowController
+from core.question_engine import QuestionEngine
 from dotenv import load_dotenv
 import sys
 
 # Import the website analyzer
-from website_analyzer import analyze_website, analyze_website_with_browser as browser_analyze_website
+from core.website_analyzer import analyze_website, analyze_website_with_browser as browser_analyze_website
 
 # Load environment variables
 load_dotenv()

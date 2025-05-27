@@ -10,11 +10,11 @@ from dotenv import load_dotenv
 import sys
 from datetime import datetime
 # from voice_integration.question_engine import QuestionEngine
-from question_engine import QuestionEngine
+from core.question_engine import QuestionEngine
 import traceback
 
 # Import the website analyzer
-from website_analyzer import analyze_website_with_browser as browser_analyze_website
+from core.website_analyzer import analyze_website_with_browser as browser_analyze_website
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

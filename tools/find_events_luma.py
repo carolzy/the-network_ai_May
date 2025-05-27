@@ -37,12 +37,12 @@ llm = ChatOpenAI(
 	temperature=0.0,
 )
 
-planner_llm = ChatOpenAI(
-	base_url = "https://api.sambanova.ai/v1",
-	api_key="042ca35c-beaf-4f5b-8033-9170556e5251",
-	model='DeepSeek-R1',
-	temperature=0.0,
-)
+# planner_llm = ChatOpenAI(
+# 	base_url = "https://api.sambanova.ai/v1",
+# 	api_key="042ca35c-beaf-4f5b-8033-9170556e5251",
+# 	model='DeepSeek-R1',
+# 	temperature=0.0,
+# )
 
 # messages=[{"role":"system","content":"You are a helpful assistant"},{"role":"user","content":"Hello"}]
 # ai_msg = llm.invoke(messages)
@@ -120,7 +120,7 @@ event_agent = Agent(task=event_task,
 					use_vision=False,
 					save_conversation_path="logs/conversation",
 					initial_actions=initial_actions,
-					enable_memory=True,
+					# enable_memory=True,
 					)
 
 

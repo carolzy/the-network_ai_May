@@ -14,9 +14,9 @@ from browser_use import Agent
 from browser_use.browser import BrowserSession, BrowserProfile
 from playwright.sync_api import sync_playwright
 
-# Different prompts for experiment
-from prompts import event_task_prompt as event_task_prompt
-# from prompts import simple_event_task_prompt as event_task_prompt
+# Different prompts for experiment [TBD]
+# from prompts import event_task_prompt as event_task_prompt
+from prompts import simple_event_task_prompt as event_task_prompt
 from utils import test_openai_connection
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

@@ -75,14 +75,15 @@ User Intent: {user_intent}
 --------------------------------
 
 Instructions:
-1. Go to https://lu.ma/discover
-2. For each matching event:
+1. Open the events page for the correct category or location. 
+2. Perform a quick general match based on the content displayed in the list and store the results.
+3. For each matching event:
    - Click the event and open the details page first.
    - Enter the evnet main page through the link 'Event Page'
    - Extract and return the event **title**
    - Extract and return the event **URL**
    - Optionally include the **date**, **time**, and a **short description**
-3. If no relevant events are found, **broaden or relax the criteria** and repeat the search **until at least one event** is found.
+4. If no relevant events are found, **broaden or relax the criteria** and repeat the search **until at least one event** is found.
 
 Return Format (for each event):
 - **Title**: ...

@@ -15,8 +15,8 @@ from browser_use.browser import BrowserSession, BrowserProfile
 from playwright.sync_api import sync_playwright
 
 # Different prompts for experiment
-# from prompts import event_task_prompt as event_task_prompt
-from prompts import simple_event_task_prompt as event_task_prompt
+from prompts import event_task_prompt as event_task_prompt
+# from prompts import simple_event_task_prompt as event_task_prompt
 from utils import test_openai_connection
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -24,6 +24,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 load_dotenv()
 
 os.environ["OPENAI_API_KEY"] = "042ca35c-beaf-4f5b-8033-9170556e5251"
+
 
 def init_llm():
     browser_profile = BrowserProfile(
@@ -44,7 +45,7 @@ def init_llm():
         # browser_session=browser_session,
         temperature=0.0,
     )
-    
+
     return llm
 
 
@@ -81,7 +82,7 @@ def find_events(
         task=task,
         llm=llm,
         use_vision=False,
-        save_conversation_path="logs/conversation",
+        save_conversation_path="logs/conversation",  # For debugging only.
         initial_actions=[{'open_tab': {'url': "https://lu.ma/discover"}}],
     )
 
@@ -104,7 +105,7 @@ def find_events(
 if __name__ == '__main__':
     # Test if the LLM is working correctly
     # test_openai_connection()
-    
+
     llm = init_llm()
     # Example usage
     find_events(

@@ -1,0 +1,28 @@
+{
+  "event": {
+    "title": "Musa Labs SF Lunch & Learn - 🚀 Weekly AI Training Series: Vibe Coding with Azure OpenAI Service",
+    "url": "https://lu.ma/k6c08blf",
+    "date": "Tuesday, May 27",
+    "time": "1:00 PM - 2:00 PM",
+    "location": "San Francisco, California (exact address available upon registration)",
+    "sponsors": "Musa Capital Events",
+    "description": "Mastering AI-Assisted IDEs: Build Faster, Smarter with AI-Powered Tools. Join us for power-packed 1-hour workshops designed to kickstart your AI-assisted development journey using the latest AI coding tools and intelligent IDEs. Whether you're a developer, founder, or AI enthusiast, these interactive, beginner-friendly sessions will show you how to harness AI to build real-world software — fast and effectively.",
+    "speakers": [
+      {
+        "name": "Allen Smith",
+        "profile_url": "https://lu.ma/user/usr-GKFlJtAYiaMKl4Y",
+        "company": "Musa Labs",
+        "bio": "Hosted 54 events, attended 123 events. Affiliated with Musa Labs, Musa Capital, and Zo House SF.",
+        "profile_picture": "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,anim=false,background=white,quality=75,width=112,height=112/avatars/mz/2b00f55d-da1c-4cec-bf3d-98aedd40a522"
+      },
+      {
+        "name": "Zo House SF",
+        "profile_url": "https://lu.ma/user/SFOxZo",
+        "bio": "I'm the coolest techno-optimist clubhouse in San Francisco",
+        "profile_picture": "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,anim=false,background=white,quality=75,width=112,height=112/avatars/et/4ce4fb84-b66e-47d8-bbf2-7f5a31d8c5a9",
+        "hosted_events": 276,
+        "attended_events": 9
+      }
+    ]
+  }
+}

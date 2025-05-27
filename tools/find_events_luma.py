@@ -92,8 +92,15 @@ Speaker Company
 Speaker Bio
 Speaker Image
 Speaker Website
+Speaker Profile (if Linkedin is available, then get the information from the linkedin page)
 
-If there are no events, return 'No events found'.
+For each sponsor, just visit the sponsor's profile page if it is available (with sponsor's website), and gather the following information:
+Sponsor Name
+Sponsor Title
+Sponsor Company
+Sponsor Bio
+Sponsor Image
+Sponsor Website
 
 If there is an error, return 'Error'.
 
@@ -120,7 +127,8 @@ async def main():
 
 	# save the final result to a json file
 	with open('results.json', 'w') as f:
-		json.dump(history.final_result(), f)
+		# json.dump(history.final_result(), f)
+		f.write(history.final_result())
 
 if __name__ == '__main__':
 

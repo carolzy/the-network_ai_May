@@ -3,18 +3,15 @@ import os
 import sys
 import json
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from langchain_openai import ChatOpenAI
+from browser_use import Agent
+from browser_use.browser import BrowserSession
+from playwright.sync_api import sync_playwright
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 
 load_dotenv()
-
-from langchain_openai import ChatOpenAI
-
-from browser_use import Agent
-# from browser_use.browser import BrowserSession
-from playwright.sync_api import sync_playwright
-
 
 def test_playwright():
 	try:
@@ -40,6 +37,13 @@ llm = ChatOpenAI(
 	temperature=0.0,
 )
 
+planner_llm = ChatOpenAI(
+	base_url = "https://api.sambanova.ai/v1",
+	api_key="042ca35c-beaf-4f5b-8033-9170556e5251",
+	model='DeepSeek-R1',
+	temperature=0.0,
+)
+
 # messages=[{"role":"system","content":"You are a helpful assistant"},{"role":"user","content":"Hello"}]
 # ai_msg = llm.invoke(messages)
 # print(ai_msg.content)
@@ -55,14 +59,12 @@ User Featured Calendars: {user_featured_calendars}
 
 User Category: {user_category}
 
-Go to https://lu.ma/ and open 'Explore Events' tab.
-
 Enumerate all the events in the 'Explore Events' tab.
 
 The events list is in the 'Explore Events' tab is most likely the popular events in your current location. 
 
 Frist, Open 'View All' to list all the events to get the latest events. Continue scroll down to get all the events.
-Pick Top 1 event(s) most likely to be relevant to the user intent.
+Click on the event to open the event page. Pick Top 1 event(s) most likely to be relevant to the user intent based on the event title, event description, event speakers, event sponsors, event category, event location, event date, event time.
 
 If I am not providing a location, you should use the location of the user, otherwise you should use the location I provided, 
 list all the events to get the latest events in the provided location (continue scroll down to get all the events if needed).
@@ -75,7 +77,6 @@ Pick Top 1 event(s) most likely to be relevant to the user intent.
 If I am providing a category, you should use the current category in the 'Explore Events' tab, otherwise you should use the category I provided,
 list all the events to get the latest events in the provided location (continue scroll down to get all the events if needed).
 Pick Top 1 event(s) most likely to be relevant to the user intent.
-
 
 Open the selected event(s) and gather all the following information:
 
@@ -92,7 +93,7 @@ Speaker Company
 Speaker Bio
 Speaker Image
 Speaker Website
-Speaker Profile (if Linkedin is available, then get the information from the linkedin page)
+Speaker Profile (if Linkedin is available, then get the information from the linkedin page, if there is a login required, then skip it)
 
 For each sponsor, just visit the sponsor's profile page if it is available (with sponsor's website), and gather the following information:
 Sponsor Name
@@ -108,10 +109,24 @@ return the results in with json format.
 
 """
 
-event_agent = Agent(task=event_task, llm=llm, use_vision=False)
+
+initial_actions = [
+	{'open_tab': {'url': "https://lu.ma/discover"}},
+	]
+
+event_agent = Agent(task=event_task, 
+					llm=llm, 
+					# planner_llm=planner_llm,  
+					use_vision=False,
+					save_conversation_path="logs/conversation",
+					initial_actions=initial_actions,
+					enable_memory=True,
+					)
 
 
 async def main():
+	await event_agent.browser_session.start()
+
 	# Example of accessing history
 	history = await event_agent.run()
 

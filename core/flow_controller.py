@@ -651,7 +651,7 @@ class FlowController:
             # Use the Gemini API to generate keywords
             if self.gemini_api_key:
                 logger.info(f"Generating keywords with prompt for {self.user_type} user type")
-                gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={self.gemini_api_key}"
+                gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={self.gemini_api_key}"
 
                 payload = {
                     "contents": [
@@ -1023,7 +1023,7 @@ class FlowController:
             Format your response as a JSON object with these fields.
             """
             
-            gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={self.gemini_api_key}"
+            gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={self.gemini_api_key}"
             
             payload = {
                 "contents": [

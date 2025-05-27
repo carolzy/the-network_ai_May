@@ -21,7 +21,7 @@ ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 MODEL_NAME = "claude-3-7-sonnet-20250219"
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent"
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
 # Flag to determine which LLM to use
 USE_GEMINI = True  # Set to False to use Claude instead

@@ -1,3 +1,53 @@
+# Simple is reliable
+simple_event_task_prompt = """
+You are a helpful assistant that helps me find events on lu.ma with given information:
+
+User Intent: {user_intent}
+
+User Location: {user_location}
+
+User Featured Calendars: {user_featured_calendars}
+
+User Category: {user_category}
+
+--------------------------------
+
+Return all the following information for the selected event(s):
+
+- Event Title 
+- Event URL (should be able to find the URL once you have opened the event)
+- Event Date
+- Event Sponsor (companies)
+- Event Hosters/Speakers and Speaker Titles, Linkedin, the names of the companies they work for
+
+If no events matching the criteria are found, lower the criteria and repeat the search until at least one is found.
+
+"""
+
+# Simple is reliable
+simple_event_task_prompt_v0 = """
+You are a helpful assistant that helps me find events on lu.ma with given information:
+
+User Intent: {user_intent}
+
+User Location: {user_location}
+
+User Featured Calendars: {user_featured_calendars}
+
+User Category: {user_category}
+
+--------------------------------
+
+Return all the following information for the selected event(s):
+
+- Event Title 
+- Event URL (prefer to find the correct event URL if the original one is corrupted)
+- Event Date
+- Event Sponsor (companies)
+- Event Speakers and Speaker Titles, Linkedin, the names of the companies they work for
+
+"""
+
 event_task_prompt = """
 You are a helpful assistant that helps me find events on lu.ma with given information:
 

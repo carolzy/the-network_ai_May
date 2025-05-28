@@ -17,6 +17,7 @@ from quart import Quart, render_template, request, jsonify, send_file, Response,
 from core.flow_controller import FlowController
 from core.question_engine import QuestionEngine
 from dotenv import load_dotenv
+from events.event_search_agent import validate_event_url
 import sys
 
 # Import the website analyzer
@@ -1197,7 +1198,8 @@ async def search_tradeshows_with_gemini(user_summary, keywords, target_events, p
             full_prompt = f"{prompt_prefix}\n\nUser profile: {user_summary}\n\nKeywords: {', '.join(keywords)}\n\nLocation preference: {location}\n\nFor each tradeshow, provide the following information in a structured format:\n- Event Title\n- Event Date (must be in 2025 or later)\n- Event Location\n- Event Description: Provide at least 3 detailed sentences - 1-2 sentences about the event itself (history, scope, importance) and 1-2 sentences about why it's specifically relevant to the user's product/business\n- Event Keywords\n- Conversion Path: Provide a detailed, actionable 3-4 sentence strategy for how this user can best leverage this event to achieve their goals (e.g. find future buyers/business partners etc.)\n- Event Official Website: MUST provide a valid website URL for each event. If you can't find the official website, provide the most relevant website related to the event or organization.\n- Conversion Score (0-100): How well this event aligns with the user's goals\n\nEnsure the Event Title is clear and properly formatted as it will be highlighted in the UI.\nMake sure the Event Description is insightful and specific to the user's business needs.\nEVERY event MUST have a website URL - this is critical for the application.\n\nReturn the results as a JSON array of objects, each with the above attributes."
             
             # Create a task for each API call
-            task = asyncio.create_task(call_gemini_api(full_prompt, i+1))
+            for j in range(3):
+                task = asyncio.create_task(call_gemini_api(full_prompt, i*3+j+1))
             tasks.append(task)
         
         # Wait for all tasks to complete
@@ -1215,6 +1217,7 @@ async def search_tradeshows_with_gemini(user_summary, keywords, target_events, p
         # Debug the event structure
         if all_tradeshows:
             logger.info(f"Sample event keys: {list(all_tradeshows[0].keys())[:10]}")
+            logger.info(f"Pre-deduplication total # events: {len(all_tradeshows)}")
         
         for event in all_tradeshows:
             # Debug each event
@@ -1236,6 +1239,13 @@ async def search_tradeshows_with_gemini(user_summary, keywords, target_events, p
                     event_website = event[field].strip().lower()
                     break
             
+            if event_title == '' or event_website == '':
+                continue
+
+            if not validate_event_url(event_website):
+                logger.info(f"Skipping event with invalid website: {event_website}")
+                continue
+
             logger.info(f"Event title: '{event_title}', Event website: '{event_website}'")
             
             # Create a unique identifier based on website URL (primary) or title (fallback)

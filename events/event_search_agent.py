@@ -1120,13 +1120,22 @@ def validate_event_url(url):
         return True  # No URL to validate, assume it's valid
         
     try:
-        # Make a HEAD request to check if the URL is valid
-        response = requests.head(url, timeout=5, allow_redirects=True)
-        return response.status_code < 400  # Valid if status code is less than 400
+        headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Referer': 'https://www.google.com/', # Sometimes useful, depends on the site
+    }
+        # Use HEAD for efficiency, but sometimes GET is required if the server is particular
+        response = requests.get(url, headers=headers, timeout=5, allow_redirects=True)
+        print(f"Validation of URL: {url}, Status Code: {response.status_code}")
+        # 2xx for success, 3xx for redirects (which are also "accessible" in a way)
+        return 200 <= response.status_code < 400 or response.status_code == 403
     except Exception as e:
         logger.error(f"Error validating event URL {url}: {str(e)}")
-        # If there's an error, assume it's valid
-        return True
+        # If there's an error, assume it's not valid
+        return False
 
 
 async def validate_event_async(event):

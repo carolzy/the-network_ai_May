@@ -140,20 +140,29 @@ The script requires the following environment variables:
 
 1. Import and initialize the script:
 ```python
-from find_events_luma import event_agent, main
-```
+from event_search import EventSearch
 
-2. Set your search parameters:
-```python
-user_intent = "Your event search intent"
-user_location = "Optional: Your preferred location"
-user_featured_calendars = "Optional: Specific calendar to search"
-user_category = "Optional: Event category"
-```
+# Initialize the search
+event_search = EventSearch(api_key="your-api-key")
 
-3. Run the script:
-```python
-asyncio.run(main())
+# Search for events
+events = await event_search.search_events(
+    query="AI and Machine Learning",
+    location="San Francisco",
+    category="Technology",
+    max_results=5
+)
+
+# Process results
+for event in events:
+    print(f"Title: {event.title}")
+    print(f"Date: {event.date}")
+    print(f"Location: {event.location}")
+    print(f"URL: {event.url}")
+    if event.speakers:
+        print("Speakers:")
+        for speaker in event.speakers:
+            print(f"- {speaker['name']} ({speaker['title']} at {speaker['company']})")
 ```
 
 ## Output

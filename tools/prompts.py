@@ -1,3 +1,94 @@
+"""
+Event search prompts for browser-use agent
+"""
+
+event_search_prompt = """
+You are an intelligent event discovery agent for https://lu.ma/discover.
+
+Task:
+Search for events matching the following criteria:
+- Query: {query}
+- Location: {location}
+- Category: {category}
+- Maximum results: {max_results}
+
+Instructions:
+1. Navigate to the events page
+2. Use the search functionality to find relevant events
+3. For each matching event:
+   - Extract the event title, URL, date, location, and description
+   - Click through to get detailed information about speakers and sponsors
+   - Verify the event is upcoming and public
+4. Return the results in a structured format
+
+Output Format:
+Return a JSON array of events, each containing:
+{{
+    "title": "Event Title",
+    "url": "Event URL",
+    "date": "Event Date",
+    "location": "Event Location",
+    "description": "Brief Description",
+    "speakers": [
+        {{
+            "name": "Speaker Name",
+            "title": "Speaker Title",
+            "company": "Company Name"
+        }}
+    ],
+    "sponsors": [
+        {{
+            "name": "Sponsor Name",
+            "website": "Sponsor Website"
+        }}
+    ],
+    "category": "Event Category",
+    "price": "Event Price"
+}}
+"""
+
+event_details_prompt = """
+You are an event details extraction agent.
+
+Task:
+Extract detailed information about the event at the current URL.
+
+Instructions:
+1. Analyze the event page content
+2. Extract the following information:
+   - Event title and description
+   - Date, time, and location
+   - Speaker information (name, title, company)
+   - Sponsor information (name, website)
+   - Event category and price
+3. Return the information in a structured format
+
+Output Format:
+Return a JSON object containing:
+{{
+    "title": "Event Title",
+    "url": "Current URL",
+    "date": "Event Date",
+    "location": "Event Location",
+    "description": "Event Description",
+    "speakers": [
+        {{
+            "name": "Speaker Name",
+            "title": "Speaker Title",
+            "company": "Company Name"
+        }}
+    ],
+    "sponsors": [
+        {{
+            "name": "Sponsor Name",
+            "website": "Sponsor Website"
+        }}
+    ],
+    "category": "Event Category",
+    "price": "Event Price"
+}}
+"""
+
 # Simple is reliable
 simple_event_task_prompt_v3 = """
 You are an intelligent event discovery agent for https://lu.ma/discover.
@@ -68,32 +159,26 @@ Constraints:
 
 simple_event_task_prompt = """
 
-You are a helpful assistant that helps me find events based on the given user intent:
+You are a helpful assistant that help me to find events based on the user's intent. Please strictly follow the instructions:
 
 User Intent: {user_intent}
 
 --------------------------------
 
 Instructions:
-1. Open the events page for the correct category or location. 
-2. Perform a quick general match based on the content displayed in the list and store the results.
-3. For each matching event:
-   - Click the event and open the details page first.
-   - Enter the evnet main page through the link 'Event Page'
-   - Extract and return the event **title**
-   - Extract and return the event **URL**
-   - Optionally include the **date**, **time**, and a **short description**
+1. Open the events page for the correct category or location.
+2. Locate the event list area and perform a quick general match based on the content displayed in the list, then store the results.
+3. For each matching event in the stored resutls:
+   - Extract and return the event **Title**
+   - Analysis the html content, extract "event-link content-link" in html as **URL**.
 4. If no relevant events are found, **broaden or relax the criteria** and repeat the search **until at least one event** is found.
 
 Return Format (for each event):
 - **Title**: ...
-- **Link**: ...
-- **Date & Time**: ...
-- **Short Description**: ...
+- **URL**: ...
 
 Important:
 - Only include **upcoming public events**
-- All links must be full URLs (e.g., https://lu.ma/xyz)
 
 """
 

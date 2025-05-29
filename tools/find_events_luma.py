@@ -1,57 +1,22 @@
 """
-Find Events on Luma
+Find Events on Luma - Legacy Interface
+This module provides backward compatibility for the old event search interface.
+New code should use event_search.py directly.
+
+DEPRECATED: This module is maintained for backward compatibility only.
+Please use event_search.py and the EventSearch class directly for new code.
 """
 
-from dotenv import load_dotenv
-import asyncio
 import os
-import sys
 import json
-from pydantic import SecretStr
-from utils import print_agent_history
-from langchain_openai import ChatOpenAI
-from browser_use import Agent
-from browser_use.browser import BrowserSession, BrowserProfile
-from playwright.sync_api import sync_playwright
-
-# Different prompts for experiment [TBD]
-# from prompts import event_task_prompt as event_task_prompt
-from prompts import simple_event_task_prompt as event_task_prompt
-from utils import test_openai_connection
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-load_dotenv()
-
-os.environ["OPENAI_API_KEY"] = "042ca35c-beaf-4f5b-8033-9170556e5251"
-
-
-def init_llm():
-    browser_profile = BrowserProfile(
-        # NOTE: you need to close your chrome browser - so that this can open your browser in debug mode
-        executable_path='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-        user_data_dir='~/.config/browseruse/profiles/default',
-        headless=False,
-    )
-    browser_session = BrowserSession(browser_profile=browser_profile)
-
-    # Initialize the model
-    llm = ChatOpenAI(
-        base_url="https://api.sambanova.ai/v1",
-        api_key=SecretStr("042ca35c-beaf-4f5b-8033-9170556e5251"),
-        model='DeepSeek-V3-0324',
-        # model='DeepSeek-R1',
-        # model='Llama-4-Maverick-17B-128E-Instruct',
-        # browser_session=browser_session,
-        temperature=0.0,
-    )
-
-    return llm
+import asyncio
+import warnings
+from event_search import EventSearch
 
 
 def find_events(
-    llm,
-    user_intent: str,
+    llm=None,  # Kept for backward compatibility
+    user_intent: str = None,
     user_location: str = None,
     user_featured_calendars: str = None,
     user_category: str = None,
@@ -59,59 +24,69 @@ def find_events(
 ) -> None:
     """
     Search for events on Luma based on user criteria and save results to a JSON file.
+    This is a legacy interface that uses the new EventSearch class internally.
+
+    DEPRECATED: This function is maintained for backward compatibility only.
+    Please use event_search.py and the EventSearch class directly for new code.
 
     Args:
+        llm: Ignored, kept for backward compatibility
         user_intent (str): The user's search intent or interest
-        user_location (str, optional): Location to search for events. Defaults to None.
-        user_featured_calendars (str, optional): Featured calendar to filter by. Defaults to None.
-        user_category (str, optional): Category to filter events by. Defaults to None.
-        output_file (str, optional): Path to save the results. Defaults to 'results/event_results.json'.
+        user_location (str, optional): Location to search for events.
+            Defaults to None.
+        user_featured_calendars (str, optional): Featured calendar to filter by.
+            Defaults to None.
+        user_category (str, optional): Category to filter events by.
+            Defaults to None.
+        output_file (str, optional): Path to save the results.
+            Defaults to 'results/event_results.json'.
     """
-
-    # Format the task with user parameters
-    # task = event_task_prompt.format(
-    task = event_task_prompt.format(
-        user_intent=user_intent,
-        user_location=user_location if user_location else "",
-        user_featured_calendars=user_featured_calendars if user_featured_calendars else "",
-        user_category=user_category if user_category else ""
+    warnings.warn(
+        "find_events() is deprecated. Please use event_search.py and the "
+        "EventSearch class directly for new code.",
+        DeprecationWarning,
+        stacklevel=2
     )
 
-    # Initialize the agent
-    event_agent = Agent(
-        task=task,
-        llm=llm,
-        use_vision=False,
-        save_conversation_path="logs/conversation",  # For debugging only.
-        initial_actions=[{'open_tab': {'url': "https://lu.ma/discover"}}],
-    )
+    if not user_intent:
+        raise ValueError("user_intent is required")
 
-    async def run_agent():
-        await event_agent.browser_session.start()
-        history = await event_agent.run()
+    # Initialize the new EventSearch class
+    api_key = os.getenv(
+        "OPENAI_API_KEY",
+        "042ca35c-beaf-4f5b-8033-9170556e5251"
+    )
+    event_search = EventSearch(api_key)
+
+    async def run_search():
+        # Use the new search_events method
+        events = await event_search.search_events(
+            query=user_intent,
+            location=user_location,
+            category=user_category,
+            max_results=5
+        )
 
         # Ensure results directory exists
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-        # Save results
+        # Save results to file
         with open(output_file, 'w') as f:
-            f.write(history.final_result())
+            json.dump([event.dict() for event in events], f, indent=2)
 
-        # await event_agent.browser_session.close()
-    # Run the agent
-    asyncio.run(run_agent())
+        # Print results
+        for event in events:
+            print(f"\nEvent: {event.title}")
+            print(f"Date: {event.date}")
+            print(f"Location: {event.location}")
+            print(f"URL: {event.url}")
+            if event.speakers:
+                print("\nSpeakers:")
+                for speaker in event.speakers:
+                    print(
+                        f"- {speaker['name']} "
+                        f"({speaker['title']} at {speaker['company']})"
+                    )
 
-
-if __name__ == '__main__':
-    # Test if the LLM is working correctly
-    # test_openai_connection()
-
-    llm = init_llm()
-    # Example usage
-    find_events(
-        llm,
-        user_intent="I want to find an event about AI, our company is focused on speech generation.",
-        user_location=None,  # "San Francisco"
-        user_featured_calendars=None,  # "AI"
-        user_category=None,  # "AI"
-    )
+    # Run the search
+    asyncio.run(run_search())

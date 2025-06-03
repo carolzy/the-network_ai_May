@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network AI - Your Goals</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 40px;
+        }
+
+        .container {
+            max-width: clamp(800px, 90vw, 1200px);
+            width: 100%;
+            text-align: center;
+        }
+
+        .back-button {
+            position: absolute;
+            top: clamp(30px, 5vw, 60px);
+            left: clamp(30px, 5vw, 60px);
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-size: clamp(24px, 4vw, 36px);
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .back-button:hover {
+            background: #f3f4f6;
+            color: #374151;
+            transform: scale(1.1);
+        }
+
+        .logo {
+            font-size: clamp(60px, 8vw, 120px);
+            font-weight: 800;
+            letter-spacing: -3px;
+            color: #111827;
+            margin-bottom: clamp(20px, 3vw, 40px);
+        }
+
+        .subtitle {
+            font-size: clamp(24px, 4vw, 48px);
+            color: #4b5563;
+            margin-bottom: clamp(50px, 8vw, 100px);
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .main-title {
+            font-size: clamp(36px, 6vw, 72px);
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: clamp(24px, 4vw, 48px);
+            line-height: 1.2;
+        }
+
+        .description {
+            font-size: clamp(20px, 3.5vw, 36px);
+            color: #4b5563;
+            margin-bottom: clamp(12px, 2vw, 24px);
+            line-height: 1.4;
+        }
+
+        .instruction {
+            font-size: clamp(16px, 2.5vw, 28px);
+            color: #6b7280;
+            margin-bottom: clamp(40px, 6vw, 80px);
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .goals-container {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(16px, 2.5vw, 24px);
+            margin-bottom: clamp(40px, 6vw, 60px);
+            max-width: 100%;
+        }
+
+        .goal-option {
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: clamp(24px, 4vw, 48px) clamp(24px, 4vw, 40px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .goal-option:hover {
+            border-color: #d1d5db;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .goal-option.selected {
+            border-color: #000000;
+            background: #f9fafb;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .goal-left {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: clamp(16px, 3vw, 32px);
+        }
+
+        .goal-checkbox {
+            width: clamp(28px, 4vw, 40px);
+            height: clamp(28px, 4vw, 40px);
+            border: 3px solid #d1d5db;
+            border-radius: 8px;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .goal-option.selected .goal-checkbox {
+            background: #000000;
+            border-color: #000000;
+        }
+
+        .goal-option.selected .goal-checkbox::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            width: clamp(6px, 1vw, 10px);
+            height: clamp(12px, 2vw, 18px);
+            border: solid white;
+            border-width: 0 3px 3px 0;
+        }
+
+        .goal-text {
+            font-size: clamp(20px, 3.5vw, 32px);
+            font-weight: 500;
+            color: #111827;
+            flex: 1;
+            line-height: 1.3;
+        }
+
+        .star-button {
+            width: clamp(40px, 5vw, 56px);
+            height: clamp(40px, 5vw, 56px);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: clamp(24px, 4vw, 36px);
+            color: #d1d5db;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: clamp(16px, 2vw, 24px);
+            flex-shrink: 0;
+            border-radius: 50%;
+        }
+
+        .star-button:hover {
+            color: #fbbf24;
+            transform: scale(1.2);
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .star-button.active {
+            color: #fbbf24;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: clamp(16px, 3vw, 24px);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: clamp(16px, 2.5vw, 24px) clamp(32px, 5vw, 64px);
+            border-radius: 12px;
+            font-size: clamp(18px, 3vw, 24px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: clamp(180px, 25vw, 240px);
+        }
+
+        .btn-primary {
+            background: #000000;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary:hover {
+            background: #1f2937;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #111827;
+            border: 2px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            color: #000000;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            border-color: #d1d5db;
+        }
+
+        @media (max-width: 768px) {
+            .back-button {
+                top: 20px;
+                left: 20px;
+                font-size: 24px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .logo {
+                font-size: 64px;
+            }
+
+            .subtitle {
+                font-size: 24px;
+            }
+
+            .main-title {
+                font-size: 36px;
+            }
+
+            .description {
+                font-size: 22px;
+            }
+
+            .instruction {
+                font-size: 18px;
+            }
+
+            .goal-option {
+                padding: 24px 20px;
+            }
+
+            .goal-text {
+                font-size: 20px;
+            }
+
+            .goal-checkbox {
+                width: 24px;
+                height: 24px;
+                margin-right: 16px;
+            }
+
+            .goal-option.selected .goal-checkbox::after {
+                top: 4px;
+                left: 7px;
+                width: 6px;
+                height: 10px;
+            }
+
+            .star-button {
+                width: 36px;
+                height: 36px;
+                font-size: 24px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 18px 32px;
+                font-size: 18px;
+            }
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 48px;
+            }
+
+            .subtitle {
+                font-size: 20px;
+            }
+
+            .main-title {
+                font-size: 28px;
+            }
+
+            .description {
+                font-size: 18px;
+            }
+
+            .instruction {
+                font-size: 16px;
+            }
+
+            .goal-text {
+                font-size: 18px;
+            }
+
+            .btn {
+                font-size: 16px;
+                padding: 16px 28px;
+            }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 80%;
+            box-shadow: 0 0 30px rgba(52, 152, 219, 0.5);
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 18px;
+            margin-top: 20px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .loading-spinner {
+            border: 8px solid rgba(255, 255, 255, 0.1);
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="goBack()">←</button>
+
+    <!-- Loading indicator -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div id="loading-text" class="loading-text">Analyzing your business information...</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="logo fade-in">NETWORK AI</h1>
+        <p class="subtitle fade-in">AI-Powered B2B Marketplace for Company Growth</p>
+        
+        <h2 class="main-title fade-in">What is your main goal of networking?</h2>
+        <p class="description fade-in">You can select multiple options and put a star next to your most important goal</p>
+        <p class="instruction fade-in">Select at least one option and mark your primary goal with a star.</p>
+        
+        <div class="goals-container">
+            <div class="goal-option fade-in" onclick="toggleGoal(1)" id="goal-1">
+                <div class="goal-left">
+                    <div class="goal-checkbox"></div>
+                    <div class="goal-text">Find more buyers/users of your product/service</div>
+                </div>
+                <button class="star-button" onclick="setPrimary(1, event)" id="star-1">☆</button>
+            </div>
+
+            <div class="goal-option fade-in" onclick="toggleGoal(2)" id="goal-2">
+                <div class="goal-left">
+                    <div class="goal-checkbox"></div>
+                    <div class="goal-text">Recruit talent for your team</div>
+                </div>
+                <button class="star-button" onclick="setPrimary(2, event)" id="star-2">☆</button>
+            </div>
+
+            <div class="goal-option fade-in" onclick="toggleGoal(3)" id="goal-3">
+                <div class="goal-left">
+                    <div class="goal-checkbox"></div>
+                    <div class="goal-text">Meet meaningful business partners</div>
+                </div>
+                <button class="star-button" onclick="setPrimary(3, event)" id="star-3">☆</button>
+            </div>
+
+            <div class="goal-option fade-in" onclick="toggleGoal(4)" id="goal-4">
+                <div class="goal-left">
+                    <div class="goal-checkbox"></div>
+                    <div class="goal-text">Connect with strategic investors</div>
+                </div>
+                <button class="star-button" onclick="setPrimary(4, event)" id="star-4">☆</button>
+            </div>
+
+            <div class="goal-option fade-in" onclick="toggleGoal(5)" id="goal-5">
+                <div class="goal-left">
+                    <div class="goal-checkbox"></div>
+                    <div class="goal-text">Just meet interesting people, learning new things</div>
+                </div>
+                <button class="star-button" onclick="setPrimary(5, event)" id="star-5">☆</button>
+            </div>
+        </div>
+
+        <div class="action-buttons fade-in">
+            <button class="btn btn-primary" onclick="seeEvents()">See Events</button>
+            <button class="btn btn-secondary" onclick="tellMeMore()">Tell Me More</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedGoals = new Set();
+        let primaryGoal = null;
+
+        function goBack() {
+            window.location.href = '/company_url';
+        }
+
+        function toggleGoal(goalId) {
+            const goalElement = document.getElementById(`goal-${goalId}`);
+            
+            if (selectedGoals.has(goalId)) {
+                selectedGoals.delete(goalId);
+                goalElement.classList.remove('selected');
+                
+                // If this was the primary goal, clear it
+                if (primaryGoal === goalId) {
+                    clearPrimaryGoal();
+                }
+            } else {
+                selectedGoals.add(goalId);
+                goalElement.classList.add('selected');
+            }
+            
+            updateButtons();
+        }
+
+        function setPrimary(goalId, event) {
+            event.stopPropagation(); // Prevent triggering the goal selection
+            
+            // First ensure the goal is selected
+            if (!selectedGoals.has(goalId)) {
+                toggleGoal(goalId);
+            }
+            
+            // Clear previous primary
+            if (primaryGoal) {
+                document.getElementById(`star-${primaryGoal}`).textContent = '☆';
+                document.getElementById(`star-${primaryGoal}`).classList.remove('active');
+            }
+            
+            // Set new primary
+            primaryGoal = goalId;
+            document.getElementById(`star-${goalId}`).textContent = '★';
+            document.getElementById(`star-${goalId}`).classList.add('active');
+        }
+
+        function clearPrimaryGoal() {
+            if (primaryGoal) {
+                document.getElementById(`star-${primaryGoal}`).textContent = '☆';
+                document.getElementById(`star-${primaryGoal}`).classList.remove('active');
+                primaryGoal = null;
+            }
+        }
+
+        function updateButtons() {
+            const seeEventsBtn = document.querySelector('.btn-primary');
+            if (selectedGoals.size > 0) {
+                seeEventsBtn.style.opacity = '1';
+                seeEventsBtn.style.pointerEvents = 'auto';
+            } else {
+                seeEventsBtn.style.opacity = '0.5';
+                seeEventsBtn.style.pointerEvents = 'none';
+            }
+        }
+
+        function showLoading(message) {
+            const overlay = document.getElementById('loading-overlay');
+            const text = document.getElementById('loading-text');
+            text.textContent = message;
+            overlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = 'none';
+        }
+
+        function seeEvents() {
+            if (selectedGoals.size === 0) {
+                alert('Please select at least one goal');
+                return;
+            }
+            
+            // Show loading indicator
+            showLoading('Magic is cooking... your patience is appreciated ✨');
+            
+            // Get the product info from localStorage
+            const productInfo = localStorage.getItem('productInfo') || '';
+            
+            // Create a form to submit to business_profile
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/business_profile';
+            
+            // Add the product info
+            const answerField = document.createElement('input');
+            answerField.type = 'hidden';
+            answerField.name = 'answer';
+            answerField.value = productInfo;
+            form.appendChild(answerField);
+            
+            // Add the step field
+            const stepField = document.createElement('input');
+            stepField.type = 'hidden';
+            stepField.name = 'step';
+            stepField.value = 'product';
+            form.appendChild(stepField);
+            
+            // Add the action field
+            const actionField = document.createElement('input');
+            actionField.type = 'hidden';
+            actionField.name = 'action';
+            actionField.value = 'see_events';
+            form.appendChild(actionField);
+            
+            // Add selected goals
+            const goalsField = document.createElement('input');
+            goalsField.type = 'hidden';
+            goalsField.name = 'selected_goals';
+            goalsField.value = JSON.stringify(Array.from(selectedGoals));
+            form.appendChild(goalsField);
+            
+            // Add primary goal if selected
+            if (primaryGoal) {
+                const primaryField = document.createElement('input');
+                primaryField.type = 'hidden';
+                primaryField.name = 'primary_goal';
+                primaryField.value = primaryGoal.toString();
+                form.appendChild(primaryField);
+            }
+            
+            // Add the form to the document and submit it
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function tellMeMore() {
+            alert('Opening detailed form...');
+            // Here you would open the detailed form modal
+        }
+
+        // Initialize page
+        function initializePage() {
+            updateButtons();
+            
+            // Animate elements on page load
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, index * 100);
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+</html>

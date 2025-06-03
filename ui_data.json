@@ -1,0 +1,101 @@
+{
+  "target_customers": [
+    {
+      "industry": "Game Development",
+      "company_name": "Unity Technologies",
+      "size": "1000+ employees",
+      "why_good_fit": "Unity is a leader in real-time 3D content creation and would benefit from ElevenLabs' advanced voice AI for immersive game experiences.",
+      "website": "https://unity.com"
+    },
+    {
+      "industry": "Game Development",
+      "company_name": "Supercell",
+      "size": "300+ employees",
+      "why_good_fit": "Supercell creates globally popular mobile games and could use ElevenLabs for character voiceovers and dynamic audio.",
+      "website": "https://supercell.com"
+    },
+    {
+      "industry": "AAA Game Studio",
+      "company_name": "CD PROJEKT RED",
+      "size": "1000+ employees",
+      "why_good_fit": "CD PROJEKT RED is known for narrative-driven games like The Witcher and Cyberpunk 2077, making them a great fit for ElevenLabs' AI-powered dialogue.",
+      "website": "https://cdprojektred.com"
+    },
+    {
+      "industry": "Indie Games",
+      "company_name": "Devolver Digital",
+      "size": "50+ employees",
+      "why_good_fit": "Devolver Digital publishes innovative indie games and could leverage ElevenLabs for unique audio branding and localization.",
+      "website": "https://devolverdigital.com"
+    }
+  ],
+  "key_differentiators": [
+    { "icon": "💡", "text": "Your unique value proposition" },
+    { "icon": "⚡", "text": "Your technological advantages" },
+    { "icon": "🌍", "text": "Your market reach" },
+    { "icon": "🎭", "text": "Your innovation capabilities" }
+  ],
+  "keywords": ["voice AI", "game audio", "localization", "interactive dialogue"],
+  "multi_factor_analysis": {
+    "customer_analysis": "Analysis based on available information about your target market.",
+    "market_growth": "General market trends and growth opportunities in your industry."
+  },
+  "event_strategies": {
+    "business_partners": {
+      "goal_icon": "🤝",
+      "goal_title": "For Meeting Business Partners",
+      "strategy": "Participate in conferences and integration events to connect with potential partners."
+    },
+    "find_buyers": {
+      "goal_icon": "💰",
+      "goal_title": "For Finding Buyers/Users",
+      "strategy": "Attend industry-specific trade shows and conferences where potential customers gather."
+    },
+    "investors": {
+      "goal_icon": "💼",
+      "goal_title": "For Connecting with Investors",
+      "strategy": "Participate in venture capital conferences and pitch events."
+    },
+    "networking": {
+      "goal_icon": "🌐",
+      "goal_title": "For General Networking",
+      "strategy": "Join industry mixers and professional meetups to build relationships."
+    },
+    "recruit_talent": {
+      "goal_icon": "👥",
+      "goal_title": "For Recruiting Talent",
+      "strategy": "Attend university career fairs and industry meetups to connect with professionals."
+    }
+  },
+  "specific_events": [
+    {
+      "description": "A major gathering of industry professionals where you can showcase your products and services.",
+      "meta": "April 2025 • San Francisco, CA • Conference",
+      "primary_goal": "find_buyers",
+      "title": "Industry Conference 2025"
+    },
+    {
+      "description": "A large technology exhibition with opportunities for networking and partnership building.",
+      "meta": "June 2025 • New York, NY • Expo",
+      "primary_goal": "business_partners",
+      "title": "Tech Expo 2025"
+    },
+    {
+      "description": "A focused gathering of industry leaders and decision-makers.",
+      "meta": "September 2025 • Chicago, IL • Summit",
+      "primary_goal": "networking",
+      "title": "Industry Summit 2025"
+    }
+  ],
+  "target_events_text": "We recommend focusing on industry-specific events where you can connect with potential customers, partners, and talent.",
+  "who_to_target": [
+    {
+      "group_detail": "Focus on decision-makers in your target market",
+      "group_title": "Industry Professionals"
+    },
+    {
+      "group_detail": "Connect with individuals who have a need for your product or service",
+      "group_title": "Potential Customers"
+    }
+  ]
+}

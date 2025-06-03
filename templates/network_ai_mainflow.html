@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network AI - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 28px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: 800;
+            color: #111827;
+            letter-spacing: -1px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #000000;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1f2937;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 60px 50px;
+            display: none; /* Hidden until loaded */
+        }
+
+        .tab-navigation {
+            display: flex;
+            flex-direction: row;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 50px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            width: 100%;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 24px 32px;
+            background: #f8fafc;
+            border: none;
+            font-size: 20px;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .tab-button:last-child {
+            border-right: none;
+        }
+
+        .tab-button.active {
+            background: #000000;
+            color: white;
+        }
+
+        .tab-button:hover:not(.active) {
+            background: #f1f5f9;
+            color: #374151;
+        }
+
+        .tab-content {
+            display: none;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 60px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 42px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 24px;
+        }
+
+        .section-subtitle {
+            font-size: 22px;
+            color: #6b7280;
+            margin-bottom: 50px;
+            line-height: 1.5;
+        }
+
+        /* Analysis Insight Styles */
+        .analysis-insight {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+
+        .insight-content {
+            flex: 1;
+        }
+
+        .insight-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0c4a6e;
+            margin-bottom: 16px;
+        }
+
+        .insight-description {
+            font-size: 20px;
+            color: #0369a1;
+            line-height: 1.6;
+        }
+
+        /* Differentiation highlights */
+        .differentiation-highlights {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+
+        .highlight-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 24px;
+        }
+
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+        }
+
+        .highlight-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .highlight-icon {
+            width: 40px;
+            height: 40px;
+            background: #000000;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .highlight-text {
+            font-size: 20px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        /* Customer Tables */
+        .customer-table-container {
+            overflow-x: auto;
+            margin: 40px 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+        }
+
+        .customer-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+
+        .customer-table th,
+        .customer-table td {
+            padding: 24px 20px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .customer-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            font-size: 18px;
+        }
+
+        .customer-table td {
+            font-size: 18px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .customer-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .company-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .company-link:hover {
+            text-decoration: underline;
+        }
+
+        /* WHO TO TARGET Section */
+        .who-to-target {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 50px;
+            width: 100%;
+        }
+
+        .who-header {
+            margin-bottom: 24px;
+        }
+
+        .who-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .who-subtitle {
+            font-size: 18px;
+            color: #6b7280;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .who-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .target-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .target-group strong {
+            color: #111827;
+            font-size: 20px;
+        }
+
+        .target-detail {
+            color: #6b7280;
+            font-size: 18px;
+        }
+
+        /* Goal Sections */
+        .goal-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+        }
+
+        .goal-section {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 40px;
+        }
+
+        .goal-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .goal-icon {
+            font-size: 36px;
+        }
+
+        .goal-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .event-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 32px;
+        }
+
+        .event-type-card {
+            background: #f9fafb;
+            border: 1px solid #f3f4f6;
+            border-radius: 8px;
+            padding: 32px;
+        }
+
+        .event-type-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .event-type-subtitle {
+            font-size: 18px;
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .event-examples {
+            font-size: 18px;
+            color: #374151;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .event-opportunity {
+            font-size: 18px;
+            color: #374151;
+            background: #f0f9ff;
+            border-left: 3px solid #0ea5e9;
+            padding: 16px 20px;
+            border-radius: 4px;
+        }
+
+        .event-opportunity strong {
+            color: #0c4a6e;
+        }
+
+        /* Events Tab */
+        .event-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 28px;
+        }
+
+        .event-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+        }
+
+        .event-meta {
+            font-size: 18px;
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .event-description {
+            font-size: 18px;
+            color: #374151;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .event-btn {
+            padding: 14px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .event-btn-primary {
+            background: #000000;
+            color: white;
+            border: none;
+        }
+
+        .event-btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .event-btn-secondary:hover {
+            background: #e5e7eb;
+            color: #1a1a1a;
+        }
+
+        /* Action buttons at bottom */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons .btn {
+            padding: 18px 36px;
+            font-size: 20px;
+        }
+
+        /* Profile Tab Styles */
+        .form-group {
+            margin-bottom: 50px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 22px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 20px 24px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 20px;
+            line-height: 1.5;
+            min-height: 180px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #000000;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .keywords-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .keyword {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .keyword.selected {
+            background: #000000;
+            color: white;
+            border-color: #000000;
+        }
+
+        .keyword:hover:not(.selected) {
+            background: #e5e7eb;
+        }
+
+        .profile-visibility {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 28px;
+            margin-bottom: 50px;
+        }
+
+        .visibility-header {
+            margin-bottom: 16px;
+        }
+
+        .visibility-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        .visibility-description {
+            font-size: 18px;
+            color: #a16207;
+            line-height: 1.5;
+        }
+
+        .btn-primary.large {
+            padding: 20px 40px;
+            font-size: 20px;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px 24px;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .logo {
+                font-size: 36px;
+            }
+
+            .tab-navigation {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                border-right: none;
+                border-bottom: 1px solid #e5e7eb;
+                font-size: 18px;
+                padding: 20px 24px;
+            }
+
+            .tab-button:last-child {
+                border-bottom: none;
+            }
+
+            .container {
+                padding: 30px 20px;
+            }
+
+            .tab-content {
+                padding: 40px 24px;
+            }
+
+            .section-title {
+                font-size: 32px;
+            }
+
+            .section-subtitle {
+                font-size: 18px;
+            }
+
+            .customer-table {
+                font-size: 16px;
+            }
+
+            .highlights-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .event-types-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="logo">NETWORK AI</h1>
+        <div class="header-actions">
+            <button class="btn btn-secondary">👤 Let me Network</button>
+            <button class="btn btn-primary">Tell Me More About You</button>
+        </div>
+    </div>
+
+    <div id="loading" style="padding: 2em; text-align: center; font-size: 18px;">Loading dashboard...</div>
+
+    <div class="container">
+        <div class="tab-navigation">
+            <button class="tab-button active" onclick="showTab('targets', this)">Target Customers</button>
+            <button class="tab-button" onclick="showTab('events', this)">Recommended Events</button>
+            <button class="tab-button" onclick="showTab('profile', this)">Business Profile</button>
+        </div>
+
+        <!-- Target Customers Tab -->
+        <div id="targets-tab" class="tab-content active">
+            <div class="section-title">Target Customers</div>
+            <div class="section-subtitle">Based on comprehensive analysis of your current customers, product differentiation, and growing market sectors.</div>
+            
+            <!-- Analysis Insight -->
+            <div class="analysis-insight">
+                <div class="insight-content">
+                    <div class="insight-title">Multi-Factor Analysis Complete</div>
+                    <div id="multi-factor-analysis" class="insight-description">
+                        <!-- Data will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="differentiation-highlights">
+                <div class="highlight-title">Your Key Differentiators</div>
+                <div id="key-differentiators" class="highlights-grid">
+                    <!-- Data will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="customer-table-container">
+                <table class="customer-table">
+                    <thead>
+                        <tr>
+                            <th>Industry</th>
+                            <th>Company Name</th>
+                            <th>Size</th>
+                            <th>Why They're a Good Fit</th>
+                            <th>Website</th>
+                        </tr>
+                    </thead>
+                    <tbody id="target-customers-table">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary">Find More Target Customers</button>
+                <button class="btn btn-primary" onclick="showTab('events', document.querySelectorAll('.tab-button')[1])">→ Find these prospects at recommended events</button>
+            </div>
+        </div>
+
+        <!-- Recommended Events Tab -->
+        <div id="events-tab" class="tab-content">
+            <div class="section-title">Recommended Events</div>
+            <div class="section-subtitle">← Based on your target customer analysis</div>
+            
+            <!-- WHO TO TARGET Section -->
+            <div class="who-to-target">
+                <div class="who-header">
+                    <div class="who-title">WHO TO TARGET</div>
+                </div>
+                <div class="who-subtitle">
+                    Insights based on your existing customers, market analysis, competitor research, and tech maturity trends
+                </div>
+                <div id="who-to-target-content" class="who-content">
+                    <!-- Data will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Goal-Based Event Strategy -->
+            <div id="goal-sections" class="goal-sections">
+                <!-- Data will be loaded here -->
+            </div>
+
+            <!-- Specific Event Recommendations -->
+            <div class="section-title" style="margin-top: 50px;">Specific Event Recommendations</div>
+            
+            <div id="specific-events">
+                <!-- Data will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Business Profile Tab -->
+        <div id="profile-tab" class="tab-content">
+            <div class="section-title">Business Profile</div>
+            <div class="section-subtitle">This profile will be shared with potential customers, partners, and recruits when you connect at events.</div>
+            
+            <!-- Profile Visibility Notice -->
+            <div class="profile-visibility">
+                <div class="visibility-header">
+                    <div class="visibility-title">👁️ Profile Visibility</div>
+                </div>
+                <div class="visibility-description">
+                    Your business profile and differentiators will be shown to target customers, potential partners, and recruits 
+                    when you connect through Network AI. Make sure it accurately represents your company's strengths.
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="about-business">About Your Business</label>
+                <textarea id="about-business" name="about-business" class="form-textarea" placeholder="Describe your business, what you do, and your unique value proposition..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Product Differentiators</label>
+                <div class="section-subtitle">Highlight what makes your product unique - this will be shown to prospects.</div>
+                <div class="differentiation-highlights">
+                    <div class="highlight-title">Your Key Differentiators</div>
+                    <div id="differentiators-grid" class="highlights-grid">
+                        <!-- Data will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Keywords & Focus Areas</label>
+                <div class="section-subtitle">These keywords will be used to find relevant events. Click to toggle selection.</div>
+                <div class="keywords-container" id="keywords-container">
+                    <!-- Data will be loaded here -->
+                </div>
+            </div>
+
+            <button class="btn btn-primary large">Update Profile</button>
+        </div>
+    </div>
+
+    <script>
+        console.log('Script loaded');
+
+        // 1. LOAD DATA FROM ui_data.json
+        async function loadDataFromFile() {
+            try {
+                console.log('Attempting to fetch ui_data.json...');
+                const response = await fetch('ui_data.json');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Successfully loaded data from ui_data.json:', data);
+                return data;
+                
+            } catch (error) {
+                console.log('Could not load ui_data.json:', error.message);
+                console.log('Using fallback data...');
+                
+                // Fallback data only if file loading fails
+                return {
+                    "target_customers": [
+                        {
+                            "industry": "Game Development",
+                            "company_name": "Unity Technologies",
+                            "size": "1000+ employees",
+                            "why_good_fit": "Unity is a leader in real-time 3D content creation and would benefit from ElevenLabs' advanced voice AI for immersive game experiences.",
+                            "website": "https://unity.com"
+                        }
+                    ],
+                    "key_differentiators": [
+                        { "icon": "💡", "text": "Fallback: Your unique value proposition" },
+                        { "icon": "⚡", "text": "Fallback: Your technological advantages" }
+                    ],
+                    "keywords": ["voice AI", "game audio"],
+                    "multi_factor_analysis": {
+                        "customer_analysis": "Fallback: Analysis based on available information.",
+                        "market_growth": "Fallback: General market trends."
+                    },
+                    "event_strategies": [],
+                    "specific_events": [],
+                    "who_to_target": [
+                        {
+                            "group_title": "Fallback Data",
+                            "group_detail": "This is fallback data - ui_data.json was not loaded"
+                        }
+                    ]
+                };
+            }
+        }
+
+        // 2. INITIALIZATION FUNCTION
+        async function initializeDashboard() {
+            console.log('Initializing dashboard...');
+            
+            // Load data from file
+            const event_data_json = await loadDataFromFile();
+            
+            // Hide loading, show container
+            document.getElementById('loading').style.display = 'none';
+            document.querySelector('.container').style.display = 'block';
+            
+            // Populate all sections with loaded data
+            populateTargetCustomers(event_data_json);
+            populateKeyDifferentiators(event_data_json);
+            populateWhoToTarget(event_data_json);
+            populateEventStrategies(event_data_json);
+            populateSpecificEvents(event_data_json);
+            populateMultiFactorAnalysis(event_data_json);
+            populateKeywords(event_data_json);
+            
+            console.log('Dashboard initialized successfully');
+        }
+
+        // 3. POPULATE FUNCTIONS (now take data as parameter)
+        function populateTargetCustomers(data) {
+            const tbody = document.getElementById('target-customers-table');
+            if (!data.target_customers || data.target_customers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No target customers available</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = data.target_customers.map(customer => `
+                <tr>
+                    <td>${customer.industry}</td>
+                    <td>${customer.company_name}</td>
+                    <td>${customer.size}</td>
+                    <td>${customer.why_good_fit}</td>
+                    <td><a href="${customer.website}" class="company-link" target="_blank">${customer.website.replace('https://', '').replace('http://', '')}</a></td>
+                </tr>
+            `).join('');
+        }
+
+        function populateKeyDifferentiators(data) {
+            const containers = ['key-differentiators', 'differentiators-grid'];
+            if (!data.key_differentiators || data.key_differentiators.length === 0) {
+                return;
+            }
+            
+            const html = data.key_differentiators.map(diff => `
+                <div class="highlight-item">
+                    <div class="highlight-icon">${diff.icon}</div>
+                    <div class="highlight-text">${diff.text}</div>
+                </div>
+            `).join('');
+
+            containers.forEach(id => {
+                const container = document.getElementById(id);
+                if (container) container.innerHTML = html;
+            });
+        }
+
+        function populateWhoToTarget(data) {
+            const container = document.getElementById('who-to-target-content');
+            if (!data.who_to_target || data.who_to_target.length === 0) {
+                container.innerHTML = '<div>No target groups available</div>';
+                return;
+            }
+            
+            container.innerHTML = data.who_to_target.map(target => `
+                <div class="target-group">
+                    <strong>${target.group_title}</strong>
+                    <span class="target-detail">${target.group_detail}</span>
+                </div>
+            `).join('');
+        }
+
+        function populateEventStrategies(data) {
+            const container = document.getElementById('goal-sections');
+            if (!data.event_strategies || data.event_strategies.length === 0) {
+                container.innerHTML = '<div class="goal-section"><div class="goal-header"><div class="goal-title">No event strategies available</div></div></div>';
+                return;
+            }
+            
+            container.innerHTML = data.event_strategies.map(strategy => `
+                <div class="goal-section">
+                    <div class="goal-header">
+                        <div class="goal-icon">${strategy.goal_icon}</div>
+                        <div class="goal-title">${strategy.goal_title}</div>
+                    </div>
+                    <div class="event-types-grid">
+                        ${(strategy.event_types || []).map(eventType => `
+                            <div class="event-type-card">
+                                <div class="event-type-title">${eventType.type_title}</div>
+                                <div class="event-type-subtitle">${eventType.type_subtitle}</div>
+                                <div class="event-examples">
+                                    ${(eventType.examples || []).map(example => `• ${example}`).join('<br>')}
+                                </div>
+                                <div class="event-opportunity">
+                                    <strong>Why this works:</strong> ${eventType.why_works}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function populateSpecificEvents(data) {
+            const container = document.getElementById('specific-events');
+            if (!data.specific_events || data.specific_events.length === 0) {
+                container.innerHTML = '<div class="event-card"><div class="event-title">No specific events available</div></div>';
+                return;
+            }
+            
+            container.innerHTML = data.specific_events.map(event => `
+                <div class="event-card">
+                    <div class="event-title">${event.title}</div>
+                    <div class="event-meta">${event.meta}</div>
+                    <div class="event-description">${event.description}</div>
+                    <div class="event-actions">
+                        <button class="event-btn event-btn-primary">Save Event</button>
+                        <button class="event-btn event-btn-secondary">Deep Research</button>
+                        <button class="event-btn event-btn-secondary">Auto Register</button>
+                        <button class="event-btn event-btn-secondary">Let me Network</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function populateMultiFactorAnalysis(data) {
+            const element = document.getElementById('multi-factor-analysis');
+            if (!data.multi_factor_analysis) {
+                element.innerHTML = '<strong>Analysis:</strong> No analysis data available';
+                return;
+            }
+            
+            const analysis = data.multi_factor_analysis;
+            element.innerHTML = `
+                <strong>Customer Analysis:</strong> ${analysis.customer_analysis}<br>
+                <strong>Market Growth:</strong> ${analysis.market_growth}
+            `;
+        }
+
+        function populateKeywords(data) {
+            const container = document.getElementById('keywords-container');
+            if (!data.keywords || data.keywords.length === 0) {
+                container.innerHTML = '<div class="keyword">No keywords available</div>';
+                return;
+            }
+            
+            // Handle both string array and object array formats
+            const keywordHTML = data.keywords.map(keyword => {
+                if (typeof keyword === 'string') {
+                    return `<div class="keyword selected" onclick="toggleKeyword(this)">${keyword}</div>`;
+                } else {
+                    return `<div class="keyword ${keyword.selected ? 'selected' : ''}" onclick="toggleKeyword(this)">${keyword.text}</div>`;
+                }
+            }).join('');
+            
+            container.innerHTML = keywordHTML;
+        }
+
+        // 4. TAB SWITCHING
+        function showTab(tabName, clickedButton) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show selected tab content
+            const targetTab = document.getElementById(tabName + '-tab');
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+
+            // Add active class to clicked tab button
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            }
+        }
+
+        // 5. KEYWORD TOGGLE
+        function toggleKeyword(element) {
+            element.classList.toggle('selected');
+        }
+
+        // 6. LOAD ON DOM READY
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing dashboard...');
+            initializeDashboard();
+        });
+    </script>
+</body>
+</html>
+                

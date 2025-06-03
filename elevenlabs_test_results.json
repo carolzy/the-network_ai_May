@@ -1,0 +1,110 @@
+{
+  "ui_data": {
+    "multi_factor_analysis": {
+      "customer_analysis": "ElevenLabs' customer base likely includes content creators, media companies, and businesses seeking to enhance their audio experiences. Understanding their specific needs for voice AI in content creation, customer service, and accessibility is crucial.",
+      "market_growth": "The market for AI-powered voice technology is experiencing rapid growth, driven by increasing demand for realistic and customizable voice solutions across various industries."
+    },
+    "key_differentiators": [
+      {
+        "icon": "\ud83c\udfaf",
+        "text": "AI-powered voice cloning and generation for realistic and expressive audio."
+      },
+      {
+        "icon": "\u26a1",
+        "text": "Rapid voice synthesis and customization capabilities."
+      },
+      {
+        "icon": "\ud83c\udf0d",
+        "text": "Scalable platform for diverse applications, from content creation to customer service."
+      },
+      {
+        "icon": "\ud83c\udfad",
+        "text": "Innovative voice AI technology for unique and engaging audio experiences."
+      }
+    ],
+    "target_customers": [],
+    "who_to_target": [
+      {
+        "group_title": "Content Creators and Media Producers",
+        "description": "Independent creators, video production companies, and media organizations seeking high-quality, customizable voiceovers for their projects. They need realistic and engaging voices to enhance their content and reach wider audiences."
+      },
+      {
+        "group_title": "Customer Service and Call Centers",
+        "description": "Businesses looking to automate and personalize their customer interactions through AI-powered voice assistants. They need reliable and scalable voice solutions to improve customer satisfaction and reduce operational costs."
+      },
+      {
+        "group_title": "E-learning and Training Platforms",
+        "description": "Companies developing online courses and training materials that require diverse and engaging voice narration. They need customizable voice solutions to create immersive learning experiences and cater to different learning styles."
+      }
+    ],
+    "event_strategies": {
+      "find_buyers": {
+        "goal_title": "For Finding Buyers/Users",
+        "goal_icon": "\ud83d\udcb0",
+        "event_types": [
+          "Content creation conferences and trade shows focused on video production and audio engineering",
+          "Customer experience and call center technology expos",
+          "E-learning and instructional design conferences"
+        ]
+      },
+      "business_partners": {
+        "goal_title": "For Meeting Business Partners",
+        "goal_icon": "\ud83e\udd1d",
+        "event_types": [
+          "API integration conferences and developer events",
+          "AI and machine learning technology summits"
+        ]
+      },
+      "recruit_talent": {
+        "goal_title": "For Recruiting Talent",
+        "goal_icon": "\ud83d\udc65",
+        "event_types": [
+          "AI and machine learning career fairs at top universities"
+        ]
+      },
+      "investors": {
+        "goal_title": "For Connecting with Investors",
+        "goal_icon": "\ud83d\udcbc",
+        "event_types": [
+          "Venture capital conferences focused on AI and media technology"
+        ]
+      },
+      "networking": {
+        "goal_title": "For General Networking",
+        "goal_icon": "\ud83c\udf10",
+        "event_types": [
+          "AI and content creation industry mixers and meetups"
+        ]
+      }
+    },
+    "specific_events": [
+      {
+        "title": "NAB Show 2025",
+        "meta": "April 2025 \u2022 Las Vegas, NV \u2022 Trade Show",
+        "description": "Perfect for showcasing voice technology to media and content creation professionals. Expected 80,000+ attendees including video producers, broadcasters, and content creators who need voice AI solutions.",
+        "primary_goal": "find_buyers"
+      },
+      {
+        "title": "Call & Contact Center Expo 2025",
+        "meta": "May 2025 \u2022 Chicago, IL \u2022 Conference",
+        "description": "Connect with customer service executives and call center managers looking for AI automation solutions. Focus on voice AI for customer interactions and support automation.",
+        "primary_goal": "find_buyers"
+      },
+      {
+        "title": "Voice Summit 2025",
+        "meta": "July 2025 \u2022 Arlington, VA \u2022 Conference",
+        "description": "The leading event for voice technology and AI. Connect with developers, product managers, and business leaders interested in the latest advancements in voice AI and its applications.",
+        "primary_goal": "business_partners"
+      }
+    ],
+    "business_profile": {
+      "description": "Okay, I'm ready to generate an insightful B2B sales summary. Please provide me with the following information:\n\n*   **Product/Service:** (What does the company sell?)\n*   **Target Market:** (Who are their ideal customers?)\n*   **Company Size:** (e.g., Startup, SMB, Enterprise)\n*   **Differentiation:** (What makes them unique compared to competitors?)\n*   **Website Title:** (The title tag of their homepage)\n*   **Website Description:** (The meta description of their homepage)\n*   **Website Headings:** (A list of the main headings on their homepage, e.g., \"About Us,\" \"Our Solutions,\" \"Pricing,\" \"Contact\")\n\nOnce I have this information, I will craft a concise and professional summary highlighting the company's core business, target audience, and key value propositions.",
+      "visibility_notice": {
+        "title": "\ud83d\udc41\ufe0f Profile Visibility",
+        "message": "Your business profile and differentiators will be shown to target customers, potential partners, and recruits when you connect through Network AI."
+      }
+    }
+  },
+  "tradeshows_count": 4,
+  "local_events": {}
+}

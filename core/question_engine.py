@@ -368,31 +368,47 @@ class QuestionEngine:
 
     async def generate_with_gemini(self, prompt, context=None, max_tokens=1024):
         """
-        Generate text using the Gemini API with a custom prompt
+        Generate text using the Gemini API with a custom prompt and request structured output (function calling/tools schema).
         
         Args:
             prompt (str): The prompt to send to Gemini
             context (str, optional): Additional context to add to the prompt
             max_tokens (int, optional): Maximum number of tokens to generate
-            
         Returns:
-            str: The generated text
+            dict or str: The structured output if available, else the generated text
         """
         try:
             if not self.gemini_api_key:
                 logger.error("No Gemini API key found. Cannot generate text with Gemini.")
                 return None
-                
-            # Add context to the prompt if provided
+            
             if context:
                 prompt = f"{prompt}\n\n{context}"
-                
-            # Call the Gemini API
+
             url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={self.gemini_api_key}"
-            
+
+            # Structured output with function declaration
             data = {
                 "contents": [{
                     "parts": [{"text": prompt}]
+                }],
+                "tools": [{
+                    "function_declarations": [
+                        {
+                            "name": "generate_ui_data",
+                            "description": "Generate UI data for event recommendations.",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "target_events_text": {"type": "string"},
+                                    "keywords": {"type": "array", "items": {"type": "string"}},
+                                    "event_strategies": {"type": "object"},
+                                    "specific_events": {"type": "array", "items": {"type": "object"}}
+                                },
+                                "required": ["target_events_text", "keywords", "event_strategies", "specific_events"]
+                            }
+                        }
+                    ]
                 }],
                 "generationConfig": {
                     "temperature": 0.3,
@@ -401,33 +417,41 @@ class QuestionEngine:
                     "maxOutputTokens": max_tokens
                 }
             }
-            
+
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     url,
                     json=data,
-                    timeout=10.0
+                    timeout=15.0
                 )
-                
+
             if response.status_code == 200:
                 result = response.json()
-                if "candidates" in result and len(result["candidates"]) > 0:
-                    content = result["candidates"][0]["content"]
-                    if "parts" in content and len(content["parts"]) > 0:
-                        generated_text = content["parts"][0]["text"]
-                        
-                        # Clean up the response
-                        generated_text = generated_text.strip()
-                        
-                        logger.info(f"Generated text with Gemini API: {generated_text[:100]}...")
-                        return generated_text
-                        
+                # Try to extract structured output from function call
+                try:
+                    candidates = result.get("candidates", [])
+                    if candidates:
+                        candidate = candidates[0]
+                        if "content" in candidate and "parts" in candidate["content"]:
+                            for part in candidate["content"]["parts"]:
+                                if "functionCall" in part:
+                                    arguments = part["functionCall"].get("args")
+                                    if arguments:
+                                        logger.info("Structured output received from Gemini function call.")
+                                        return arguments
+                            # If no functionCall, fallback to text
+                            if "text" in part:
+                                logger.info("No structured output, falling back to text output.")
+                                return part["text"].strip()
+                except Exception as e:
+                    logger.error(f"Error parsing structured output from Gemini: {str(e)}")
+                    # Fallback to previous logic
+                # If structured output not found, fallback to old text output
                 logger.error(f"Unexpected response format from Gemini API: {result}")
                 return None
             else:
                 logger.error(f"Error calling Gemini API: {response.status_code} - {response.text}")
                 return None
-                
         except Exception as e:
             logger.error(f"Error generating text with Gemini: {str(e)}")
             return None
@@ -899,44 +923,98 @@ Avoid generic questions when you have specific information available.
         return keywords
 
     async def analyze_website_with_browser(self, url):
-        """Use the website_analyzer.py implementation to analyze a website."""
+        """Use the enhanced_website_analyzer.py implementation to analyze a website."""
         try:
-            # Import the website_analyzer.py implementation
-            from website_analyzer import analyze_website_with_browser as browser_analyze_website
+            # Import the enhanced_website_analyzer.py implementation
+            from core.enhanced_website_analyzer import analyze_website as browser_analyze_website
             
-            logger.info(f"Using website_analyzer.py to analyze website: {url}")
+            logger.info(f"Using enhanced_website_analyzer.py to analyze website: {url}")
             
-            # Call the website_analyzer.py implementation
+            # Call the enhanced_website_analyzer.py implementation
             website_data = await browser_analyze_website(url)
             
             if website_data:
                 logger.info(f"Website analysis successful for {url}")
                 
+                # Extract the relevant data from the enhanced analyzer's nested structure
+                basic_website_data = website_data.get("website_data", {})
+                strategic_analysis = website_data.get("strategic_analysis", {})
+                customer_intelligence = website_data.get("customer_intelligence", {})
+                raw_customer_data = customer_intelligence.get("raw_customer_data", [])
+                
+                # Combine text from all analyzed pages
+                all_text = []
+                if raw_customer_data:
+                    for page_data in raw_customer_data:
+                        if "textSample" in page_data:
+                            all_text.append(page_data["textSample"])
+                
                 # Convert the website_data format to match what the question_engine expects
                 converted_data = {
-                    "title": website_data.get("title", ""),
-                    "description": website_data.get("description", ""),
-                    "keywords": website_data.get("keywords", []),
-                    "headings": website_data.get("headings", []),
-                    "paragraphs": [],  # Not provided by website_analyzer.py
-                    "all_text": [website_data.get("raw_text", "")],
+                    "title": basic_website_data.get("title", ""),
+                    "description": basic_website_data.get("description", ""),
+                    "keywords": strategic_analysis.get("keywords", []),
+                    "headings": [],  # Will be populated from raw_customer_data if available
+                    "paragraphs": [],  # Will be populated from raw_customer_data if available
+                    "all_text": all_text if all_text else [""],
                     "url": url,
-                    "homepage_url": "",
-                    "homepage_title": "",
-                    "homepage_description": ""
+                    "homepage_url": url,
+                    "homepage_title": basic_website_data.get("title", ""),
+                    "homepage_description": basic_website_data.get("description", "")
                 }
                 
                 # Add industries if available
-                if "industries" in website_data:
-                    converted_data["industries"] = website_data.get("industries", [])
+                if "industries" in basic_website_data:
+                    converted_data["industries"] = basic_website_data.get("industries", [])
+                elif "industries" in strategic_analysis:
+                    converted_data["industries"] = strategic_analysis.get("industries", [])
+                
+                # Add target audience if available
+                if "target_audience" in strategic_analysis:
+                    converted_data["target_audience"] = strategic_analysis.get("target_audience", "")
+                
+                # Add main features if available
+                if "main_features" in strategic_analysis:
+                    converted_data["main_features"] = strategic_analysis.get("main_features", [])
+                
+                # Add unique value proposition if available
+                if "unique_value_proposition" in strategic_analysis:
+                    converted_data["unique_value"] = strategic_analysis.get("unique_value_proposition", "")
+                
+                # Store the full enhanced analysis for potential future use
+                converted_data["enhanced_analysis"] = website_data
                 
                 return converted_data
             else:
                 logger.warning(f"Website analysis failed for {url}")
-                return None
+                # Return a minimal structure instead of None to ensure we still call Gemini
+                return {
+                    "title": "",
+                    "description": "",
+                    "keywords": [],
+                    "headings": [],
+                    "paragraphs": [],
+                    "all_text": [""],
+                    "url": url,
+                    "homepage_url": url,
+                    "homepage_title": "",
+                    "homepage_description": ""
+                }
         except Exception as e:
             logger.error(f"Error analyzing website with browser: {str(e)}")
-            return None
+            # Return a minimal structure instead of None to ensure we still call Gemini
+            return {
+                "title": "",
+                "description": "",
+                "keywords": [],
+                "headings": [],
+                "paragraphs": [],
+                "all_text": [""],
+                "url": url,
+                "homepage_url": url,
+                "homepage_title": "",
+                "homepage_description": ""
+            }
             
     async def generate_follow_up_question(self, step, context, previous_answer, follow_up_count=0):
         """
@@ -1105,6 +1183,22 @@ Avoid generic questions when you have specific information available.
             if not website_data and website_url and len(website_url) > 5:
                 logger.info(f"Analyzing website for user summary: {website_url}")
                 website_data = await self.analyze_website_with_browser(website_url)
+                
+                # Extract enhanced analysis data if available
+                if website_data and 'enhanced_analysis' in website_data:
+                    enhanced_data = website_data.get('enhanced_analysis', {})
+                    strategic_analysis = enhanced_data.get('strategic_analysis', {})
+                    website_data_from_enhanced = enhanced_data.get('website_data', {})
+                    
+                    # If we have strategic analysis but missing basic website data
+                    if strategic_analysis and not website_data.get('title'):
+                        logger.info("Using enhanced strategic analysis for website summary")
+                        # Extract data from the enhanced analysis
+                        website_data['title'] = website_data_from_enhanced.get('title', website_data.get('title', ''))
+                        website_data['description'] = website_data_from_enhanced.get('description', website_data.get('description', ''))
+                        website_data['target_audience'] = strategic_analysis.get('target_audience', '')
+                        website_data['main_features'] = strategic_analysis.get('main_features', [])
+                        website_data['industries'] = strategic_analysis.get('primary_industries', [])
             
             # Prepare the prompt based on whether the answer was only a URL or not
             if website_data:
@@ -1215,12 +1309,16 @@ Avoid generic questions when you have specific information available.
                 - Differentiation: {differentiation}
                 """
                 
+
+                
                 # Add previous summary if available
                 if previous_summary:
                     prompt += f"\nPrevious Summary: {previous_summary}\n"
                 
                 prompt += """
                 Based on this information, generate an insightful, professional summary (3-9 sentences) about what this company does, who they serve, and their key offerings.
+                
+                Be specific about the company's technology, products, or services. Avoid generic statements and focus on concrete details from the provided information.
                 """
 
             # Call the Gemini API
@@ -1247,6 +1345,16 @@ Avoid generic questions when you have specific information available.
                     summary = f"A company building {product_info} for the {market_info} market."
                     if company_size:
                         summary += f" They are a {company_size} company."
+                    if not summary or len(summary) < 20 or 'please provide' in summary.lower():
+                        logger.warning("Failed to generate user summary, using fallback")
+                        
+                        # Create a basic fallback summary
+                        if product and market:
+                            summary = f"A company building {product} for the {market} market."
+                        elif website_url:
+                            summary = f"A company with the website {website_url}."
+                        else:
+                            summary = "A company looking to grow through strategic networking and events."
                     return summary
                 elif product_info:
                     return f"A company building {product_info}."

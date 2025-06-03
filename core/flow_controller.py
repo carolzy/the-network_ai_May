@@ -88,6 +88,11 @@ class FlowController:
         self.website_analysis_results = {}
         self.website_analysis_summary = {}
 
+        # Demo/template mode flag: if True, always use ui_data.json as UI data
+        self.demo_mode_use_ui_data_json = False  # Set to True for demo/template mode
+        # Use latest timestamped data/ui_data_*.json as UI data
+        self.use_latest_data_ui_json = False  # Allow backend to generate and save new UI data files
+
         # Optimized flow state with streamlined steps
         self.founder_steps = [
             'product',
@@ -1274,65 +1279,296 @@ class FlowController:
             return {"success": False, "error": str(e)}
             
     async def generate_target_events_recommendation(self):
+        import traceback
+        logger.info(f"website_analysis_results: {getattr(self, 'website_analysis_results', None)}")
+        if hasattr(self, 'website_analysis_results'):
+            logger.info(f"website_analysis_results['ui_data']: {self.website_analysis_results.get('ui_data', None)}")
         """Generate a recommendation for target events based on business profile and goals."""
         try:
-            from templates.target_events_prompt import TARGET_EVENTS_PROMPT
-            
-            # Determine the primary goal - if not set, use the first selected goal
-            primary_goal = self.primary_goal
-            if not primary_goal and self.selected_goals:
+            # FE DEMO: If use_latest_data_ui_json is True, load the most recent data/ui_data_*.json
+            if getattr(self, 'use_latest_data_ui_json', False):
+                import glob, os, re
+                data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
+                # Try to get company name from self.company_name, self.current_product_line, or self.website_analysis_results
+                company = getattr(self, 'company_name', None)
+                if not company:
+                    company = getattr(self, 'current_product_line', None)
+                if not company and hasattr(self, 'website_analysis_results') and self.website_analysis_results:
+                    company = self.website_analysis_results.get('company_name') or self.website_analysis_results.get('title')
+                if not company:
+                    company = 'unknown'
+                company_safe = re.sub(r'[^a-zA-Z0-9_-]', '_', str(company))[:32]
+                # Find files matching this company
+                pattern = os.path.join(data_dir, f'ui_data_{company_safe}_*.json')
+                files = sorted(glob.glob(pattern), reverse=True)
+                if not files:
+                    # Fallback to any file
+                    files = sorted(glob.glob(os.path.join(data_dir, 'ui_data_*.json')), reverse=True)
+                if files:
+                    latest_file = files[0]
+                    try:
+                        with open(latest_file, 'r') as f:
+                            ui_data = json.load(f)
+                        logger.info(f"Loaded UI data from {latest_file} (FE demo mode)")
+                        # Merge with minimal fallback structure and hardcoded visibility_notice
+                        fallback = {
+                            "multi_factor_analysis": {"customer_analysis": "", "market_growth": ""},
+                            "key_differentiators": [],
+                            "target_customers": [],
+                            "who_to_target": [],
+                            "event_strategies": {},
+                            "specific_events": [],
+                            "keywords": [],
+                            "business_profile": {
+                                "description": ""
+                            }
+                        }
+                        # Merge generated ui_data with fallback
+                        def merge(d, f):
+                            for k, v in f.items():
+                                if k not in d or d[k] in (None, ""):
+                                    d[k] = v
+                                elif isinstance(v, dict) and isinstance(d[k], dict):
+                                    merge(d[k], v)
+                            return d
+                        merged_ui_data = merge(dict(ui_data), fallback)
+                        self.website_analysis_results['ui_data'] = merged_ui_data
+                        return merged_ui_data
+                    except Exception as e:
+                        logger.error(f"Failed to load {latest_file} in FE demo mode: {e}")
+                else:
+                    logger.warning("No ui_data_*.json files found in data/ directory for FE demo mode")
+            # DEMO MODE: If demo_mode_use_ui_data_json is True, always load from ui_data.json
+            if getattr(self, 'demo_mode_use_ui_data_json', False):
+                try:
+                    with open('core/ui_data.json', 'r') as f:
+                        ui_data = json.load(f)
+                    logger.info("Loaded UI data from ui_data.json (demo mode)")
+                    self.website_analysis_results['ui_data'] = ui_data
+                    return ui_data
+                except Exception as e:
+                    logger.error(f"Failed to load ui_data.json in demo mode: {e}")
+
+            # If we have website analysis results with UI data, use that
+            if (hasattr(self, 'website_analysis_results') and 
+                self.website_analysis_results and 
+                'ui_data' in self.website_analysis_results and 
+                self.website_analysis_results['ui_data']):
+                ui_data = self.website_analysis_results['ui_data']
+                # Extract event strategies from UI data
+                if 'event_strategies' in ui_data:
+                    strategies = ui_data['event_strategies']
+                    # Build formatted response from structured data
+                    response_parts = []
+                    # Add who to target section
+                    if 'who_to_target' in ui_data:
+                        response_parts.append("WHO TO TARGET:")
+                        for target in ui_data['who_to_target']:
+                            response_parts.append(f"• {target.get('group_title', '')}: {target.get('group_detail', '')}")
+                        response_parts.append("")
+                    # Add goal-specific strategies
+                    for goal_key, strategy in strategies.items():
+                        if isinstance(strategy, dict) and 'goal_title' in strategy:
+                            response_parts.append(f"{strategy['goal_title']}:")
+                            # Handle the new simplified format with 'strategy' field
+                            if 'strategy' in strategy:
+                                response_parts.append(f"• {strategy['strategy']}")
+                            # Fallback to old format with 'event_types' if present
+                            elif 'event_types' in strategy:
+                                for event_type in strategy['event_types']:
+                                    if isinstance(event_type, dict):
+                                        response_parts.append(f"• {event_type.get('type_title', '')}")
+                                        response_parts.append(f"  {event_type.get('why_works', '')}")
+                            response_parts.append("")
+                    # Store the formatted text for backward compatibility
+                    self.target_events_text = "\n".join(response_parts)
+                    # Return the full UI data structure
+                    return ui_data
+
+            # If ui_data is missing, try to generate it using enhanced analyzer
+            website_url = getattr(self, 'website', None)
+            if website_url:
+                try:
+                    from core.optimized_analyzer import analyze_website_with_ui_data_parallel
+                    result = await analyze_website_with_ui_data_parallel(website_url)
+                    if result and 'ui_data' in result and result['ui_data']:
+                        self.website_analysis_results['ui_data'] = result['ui_data']
+                        logger.info("Generated UI data using enhanced analyzer and assigned to website_analysis_results['ui_data']")
+                        return result['ui_data']
+                except Exception as e:
+                    logger.error(f"Failed to generate UI data using enhanced analyzer: {e}")
+
+            # Fallback to loading ui_data.json if still no UI data
+            try:
+                with open('core/ui_data.json', 'r') as f:
+                    ui_data = json.load(f)
+                logger.info("Loaded UI data from ui_data.json as fallback")
+                self.website_analysis_results['ui_data'] = ui_data
+                return ui_data
+            except Exception as e:
+                logger.error(f"Failed to load ui_data.json as fallback: {e}")
+
+            # Fallback to basic recommendation if no structured data
+            primary_goal = self.primary_goal if hasattr(self, 'primary_goal') else ""
+            if not primary_goal and hasattr(self, 'selected_goals') and self.selected_goals:
                 primary_goal = self.selected_goals[0]
-                
-            # If we still don't have a primary goal, use a default
-            if not primary_goal:
-                primary_goal = "networking"
-                
-            # Prepare the prompt with the primary goal
-            goal_display_names = {
-                "find_buyers": "finding buyers/users",
-                "recruit_talent": "recruiting talent",
-                "business_partners": "meeting business partners",
-                "investors": "connecting with investors",
-                "networking": "general networking"
+            # Create fallback UI data structure based on primary goal
+            fallback_text = ""
+            if primary_goal == "find_buyers":
+                fallback_text = "Based on your goal of finding buyers, we recommend focusing on industry-specific trade shows and conferences where potential customers gather."
+            elif primary_goal == "recruit_talent": 
+                fallback_text = "For recruiting talent, we recommend targeting tech job fairs, university career events, and industry-specific networking meetups."
+            elif primary_goal == "business_partners":
+                fallback_text = "To find business partners, focus on industry conferences, partnership-focused events, and ecosystem gatherings."
+            elif primary_goal == "investors":
+                fallback_text = "For connecting with investors, target startup pitch events, investor showcases, and industry-specific venture capital gatherings."
+            else:
+                fallback_text = "We recommend focusing on industry-specific events where you can connect with potential customers, partners, and talent."
+            
+            # Store the fallback text for backward compatibility
+            self.target_events_text = fallback_text
+            
+            # Create a minimal UI data structure with the fallback text
+            fallback_ui_data = {
+                "target_events_text": fallback_text,
+                "who_to_target": [
+                    {"group_title": "Industry Professionals", "group_detail": "Focus on decision-makers in your target market"},
+                    {"group_title": "Potential Customers", "group_detail": "Connect with individuals who have a need for your product or service"}
+                ],
+                "event_strategies": {
+                    "find_buyers": {
+                        "goal_title": "For Finding Buyers/Users",
+                        "goal_icon": "💰",
+                        "strategy": "Attend industry-specific trade shows and conferences where potential customers gather."
+                    },
+                    "business_partners": {
+                        "goal_title": "For Meeting Business Partners",
+                        "goal_icon": "🤝",
+                        "strategy": "Participate in conferences and integration events to connect with potential partners."
+                    },
+                    "recruit_talent": {
+                        "goal_title": "For Recruiting Talent",
+                        "goal_icon": "👥",
+                        "strategy": "Attend university career fairs and industry meetups to connect with professionals."
+                    },
+                    "investors": {
+                        "goal_title": "For Connecting with Investors",
+                        "goal_icon": "💼",
+                        "strategy": "Participate in venture capital conferences and pitch events."
+                    },
+                    "networking": {
+                        "goal_title": "For General Networking",
+                        "goal_icon": "🌐",
+                        "strategy": "Join industry mixers and professional meetups to build relationships."
+                    }
+                },
+                "specific_events": [
+                    {
+                        "title": "Industry Conference 2025",
+                        "meta": "April 2025 • San Francisco, CA • Conference",
+                        "description": "A major gathering of industry professionals where you can showcase your products and services.",
+                        "primary_goal": "find_buyers"
+                    },
+                    {
+                        "title": "Tech Expo 2025",
+                        "meta": "June 2025 • New York, NY • Expo",
+                        "description": "A large technology exhibition with opportunities for networking and partnership building.",
+                        "primary_goal": "business_partners"
+                    },
+                    {
+                        "title": "Industry Summit 2025",
+                        "meta": "September 2025 • Chicago, IL • Summit",
+                        "description": "A focused gathering of industry leaders and decision-makers.",
+                        "primary_goal": "networking"
+                    }
+                ],
+                "multi_factor_analysis": {
+                    "customer_analysis": "Analysis based on available information about your target market.",
+                    "market_growth": "General market trends and growth opportunities in your industry."
+                },
+                "key_differentiators": [
+                    {"icon": "💡", "text": "Your unique value proposition"},
+                    {"icon": "⚡", "text": "Your technological advantages"},
+                    {"icon": "🌍", "text": "Your market reach"},
+                    {"icon": "🎭", "text": "Your innovation capabilities"}
+                ]
             }
             
-            primary_goal_display = goal_display_names.get(primary_goal, "networking")
-            prompt = TARGET_EVENTS_PROMPT.format(primary_goal=primary_goal_display)
-            
-            # Generate user summary if it doesn't exist
-            if not self.user_summary:
-                self.user_summary = await self.generate_user_summary()
-            
-            # Add context about the business and goals
-            context = f"Business Profile: {self.user_summary}\n\nSelected Goals: {', '.join(self.selected_goals)}\nPrimary Goal: {primary_goal}"
-            
-            # Generate the recommendation using Gemini
-            response = await self.question_engine.generate_with_gemini(
-                prompt=prompt,
-                context=context,
-                max_tokens=2000  # Increased to prevent truncation
-            )
-            
-            if response and len(response) > 50:
-                return response
-            else:
-                # Generate a basic response based on the primary goal
-                if primary_goal == "find_buyers":
-                    return "Based on your goal of finding buyers, we recommend focusing on industry-specific trade shows and conferences where potential customers gather. Look for events that attract decision-makers in your target market, and consider both large industry conferences and smaller, more focused meetups where you can have deeper conversations with potential clients."
-                elif primary_goal == "recruit_talent":
-                    return "For recruiting talent, we recommend targeting tech job fairs, university career events, and industry-specific networking meetups. Consider events that attract professionals with the skills you need, and look for opportunities to showcase your company culture and mission to potential candidates."
-                elif primary_goal == "business_partners":
-                    return "To find business partners, focus on industry conferences, partnership-focused events, and ecosystem gatherings where complementary businesses congregate. Look for events that attract companies with complementary technologies or services that could enhance your offering."
-                elif primary_goal == "investors":
-                    return "For connecting with investors, target startup pitch events, investor showcases, and industry-specific venture capital gatherings. Research events where investors interested in your sector typically attend, and prepare a concise pitch that highlights your unique value proposition."
-                else:
-                    return "For general networking, we recommend a mix of industry conferences, local meetups, and community events related to your field. Look for events where you can meet a diverse range of professionals, from potential customers to industry experts who can provide valuable insights and connections."
-                
+            return fallback_ui_data
+                    
         except Exception as e:
             logger.error(f"Error generating target events recommendation: {str(e)}")
-            return "We recommend focusing on industry-specific events where you can connect with potential customers, partners, and talent. Consider both large conferences and smaller, more focused meetups to build meaningful relationships in your industry."
-    
-    async def determine_follow_up_question(self):
+            fallback_text = "We recommend focusing on industry-specific events where you can connect with potential customers, partners, and talent."
+            self.target_events_text = fallback_text
+            
+            # Create a minimal UI data structure with the error fallback text
+            error_fallback_ui_data = {
+                "target_events_text": fallback_text,
+                "who_to_target": [
+                    {"group_title": "Industry Professionals", "group_detail": "Focus on decision-makers in your target market"},
+                    {"group_title": "Potential Customers", "group_detail": "Connect with individuals who have a need for your product or service"}
+                ],
+                "event_strategies": {
+                    "find_buyers": {
+                        "goal_title": "For Finding Buyers/Users",
+                        "goal_icon": "💰",
+                        "strategy": "Attend industry-specific trade shows and conferences where potential customers gather."
+                    },
+                    "business_partners": {
+                        "goal_title": "For Meeting Business Partners",
+                        "goal_icon": "🤝",
+                        "strategy": "Participate in conferences and integration events to connect with potential partners."
+                    },
+                    "recruit_talent": {
+                        "goal_title": "For Recruiting Talent",
+                        "goal_icon": "👥",
+                        "strategy": "Attend university career fairs and industry meetups to connect with professionals."
+                    },
+                    "investors": {
+                        "goal_title": "For Connecting with Investors",
+                        "goal_icon": "💼",
+                        "strategy": "Participate in venture capital conferences and pitch events."
+                    },
+                    "networking": {
+                        "goal_title": "For General Networking",
+                        "goal_icon": "🌐",
+                        "strategy": "Join industry mixers and professional meetups to build relationships."
+                    }
+                },
+                "specific_events": [
+                    {
+                        "title": "Industry Conference 2025",
+                        "meta": "April 2025 • San Francisco, CA • Conference",
+                        "description": "A major gathering of industry professionals where you can showcase your products and services.",
+                        "primary_goal": "find_buyers"
+                    },
+                    {
+                        "title": "Tech Expo 2025",
+                        "meta": "June 2025 • New York, NY • Expo",
+                        "description": "A large technology exhibition with opportunities for networking and partnership building.",
+                        "primary_goal": "business_partners"
+                    },
+                    {
+                        "title": "Industry Summit 2025",
+                        "meta": "September 2025 • Chicago, IL • Summit",
+                        "description": "A focused gathering of industry leaders and decision-makers.",
+                        "primary_goal": "networking"
+                    }
+                ],
+                "multi_factor_analysis": {
+                    "customer_analysis": "Analysis based on available information about your target market.",
+                    "market_growth": "General market trends and growth opportunities in your industry."
+                },
+                "key_differentiators": [
+                    {"icon": "💡", "text": "Your unique value proposition"},
+                    {"icon": "⚡", "text": "Your technological advantages"},
+                    {"icon": "🌍", "text": "Your market reach"},
+                    {"icon": "🎭", "text": "Your innovation capabilities"}
+                ]
+            }
+            
+            return error_fallback_ui_data
+
         """Determine the appropriate follow-up question based on selected goals."""
         try:
             # If no goals are selected, default to market question
@@ -1363,61 +1599,3 @@ class FlowController:
             logger.error(f"Error determining follow-up question: {str(e)}")
             return "market"  # Default to market question if there's an error
             
-    async def generate_target_events_recommendation(self):
-        """Generate a recommendation for target events based on business profile and goals."""
-        try:
-            from templates.target_events_prompt import TARGET_EVENTS_PROMPT
-            
-            # Determine the primary goal - if not set, use the first selected goal
-            primary_goal = self.primary_goal
-            if not primary_goal and self.selected_goals:
-                primary_goal = self.selected_goals[0]
-                
-            # If we still don't have a primary goal, use a default
-            if not primary_goal:
-                primary_goal = "networking"
-                
-            # Prepare the prompt with the primary goal
-            goal_display_names = {
-                "find_buyers": "finding buyers/users",
-                "recruit_talent": "recruiting talent",
-                "business_partners": "meeting business partners",
-                "investors": "connecting with investors",
-                "networking": "general networking"
-            }
-            
-            primary_goal_display = goal_display_names.get(primary_goal, "networking")
-            prompt = TARGET_EVENTS_PROMPT.format(primary_goal=primary_goal_display)
-            
-            # Generate user summary if it doesn't exist
-            if not self.user_summary:
-                self.user_summary = await self.generate_user_summary()
-            
-            # Add context about the business and goals
-            context = f"Business Profile: {self.user_summary}\n\nSelected Goals: {', '.join(self.selected_goals)}\nPrimary Goal: {primary_goal}"
-            
-            # Generate the recommendation using Gemini
-            response = await self.question_engine.generate_with_gemini(
-                prompt=prompt,
-                context=context,
-                max_tokens=2000  # Increased to prevent truncation
-            )
-            
-            if response and len(response) > 50:
-                return response
-            else:
-                # Generate a basic response based on the primary goal
-                if primary_goal == "find_buyers":
-                    return "Based on your goal of finding buyers, we recommend focusing on industry-specific trade shows and conferences where potential customers gather. Look for events that attract decision-makers in your target market, and consider both large industry conferences and smaller, more focused meetups where you can have deeper conversations with potential clients."
-                elif primary_goal == "recruit_talent":
-                    return "For recruiting talent, we recommend targeting tech job fairs, university career events, and industry-specific networking meetups. Consider events that attract professionals with the skills you need, and look for opportunities to showcase your company culture and mission to potential candidates."
-                elif primary_goal == "business_partners":
-                    return "To find business partners, focus on industry conferences, partnership-focused events, and ecosystem gatherings where complementary businesses congregate. Look for events that attract companies with complementary technologies or services that could enhance your offering."
-                elif primary_goal == "investors":
-                    return "For connecting with investors, target startup pitch events, investor showcases, and industry-specific venture capital gatherings. Research events where investors interested in your sector typically attend, and prepare a concise pitch that highlights your unique value proposition."
-                else:
-                    return "For general networking, we recommend a mix of industry conferences, local meetups, and community events related to your field. Look for events where you can meet a diverse range of professionals, from potential customers to industry experts who can provide valuable insights and connections."
-                
-        except Exception as e:
-            logger.error(f"Error generating target events recommendation: {str(e)}")
-            return "We recommend focusing on industry-specific events where you can connect with potential customers, partners, and talent. Consider both large conferences and smaller, more focused meetups to build meaningful relationships in your industry."

@@ -1,6 +1,9 @@
 import os
 import csv
 import json
+from dotenv import load_dotenv
+from functools import partial
+
 import os
 import logging
 import random
@@ -25,13 +28,17 @@ logging.basicConfig(level=logging.INFO,
                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# Load environment variables from .env file
+load_dotenv()
+
 # Global variables
 progress_callback = None
 logs_buffer = deque(maxlen=100)  # Buffer to store log messages
 
 # Constants
-LUMA_EVENTS_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)), "luma_event_scraper", "luma_filtered_events_with_insights_0520.csv")
+LUMA_EVENTS_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)), "luma_event_scraper", "luma_filtered_events_with_insights_0529.csv")
 RELEVANCE_THRESHOLD = 0.0  # Set threshold to 0 to include all events
+GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'models/gemini-2.0-flash')
 
 # We only use Luma events CSV for local events
 # Tradeshows are now fetched directly via Gemini API in app.py
@@ -96,11 +103,6 @@ def load_events_from_csv(csv_file_path=None):
                 # Identify if this is a trade show
                 cleaned_row['is_trade_show'] = is_trade_show(cleaned_row)
                 
-                # Add a default conversion path if missing
-                if not cleaned_row.get('conversion_path'):
-                    event_name = cleaned_row.get('event_name', '') or cleaned_row.get('title', 'this event')
-                    cleaned_row['conversion_path'] = f"Attend {event_name} to network with professionals in your industry."
-                
                 # Get the event URL for grouping
                 event_url = cleaned_row.get('event_url', '')
                 
@@ -112,28 +114,23 @@ def load_events_from_csv(csv_file_path=None):
                     speaker_name = cleaned_row.get('speaker_name', '')
                     speaker_role = cleaned_row.get('speaker_role', '') or cleaned_row.get('speaker_title', '')
                     
-                    # Only use speaker_insight from the CSV (2nd to last column)
+                    # Extract LinkedIn information from speaker_details or speaker_insight if available
+                    speaker_details = cleaned_row.get('speaker_details', '')
                     speaker_insight = cleaned_row.get('speaker_insight', '')
                     
-                    # Use speaker_linkedin column directly for LinkedIn URLs
-                    speaker_linkedin = cleaned_row.get('speaker_linkedin', '')
+                    # Combine both fields for more comprehensive information
+                    combined_speaker_info = speaker_details + ' ' + speaker_insight
                     
-                    if speaker_insight.strip() or speaker_linkedin.strip():
+                    if combined_speaker_info.strip():
                         # Initialize speakers list if it doesn't exist
                         if 'speakers' not in cleaned_row:
                             cleaned_row['speakers'] = []
                             
-                        # Use speaker_linkedin column directly for LinkedIn URLs
-                        linkedin_url = speaker_linkedin
-                        
-                        # Ensure it's a proper URL if provided
-                        if linkedin_url and not linkedin_url.startswith('http'):
-                            # Add https:// prefix if missing
-                            if linkedin_url.startswith('linkedin.com') or linkedin_url.startswith('www.linkedin.com'):
-                                linkedin_url = f"https://{linkedin_url}"
-                            # Format as full URL if it's just a username
-                            elif not '/' in linkedin_url:
-                                linkedin_url = f"https://linkedin.com/in/{linkedin_url}"
+                        # Extract LinkedIn URL using regex
+                        linkedin_match = re.search(r'\[LinkedIn\s*Profile\]\(([^\)]+)\)|linkedin\.com\/in\/([^\/\)\s]+)', combined_speaker_info, re.IGNORECASE)
+                        linkedin_url = ''
+                        if linkedin_match:
+                            linkedin_url = linkedin_match.group(1) if linkedin_match.group(1) else f"https://linkedin.com/in/{linkedin_match.group(2)}"
                         
                         # Extract background information
                         background = ''
@@ -155,13 +152,10 @@ def load_events_from_csv(csv_file_path=None):
                                 'name': speaker_name,
                                 'role': cleaned_row.get('speaker_role', '') or cleaned_row.get('speaker_title', ''),
                                 'company': cleaned_row.get('speaker_company', ''),
-                                'background': background
+                                'background': background,
+                                'linkedin_url': cleaned_row.get('speaker_linkedin', '') or linkedin_url or ''
                             }
                             
-                            # Add LinkedIn if available
-                            if linkedin_url:
-                                speaker_info['linkedin'] = linkedin_url
-                                
                             # Only add if this speaker isn't already in the list with the same name
                             if not any(s.get('name') == speaker_name for s in cleaned_row['speakers']):
                                 cleaned_row['speakers'].append(speaker_info)
@@ -171,20 +165,14 @@ def load_events_from_csv(csv_file_path=None):
                         if 'speakers' not in existing_event:
                             existing_event['speakers'] = []
                         
-                        # Use speaker_insight directly for background info
-                        speaker_insight = cleaned_row.get('speaker_insight', '')
+                        # Extract LinkedIn URL and background from combined info
+                        combined_speaker_info = cleaned_row.get('speaker_details', '') + ' ' + cleaned_row.get('speaker_insight', '')
                         
-                        # Use speaker_linkedin column directly for LinkedIn URLs
-                        linkedin_url = cleaned_row.get('speaker_linkedin', '')
-                        
-                        # Ensure it's a proper URL if provided
-                        if linkedin_url and not linkedin_url.startswith('http'):
-                            # Add https:// prefix if missing
-                            if linkedin_url.startswith('linkedin.com') or linkedin_url.startswith('www.linkedin.com'):
-                                linkedin_url = f"https://{linkedin_url}"
-                            # Format as full URL if it's just a username
-                            elif not '/' in linkedin_url:
-                                linkedin_url = f"https://linkedin.com/in/{linkedin_url}"
+                        # Extract LinkedIn URL
+                        linkedin_url = ''
+                        linkedin_match = re.search(r'\[LinkedIn\s*Profile\]\(([^\)]+)\)|linkedin\.com\/in\/([^\/\)\s]+)', combined_speaker_info, re.IGNORECASE)
+                        if linkedin_match:
+                            linkedin_url = linkedin_match.group(1) if linkedin_match.group(1) else f"https://linkedin.com/in/{linkedin_match.group(2)}"
                         
                         # Extract background information
                         background = ''
@@ -209,7 +197,7 @@ def load_events_from_csv(csv_file_path=None):
                         
                         # Add LinkedIn if available
                         if linkedin_url:
-                            speaker_info['linkedin'] = linkedin_url
+                            speaker_info['linkedin_url'] = linkedin_url
                             
                         # Add background if available
                         if background:
@@ -252,46 +240,29 @@ def load_events_from_csv(csv_file_path=None):
     
     return events
 
-def is_trade_show(event):
-    """Check if an event is a trade show"""
-    # Check if the event has the is_trade_show flag
-    if 'is_trade_show' in event:
-        return event['is_trade_show']
-    
-    # Otherwise, check if the event title or description contains trade show keywords
-    title = event.get('title', '').lower()
-    description = event.get('description', '').lower()
-    
-    trade_show_keywords = ['trade show', 'tradeshow', 'expo', 'exhibition', 'conference', 'summit', 'convention']
-    
-    for keyword in trade_show_keywords:
-        if keyword in title or keyword in description:
-            return True
-    
-    return False
+#     
+#     if not date_str:
+#         # If no date, assume it's a future event
+#         return True
+#     
+#     try:
+#         # Parse the date
+#         event_date = parser.parse(date_str)
+#         
+#         # Get the current date
+#         now = datetime.now()
+#         
+#         # Check if the event is in the future
+#         return event_date >= now
+#     except Exception as e:
+#         logger.error(f"Error parsing date '{date_str}': {str(e)}")
+#         # If we can't parse the date, assume it's a future event
+#         return True
 
 def is_future_event(event):
-    """Check if an event is in the future"""
-    # Get the event date
-    date_str = event.get('event_date', event.get('date', ''))
-    
-    if not date_str:
-        # If no date, assume it's a future event
-        return True
-    
-    try:
-        # Parse the date
-        event_date = parser.parse(date_str)
-        
-        # Get the current date
-        now = datetime.now()
-        
-        # Check if the event is in the future
-        return event_date >= now
-    except Exception as e:
-        logger.error(f"Error parsing date '{date_str}': {str(e)}")
-        # If we can't parse the date, assume it's a future event
-        return True
+    # Temporarily disable future-date filtering
+    return True
+
 
 def parse_event_date(date_str):
     """Parse a date string into a formatted date"""
@@ -383,6 +354,99 @@ def extract_keywords_from_target_events(target_events):
     
     return unique_keywords
 
+
+def extract_keywords_from_structured_data(event_data_json):
+    """Extract keywords from structured event data JSON
+    
+    Args:
+        event_data_json (dict): Structured JSON data from generate_target_events_recommendation
+        
+    Returns:
+        list: List of extracted keywords
+    """
+    if not event_data_json or not isinstance(event_data_json, dict):
+        return []
+    
+    keywords = []
+    
+    # Extract keywords from various sections of the structured data
+    
+    # 1. From key_differentiators
+    if 'key_differentiators' in event_data_json and isinstance(event_data_json['key_differentiators'], list):
+        for diff in event_data_json['key_differentiators']:
+            if isinstance(diff, dict) and 'text' in diff:
+                # Extract key terms from differentiator text
+                text = diff['text']
+                # Add the whole text as a keyword if it's short
+                if len(text.split()) <= 5:
+                    keywords.append(text)
+                else:
+                    # Extract noun phrases or key terms
+                    for term in text.split(','):
+                        if term.strip() and len(term.strip().split()) <= 5:
+                            keywords.append(term.strip())
+    
+    # 2. From target_customers
+    if 'target_customers' in event_data_json and isinstance(event_data_json['target_customers'], list):
+        for customer in event_data_json['target_customers']:
+            if isinstance(customer, dict):
+                # Add industry as a keyword
+                if 'industry' in customer and customer['industry']:
+                    keywords.append(customer['industry'])
+                # Add company size as a keyword
+                if 'size' in customer and customer['size']:
+                    keywords.append(customer['size'])
+    
+    # 3. From who_to_target
+    if 'who_to_target' in event_data_json and isinstance(event_data_json['who_to_target'], list):
+        for target in event_data_json['who_to_target']:
+            if isinstance(target, dict) and 'group_title' in target:
+                keywords.append(target['group_title'])
+    
+    # 4. From event_strategies
+    if 'event_strategies' in event_data_json and isinstance(event_data_json['event_strategies'], dict):
+        for goal, strategy in event_data_json['event_strategies'].items():
+            if isinstance(strategy, dict):
+                if 'strategy' in strategy and isinstance(strategy['strategy'], str):
+                    # Extract keywords from the strategy text
+                    # Split by spaces and punctuation, and take words longer than 4 characters
+                    strategy_words = [word for word in re.findall(r'\w+', strategy['strategy']) if len(word) > 4]
+                    keywords.extend(strategy_words)
+                elif 'event_types' in strategy:
+                    # Legacy format support
+                    for event_type in strategy['event_types']:
+                        if isinstance(event_type, dict):
+                            if 'type_title' in event_type:
+                                keywords.append(event_type['type_title'])
+                            if 'examples' in event_type and isinstance(event_type['examples'], list):
+                                keywords.extend(event_type['examples'])
+                        elif isinstance(event_type, str):
+                            # Handle event_type as a string
+                            keywords.append(event_type)
+                        else:
+                            # Handle any other type by converting to string
+                            keywords.append(str(event_type))
+    
+    # 5. From specific_events
+    if 'specific_events' in event_data_json and isinstance(event_data_json['specific_events'], list):
+        for event in event_data_json['specific_events']:
+            if isinstance(event, dict) and 'title' in event:
+                keywords.append(event['title'])
+    
+    # 6. From existing keywords if present
+    if 'keywords' in event_data_json and isinstance(event_data_json['keywords'], list):
+        for keyword_obj in event_data_json['keywords']:
+            if isinstance(keyword_obj, dict) and 'text' in keyword_obj:
+                keywords.append(keyword_obj['text'])
+    
+    # Remove duplicates while preserving order
+    unique_keywords = []
+    for keyword in keywords:
+        if keyword and keyword not in unique_keywords:
+            unique_keywords.append(keyword)
+    
+    return unique_keywords
+
 # Import the highlight prompt
 from highlight_prompt import HIGHLIGHT_PROMPT
 
@@ -396,8 +460,6 @@ try:
         genai.configure(api_key=GEMINI_API_KEY)
         gemini = genai
         # Use gemini-2.0-flash which supports structured output
-        GEMINI_MODEL = "gemini-2.0-flash"
-        logger.info(f"Gemini API initialized successfully with model {GEMINI_MODEL}")
     else:
         gemini = None
         logger.warning("Gemini API key not found in environment variables")
@@ -405,24 +467,7 @@ except ImportError:
     gemini = None
     logger.warning("google.generativeai package not found, Gemini scoring will not be available")
 
-# Prompt templates for different user types
-FOUNDER_PROMPT = """
-You are evaluating this event for a startup founder.
-Consider the following in your evaluation:
-1. Will the founder meet potential customers or partners?
-2. Are there investors or industry experts who could provide valuable connections?
-3. Is this event in the founder's target industry or market?
-4. Would attending this event be a good use of the founder's limited time?
-"""
 
-VC_PROMPT = """
-You are evaluating this event for a venture capital investor.
-Consider the following in your evaluation:
-1. Will the investor meet promising startups or founders?
-2. Are there co-investors or limited partners who could provide valuable connections?
-3. Is this event in the investor's target industries or sectors?
-4. Would attending this event be a good use of the investor's limited time?
-"""
 
 def calculate_basic_relevance(event, keywords):
     """Calculate a basic relevance score as fallback if Gemini fails"""
@@ -456,69 +501,241 @@ def calculate_basic_relevance(event, keywords):
     
     return score
 
-def analyze_event_relevance(event, keywords, user_summary=None, target_events=None, user_type="general"):
-    """Analyze the relevance of an event to the keywords and user summary using Gemini API with structured output"""
+def analyze_event_relevance(event, keywords, user_summary=None, target_events=None, user_type="general", event_data_json=None):
+    """Analyze the relevance of an event to the keywords and user summary using Gemini API with structured output
+    
+    Args:
+        event (dict): Event data dictionary
+        keywords (list): List of keywords
+        user_summary (str): User's business profile summary
+        target_events (str): Legacy target events text (for backward compatibility)
+        user_type (str): Type of user (founder, sales, etc.)
+        event_data_json (dict): Structured JSON data from generate_target_events_recommendation
+        
+    Returns:
+        float: Relevance score between 0 and 1
+    """
+    from dotenv import load_dotenv
+    load_dotenv(override=True)
+    logger.debug(f"[DEBUG] Entered analyze_event_relevance for event: {event}")
+    logger.debug(f"[DEBUG] Gemini API key present: {bool(os.environ.get('GEMINI_API_KEY'))}")
+    logger.debug(f"[DEBUG] genai module present: {genai is not None if 'genai' in globals() else False}")
+    logger.debug(f"[DEBUG] Using structured data: {event_data_json is not None}")
+    
+    # If we have structured data, extract the relevant sections
+    who_to_target = ""
+    target_customers = ""
+    event_strategies = ""
+    
+    if event_data_json and isinstance(event_data_json, dict):
+        # Extract WHO TO TARGET section
+        if 'who_to_target' in event_data_json and isinstance(event_data_json['who_to_target'], list):
+            who_to_target_items = []
+            for target in event_data_json['who_to_target']:
+                if isinstance(target, dict):
+                    group_title = target.get('group_title', '')
+                    group_detail = target.get('group_detail', '')
+                    if group_title or group_detail:
+                        who_to_target_items.append(f"{group_title}: {group_detail}")
+            who_to_target = "\n".join(who_to_target_items)
+        
+        # Extract Target Customers section
+        if 'target_customers' in event_data_json and isinstance(event_data_json['target_customers'], list):
+            target_customer_items = []
+            for customer in event_data_json['target_customers']:
+                if isinstance(customer, dict):
+                    industry = customer.get('industry', '')
+                    company_name = customer.get('company_name', '')
+                    size = customer.get('size', '')
+                    why_good_fit = customer.get('why_good_fit', '')
+                    target_customer_items.append(f"{industry} - {size} - {why_good_fit}")
+            target_customers = "\n".join(target_customer_items)
+        
+        # Extract Event Strategies section
+        if 'event_strategies' in event_data_json and isinstance(event_data_json['event_strategies'], dict):
+            strategy_items = []
+            for goal, strategy in event_data_json['event_strategies'].items():
+                if isinstance(strategy, dict):
+                    goal_title = strategy.get('goal_title', '')
+                    if 'strategy' in strategy and isinstance(strategy['strategy'], str):
+                        # New format with direct strategy field
+                        strategy_items.append(f"{goal_title} - {strategy['strategy']}")
+                    elif 'event_types' in strategy and isinstance(strategy['event_types'], list):
+                        # Legacy format support
+                        for event_type in strategy['event_types']:
+                            if isinstance(event_type, dict):
+                                type_title = event_type.get('type_title', '')
+                                why_works = event_type.get('why_works', '')
+                                strategy_items.append(f"{goal_title} - {type_title}: {why_works}")
+                            elif isinstance(event_type, str):
+                                # Handle event_type as a string
+                                strategy_items.append(f"{goal_title} - {event_type}")
+                            else:
+                                # Handle any other type by converting to string
+                                strategy_items.append(f"{goal_title} - {str(event_type)}")
+            event_strategies = "\n".join(strategy_items)
     try:
         # Store the original user summary for highlighting
         event['user_product'] = user_summary
         
-        # Extract event information
-        event_name = event.get('event_name', '') or event.get('title', 'Unknown Event')
-        event_description = event.get('event_summary', '') or event.get('description', '') or event.get('event_detail', '')
-        event_location = event.get('event_location', '') or event.get('location', '')
+        # Prepare the event description
+        event_description = f"Event: {event.get('event_name', event.get('title', 'Unknown Event'))}"
+        if 'event_summary' in event:
+            event_description += f"\nDescription: {event['event_summary']}"
+        elif 'description' in event:
+            event_description += f"\nDescription: {event['description']}"
         
-        # Extract speaker information
-        speakers_info = ""
-        speakers = event.get('speakers', [])
+        if 'event_detail' in event and event['event_detail']:
+            event_description += f"\nDetails: {event['event_detail']}"
         
-        for speaker in speakers:
-            if isinstance(speaker, dict):
-                name = speaker.get('name', '')
-                role = speaker.get('role', '')
-                
-                if name:
-                    speakers_info += f"{name}"
-                    if role:
-                        speakers_info += f" ({role})"
-                    speakers_info += ", "
-            elif isinstance(speaker, str) and speaker:
-                speakers_info += f"{speaker}, "
+        if 'location' in event and event['location']:
+            event_description += f"\nLocation: {event['location']}"
+        elif 'venue' in event and event['venue']:
+            event_description += f"\nVenue: {event['venue']}"
         
-        # Remove trailing comma and space
-        if speakers_info.endswith(", "):
-            speakers_info = speakers_info[:-2]
+        if 'date' in event and event['date']:
+            event_description += f"\nDate: {event['date']}"
+        elif 'start_date' in event and event['start_date']:
+            event_description += f"\nDate: {event['start_date']}"
         
-        # Extract target events keywords if available
-        target_events_keywords = []
-        if target_events:
-            target_events_keywords = extract_keywords_from_target_events(target_events)
-            event['target_events_keywords'] = target_events_keywords
+        # Prepare the prompt with structured data if available
+        structured_data_sections = []
         
+        # Add WHO TO TARGET section if available
+        if who_to_target:
+            structured_data_sections.append(f"WHO TO TARGET:\n{who_to_target}")
+        
+        # Add Target Customers section if available
+        if target_customers:
+            structured_data_sections.append(f"Target Customers:\n{target_customers}")
+        
+        # Add Event Strategies section if available
+        if event_strategies:
+            structured_data_sections.append(f"Event Strategies:\n{event_strategies}")
+        
+        # Combine structured data sections
+        structured_data = "\n\n".join(structured_data_sections)
+        
+        # Use structured data if available, otherwise fall back to target_events
+        if structured_data:
+            target_events_section = structured_data
+        else:
+            target_events_section = f"Target events: {target_events}" if target_events else ""
+        
+        # Prepare the prompt
+        prompt = f"""You are an AI assistant that helps users find relevant events for their business networking needs.
+        
+User profile: {user_summary}
+
+{target_events_section}
+
+Event details:\n{event_description}
+
+Keywords: {', '.join(keywords) if keywords else 'None'}
+
+Analyze the relevance of this event for the user's business networking needs. Consider the following factors:
+1. How well the event aligns with the user's business profile
+2. How relevant the event is to the target audience and strategies described
+3. How many keywords match the event
+4. Whether the event is appropriate for {user_type} users
+
+Output a JSON object with the following structure:
+{{
+  "relevance_score": <float between 0 and 1>,
+  "reasoning": "<explanation of why this event is relevant or not>",
+  "matching_keywords": [<list of keywords that match the event>],
+  "highlighted_description": "<event description with relevant parts highlighted>"
+}}
+
+Make sure the relevance_score accurately reflects how useful this event would be for the user's networking goals.
+"""
         # Calculate basic relevance score as fallback
         basic_score = calculate_basic_relevance(event, keywords)
+
+        # --- GEMINI PROMPT CONSTRUCTION ---
+        # Extract event name for logging and reference
+        event_name = event.get('event_name', '') or event.get('title', 'Unknown Event')
         
+        # Use user_summary from function arg, and try to get primary_goal and selected_goals from event or function context
+        primary_goal = event.get('primary_goal', '')
+        selected_goals = event.get('selected_goals', [])
+        if isinstance(selected_goals, str):
+            selected_goals = [selected_goals]
+        target_events = target_events or ''
+
+        prompt = f"""
+Evaluate this event for relevance to the user's interests and goals, considering the following five axes:
+1. How likely is the user to meet future buyers at this event?
+2. How relevant are the backgrounds of speakers and attendees to the user's target market?
+3. How relevant are the companies that speakers or attendees work for, compared to the user's target market?
+4. How well does the event content match the user's business goals and interests?
+5. Is this event likely to provide valuable networking or partnership opportunities for the user?
+
+User profile: {user_summary}
+User goals: Primary: {primary_goal}; Other: {', '.join(selected_goals) if selected_goals else ''}
+Event summary: {event.get('event_summary', '')}
+Speaker insight: {event.get('speaker_insight', '')}
+Event details: {event.get('event_detail', '')}
+Speaker(s): {event.get('speaker_name', '')}, {event.get('speaker_company', '')}, {event.get('speaker_title', '')}, {event.get('speaker_details', '')}
+Target events: {target_events}
+
+Score how well this event matches the user's goals with a single conversion_score (0-1) and provide a brief explanation.
+
+Define 'conversion_path' as follows: The conversion_path should be 2-3 actionable sentences explaining the specific steps or opportunities the user should pursue at this event to achieve their goals, referencing event details, speakers, and context. It should be concrete, actionable, and tailored to the user's primary goal.
+
+Return a JSON object with keys: 'conversion_score', 'conversion_path', 'keywords'.
+Return ONLY valid JSON with no markdown, no extra text, and no explanations. Do not include triple backticks or any formatting, just the JSON object.
+"""
+        # --- END PROMPT CONSTRUCTION ---
+
+        # --- GEMINI 2.0-FLASH CALL & LOGGING ---
+        try:
+            logger.debug(f"[DEBUG] About to call Gemini for event: {event_name}")
+            logger.info(f"[Gemini] Prompt for event '{event_name}':\n{prompt}")
+            model = genai.GenerativeModel(
+                GEMINI_MODEL,
+                generation_config={"temperature": 0.2}
+            )
+            response = model.generate_content(
+                prompt,
+                generation_config={"response_mime_type": "application/json"}
+            )
+            logger.info(f"[Gemini] Raw response for event '{event_name}': {getattr(response, 'text', str(response))}")
+            response_text = getattr(response, 'text', str(response))
+            logger.info(f"[Gemini][RAW RESPONSE] for event '{event_name}': {response_text}")
+            try:
+                result = json.loads(response_text)
+                logger.info(f"[Gemini][PARSED JSON] for event '{event_name}': {result}")
+            except json.JSONDecodeError as e:
+                logger.error(f"[Gemini][JSON ERROR] for event '{event_name}': {str(e)} | Raw: {response_text[:100]}...")
+                json_match = re.search(r'```(?:json)?\s*({.*?})\s*```', response_text, re.DOTALL)
+                if json_match:
+                    result = json.loads(json_match.group(1))
+                    logger.info(f"[Gemini][PARSED JSON from code block] for event '{event_name}': {result}")
+                else:
+                    logger.error(f"[Gemini][FAILED TO PARSE JSON] for event '{event_name}'. Using fallback score. Raw: {response_text[:100]}...")
+                    raise ValueError(f"Could not extract JSON from response: {response_text[:100]}...")
+            conversion_score = result.get('conversion_score', basic_score)
+            logger.info(f"[Gemini][FINAL SCORE USED] for event '{event_name}': {conversion_score}")
+            keywords = result.get('keywords', '')
+            conversion_path = result.get('conversion_path', '')
+            event['relevance_score'] = conversion_score
+            event['matching_keywords'] = keywords.split(', ') if isinstance(keywords, str) else []
+            event['conversion_path'] = conversion_path
+            logger.info(f"[Gemini] Scored event '{event_name}' with score: {conversion_score}, conversion_path: {conversion_path}")
+            return conversion_score
+
+        except Exception as e:
+            logger.error(f"[Gemini] Error: {str(e)}")
+            logger.debug(f"[DEBUG] Gemini exception details:", exc_info=True)
+            logger.info(f"[Gemini] Falling back to basic keyword matching for event '{event_name}'")
+        # --- END GEMINI 2.0-FLASH CALL & LOGGING ---
+
         # Ensure the score is at least 0.75 to make events appear in the UI
         final_score = max(basic_score, 0.75)
         
-        # Generate a more detailed conversion path based on event information and user profile
-        conversion_path = f"Attend {event_name} to network with professionals in your industry."
-        
-        # If we have more detailed information, create a better conversion path
-        if user_summary and event_description:
-            # Create a more personalized conversion path
-            if 'startup' in user_summary.lower() or 'founder' in user_summary.lower():
-                conversion_path = f"Attend {event_name} to connect with potential investors and partners. This event is relevant to your business because it focuses on {', '.join(keywords[:3])}."
-            elif 'investor' in user_summary.lower() or 'vc' in user_summary.lower():
-                conversion_path = f"Attend {event_name} to discover promising startups and investment opportunities in the {', '.join(keywords[:2])} space."
-            elif 'sales' in user_summary.lower() or 'marketing' in user_summary.lower():
-                conversion_path = f"Attend {event_name} to generate leads and build relationships with potential customers interested in {', '.join(keywords[:3])}."
-            else:
-                # Generic but still more detailed conversion path
-                conversion_path = f"Attend {event_name} to expand your network and gain insights about {', '.join(keywords[:3])} from industry leaders."
-        
         # Store the score and conversion path in the event
         event['relevance_score'] = final_score
-        event['conversion_path'] = conversion_path
         
         # Log the score
         logger.info(f"Using enhanced score for event '{event_name}': original={basic_score}, final={final_score}")
@@ -527,9 +744,9 @@ def analyze_event_relevance(event, keywords, user_summary=None, target_events=No
         
     except Exception as e:
         logger.error(f"Error analyzing event relevance: {str(e)}")
+        logger.debug(f"[DEBUG] Outer exception details:", exc_info=True)
         # Set default values in case of error - use a higher score of 0.75
         event['relevance_score'] = 0.75
-        event['conversion_path'] = f"Attend this event to network with professionals in your industry."
         return 0.75
     
 # End of analyze_event_relevance function
@@ -549,11 +766,13 @@ def analyze_event_relevance(event, keywords, user_summary=None, target_events=No
         # Call Gemini API
         model = genai.GenerativeModel(
             GEMINI_MODEL,
-            safety_settings=safety_settings,
             generation_config={"temperature": 0.2}
         )
         
-        response = model.generate_content(prompt)
+        response = model.generate_content(
+    prompt,
+    generation_config={"response_mime_type": "application/json"}
+)
         
         # Process the structured output response
         try:
@@ -577,14 +796,11 @@ def analyze_event_relevance(event, keywords, user_summary=None, target_events=No
             conversion_score = result.get('conversion_score', basic_score)
             keywords = result.get('keywords', '')
             conversion_path = result.get('conversion_path', '')
-            
             # Store the results in the event
             event['relevance_score'] = conversion_score
             event['matching_keywords'] = keywords.split(', ') if isinstance(keywords, str) else []
             event['conversion_path'] = conversion_path
-            
             logger.info(f"Gemini scored event '{event_name}' with score: {conversion_score}")
-            
             return conversion_score
             
         except Exception as e:
@@ -613,37 +829,61 @@ def analyze_event_relevance(event, keywords, user_summary=None, target_events=No
         logger.error(f"Error in async event search: {str(e)}")
         return {'trade_shows': [], 'local_events': []}
 
-async def analyze_event_relevance_async(event, keywords, user_summary=None, target_events=None, user_type="general"):
+async def analyze_event_relevance_async(event, keywords, user_summary=None, target_events=None, user_type="general", event_data_json=None):
     """Analyze event relevance asynchronously"""
     loop = asyncio.get_event_loop()
     # Run the synchronous function in a thread pool
-    await loop.run_in_executor(
+    result = await loop.run_in_executor(
         None, 
-        analyze_event_relevance, 
-        event, keywords, user_summary, target_events, user_type
+        partial(analyze_event_relevance, 
+               event=event,
+               keywords=keywords,
+               user_summary=user_summary,
+               target_events=target_events,
+               user_type=user_type,
+               event_data_json=event_data_json)
     )
-    return event
+    return result
 
-def search_events_with_keywords(keywords, user_summary=None, user_type="general", location="sf", max_results=10, target_events=None, progress_callback=None):
-    """Search for events matching the keywords"""
-    try:
-        # Run the async search function
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        result = loop.run_until_complete(search_events_async(keywords, user_summary, user_type, location, max_results, target_events))
-        loop.close()
-        return result
-    except Exception as e:
-        logger.error(f"Error searching events: {str(e)}")
-        return {'trade_shows': [], 'local_events': []}
+# Removed duplicate function - using the implementation below that accepts event_data_json
 
-def search_events_with_keywords(keywords, user_summary=None, user_type="general", location="sf", max_results=10, target_events=None, progress_callback=None):
-    """Find relevant local events using Gemini API for scoring"""
+async def search_events_with_keywords(keywords, user_summary=None, user_type="general", location="sf", max_results=10, target_events=None, progress_callback=None, event_data_json=None):
+    """Find relevant local events using Gemini API for scoring
+    
+    Args:
+        keywords (list): List of keywords to search for
+        user_summary (str): User's business profile summary
+        user_type (str): Type of user (founder, sales, etc.)
+        location (str): Location to filter events by
+        max_results (int): Maximum number of events to return
+        target_events (str): Legacy target events text (for backward compatibility)
+        progress_callback (callable): Optional callback for progress updates
+        event_data_json (dict): Structured JSON data from generate_target_events_recommendation
+        
+    Returns:
+        dict: Dictionary with trade_shows and local_events lists
+    """
     logger.info(f"Finding top {max_results} relevant local events using Gemini API")
     logger.info(f"Keywords: {', '.join(keywords)}")
-    # ... (rest of the code remains the same)
+    
     if user_summary:
         logger.info(f"User profile: {user_summary[:100]}...")
+    
+    # If we have structured data, extract additional keywords
+    if event_data_json and isinstance(event_data_json, dict):
+        logger.info("Using structured data for event search")
+        structured_keywords = extract_keywords_from_structured_data(event_data_json)
+        logger.info(f"Extracted {len(structured_keywords)} keywords from structured data: {structured_keywords[:10]}")
+        
+        # Combine with existing keywords, removing duplicates
+        combined_keywords = keywords.copy() if keywords else []
+        for keyword in structured_keywords:
+            if keyword not in combined_keywords:
+                combined_keywords.append(keyword)
+        
+        # Use the combined keywords
+        keywords = combined_keywords
+        logger.info(f"Combined keywords for search: {keywords[:10]}")
     
     # Send progress update through callback if available
     if progress_callback:
@@ -671,14 +911,41 @@ def search_events_with_keywords(keywords, user_summary=None, user_type="general"
         progress_callback("progress", f"Scoring {len(local_events)} local events", 50, "Analyzing events")
     
     # Score local events using Gemini
+    # Create tasks for parallel execution
+    tasks = []
     for event in local_events:
-        # Use Gemini to score the event's relevance
-        relevance = analyze_event_relevance(event, keywords, user_summary, target_events, user_type)
-        logger.info(f"Event relevance: {relevance:.2f} for {event.get('title', 'Unknown')}")
+        # Use Gemini to score the event's relevance with structured data if available
+        task = asyncio.create_task(analyze_event_relevance_async(
+            event, 
+            keywords, 
+            user_summary, 
+            target_events, 
+            user_type,
+            event_data_json
+        ))
+        tasks.append((event, task))
+    
+    # Process events in batches for better performance
+    batch_size = 5  # Process 5 events concurrently
+    for i in range(0, len(tasks), batch_size):
+        batch = tasks[i:i+batch_size]
         
-        # Only include events with relevance above threshold
-        if relevance >= RELEVANCE_THRESHOLD:
-            analyzed_local_events.append(event)
+        # Wait for the batch to complete
+        for event, task in batch:
+            try:
+                relevance = await task
+                logger.info(f"Event relevance: {relevance:.2f} for {event.get('title', 'Unknown')}")
+                
+                # Only include events with relevance above threshold
+                if relevance >= RELEVANCE_THRESHOLD:
+                    # Add the relevance score to the event
+                    event['relevance_score'] = relevance
+                    analyzed_local_events.append(event)
+            except Exception as e:
+                logger.error(f"Error analyzing event relevance: {str(e)}")
+                # Use a default relevance score for failed events
+                event['relevance_score'] = 0.75  # Default score
+                analyzed_local_events.append(event)
     
     # Sort events by relevance score
     analyzed_local_events.sort(key=lambda x: x.get('relevance_score', 0), reverse=True)
@@ -723,42 +990,20 @@ def search_events_with_keywords(keywords, user_summary=None, user_type="general"
             # Use the relevance score directly, no conversion
             business_value_score = relevance_score
             
-        # Format speakers for display if they exist
-        formatted_speakers = []
-        if speakers and isinstance(speakers, list):
-            for speaker in speakers:
-                if isinstance(speaker, dict):
-                    speaker_name = speaker.get('name', '')
-                    speaker_role = speaker.get('role', '') or speaker.get('title', '')
-                    speaker_company = speaker.get('company', '')
-                    speaker_linkedin = speaker.get('linkedin', '')
-                    
-                    formatted_speaker = {
-                        'name': speaker_name,
-                        'role': speaker_role,
-                        'company': speaker_company,
-                        'linkedin': speaker_linkedin
-                    }
-                    formatted_speakers.append(formatted_speaker)
-                elif isinstance(speaker, str):
-                    formatted_speakers.append({'name': speaker})
-        
-        # Get conversion path if available, or create a default one
-        conversion_path = event.get('conversion_path', f"Attend {event_name} to network with professionals in your industry.")
-        
         formatted_event = {
             'id': event.get('id', f'local-{len(formatted_local_events)+1}'),
             'name': event_name,
             'description': description,
             'url': url,
             'business_value_score': business_value_score,
-            'score': business_value_score,
+            
+            'conversion_score': event.get('relevance_score', business_value_score),
+            'conversion_path': event.get('conversion_path', ''),
             'highlight': ', '.join(event.get('matching_keywords', [])),
             'date': event_date,
             'location': event_location,
             'is_tradeshow': False,
-            'speakers': formatted_speakers,  # Include formatted speakers data
-            'conversion_path': conversion_path  # Include conversion path
+            'speakers': speakers  # Include full speakers data
         }
         formatted_local_events.append(formatted_event)
     
@@ -971,7 +1216,10 @@ def highlight_entities(text, user_product, target_events_keywords=None):
         )
 
         # Generate the highlighted text
-        response = model.generate_content(prompt)
+        response = model.generate_content(
+    prompt,
+    generation_config={"response_mime_type": "application/json"}
+)
         highlighted_text = response.text.strip()
 
         # If the response is empty or doesn't contain any highlighting tags, return the original text
@@ -1102,7 +1350,7 @@ def format_event_for_display(event):
             'is_tradeshow': is_trade_show(event),
             'conversion_path': conversion_path,  # Original conversion path
             'highlighted_conversion_path': highlighted_conversion_path,  # Highlighted conversion path
-            'speakers': speakers_info  # Include speakers information with LinkedIn links
+            'speakers': speakers  # Return full list of speaker dicts for UI rendering
         }
 
         return formatted_event
@@ -1214,111 +1462,20 @@ async def validate_event_async(event):
     return is_valid
 
 
-async def analyze_event_relevance_async(event, keywords, user_summary=None, target_events=None, user_type="general"):
+async def analyze_event_relevance_async(event, keywords, user_summary=None, target_events=None, user_type="general", event_data_json=None):
     """Analyze event relevance asynchronously"""
     loop = asyncio.get_event_loop()
     # Run the synchronous function in a thread pool
-    await loop.run_in_executor(
+    return await loop.run_in_executor(
         None, 
-        analyze_event_relevance, 
-        event, keywords, user_summary, target_events, user_type
+        partial(analyze_event_relevance, 
+               event=event,
+               keywords=keywords,
+               user_summary=user_summary,
+               target_events=target_events,
+               user_type=user_type,
+               event_data_json=event_data_json)
     )
-    return event
-
-
-async def search_events_async(keywords, user_summary=None, user_type="general", location="sf", max_results=10, target_events=None):
-    """Search for events asynchronously"""
-    try:
-        # Load events from CSV files
-        events = load_events_from_csv()
-        
-        # Debug logging
-        logger.info(f"Loaded {len(events)} events from CSV files")
-        
-        # Fix any data issues
-        fixed_events = []
-        for event in events:
-            # Check if event_url is in speaker_name (column order issue)
-            if event.get('speaker_name', '').startswith('http'):
-                event['event_url'] = event['speaker_name']
-                event['speaker_name'] = event.get('speaker_company', '')
-            fixed_events.append(event)
-        
-        events = fixed_events
-        logger.info(f"Fixed {len(events)} events with data corrections")
-        
-        # Filter events by location
-        if location:
-            filtered_events = []
-            for event in events:
-                event_location = event.get('location', '') or event.get('event_location', '')
-                if not event_location:
-                    continue
-                    
-                if location.lower() in event_location.lower():
-                    filtered_events.append(event)
-            events = filtered_events
-            logger.info(f"Filtered to {len(events)} events by location: {location}")
-        
-        # If we have no events, return an empty list
-        if not events:
-            logger.warning("No events found after location filtering")
-            return {'trade_shows': [], 'local_events': []}
-        
-        # Validate all events asynchronously - check for 404 links and past events
-        logger.info(f"Validating {len(events)} events for future dates and valid URLs...")
-        validation_tasks = [validate_event_async(event) for event in events]
-        validation_results = await asyncio.gather(*validation_tasks)
-        
-        # Filter out invalid events
-        valid_events = [event for event, is_valid in zip(events, validation_results) if is_valid]
-        logger.info(f"After validation: {len(valid_events)} valid events out of {len(events)} total")
-        
-        if not valid_events:
-            logger.warning("No valid events found after validation")
-            return {'trade_shows': [], 'local_events': []}
-        
-        # Analyze event relevance for each event
-        trade_shows = []
-        local_events = []
-        
-        # Process events in batches for better performance
-        batch_size = 3  # Process 3 events concurrently
-        
-        for i in range(0, len(valid_events), batch_size):
-            batch = valid_events[i:i+batch_size]
-            
-            # Process batch concurrently
-            tasks = []
-            for event in batch:
-                task = asyncio.create_task(analyze_event_relevance_async(event, keywords, user_summary, target_events, user_type))
-                tasks.append(task)
-            
-            # Wait for all tasks to complete
-            await asyncio.gather(*tasks)
-            
-            # Separate events into trade shows and local events
-            for event in batch:
-                if is_trade_show(event):
-                    trade_shows.append(event)
-                else:
-                    local_events.append(event)
-        
-        # Sort events by relevance score
-        trade_shows.sort(key=lambda x: x.get('relevance_score', 0), reverse=True)
-        local_events.sort(key=lambda x: x.get('relevance_score', 0), reverse=True)
-        
-        # Limit results
-        trade_shows = trade_shows[:max_results]
-        local_events = local_events[:max_results]
-        
-        return {
-            'trade_shows': trade_shows,
-            'local_events': local_events
-        }
-    except Exception as e:
-        logger.error(f"Error in async event search: {str(e)}")
-        return {'trade_shows': [], 'local_events': []}
 
 
 # Update the search_events function to use the async implementation
@@ -1358,8 +1515,6 @@ def search_events_with_async(keywords, user_summary=None, user_type="general", l
             event['relevance_score'] = 0.5
             
             # Add default conversion path if missing
-            if not event.get('conversion_path'):
-                event['conversion_path'] = f"Attend {event.get('event_name', 'this event')} to network with professionals in your industry."
         
         logger.info(f"Fixed {fixed_count} events with URL in speaker_name field")
         

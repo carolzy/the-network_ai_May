@@ -1,0 +1,32 @@
+{
+  "target_customers": [
+    {
+      "industry": "Game Development",
+      "company_name": "Unity Technologies",
+      "size": "1000+ employees",
+      "why_good_fit": "Unity is a leader in real-time 3D content creation and would benefit from ElevenLabs' advanced voice AI for immersive game experiences.",
+      "website": "https://unity.com"
+    },
+    {
+      "industry": "Game Development",
+      "company_name": "Supercell",
+      "size": "300+ employees",
+      "why_good_fit": "Supercell creates globally popular mobile games and could use ElevenLabs for character voiceovers and dynamic audio.",
+      "website": "https://supercell.com"
+    },
+    {
+      "industry": "AAA Game Studio",
+      "company_name": "CD PROJEKT RED",
+      "size": "1000+ employees",
+      "why_good_fit": "CD PROJEKT RED is known for narrative-driven games like The Witcher and Cyberpunk 2077, making them a great fit for ElevenLabs' AI-powered dialogue.",
+      "website": "https://cdprojektred.com"
+    },
+    {
+      "industry": "Indie Games",
+      "company_name": "Devolver Digital",
+      "size": "50+ employees",
+      "why_good_fit": "Devolver Digital publishes innovative indie games and could leverage ElevenLabs for unique audio branding and localization.",
+      "website": "https://devolverdigital.com"
+    }
+  ]
+}

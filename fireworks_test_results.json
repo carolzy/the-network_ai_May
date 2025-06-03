@@ -1,0 +1,621 @@
+{
+  "ui_data": {
+    "multi_factor_analysis": {
+      "customer_analysis": "Based on available data, a deeper understanding of existing customer profiles is needed. Further analysis should focus on identifying common characteristics and use cases among early adopters to refine targeting strategies.",
+      "market_growth": "The market for generative AI deployment platforms is experiencing rapid growth, driven by increasing demand for AI-powered applications across various industries. Growth rates are projected to be substantial as more businesses seek to integrate AI into their operations."
+    },
+    "key_differentiators": [
+      {
+        "icon": "\ud83c\udfaf",
+        "text": "Simplified Generative AI Deployment: Streamlines the process of deploying and managing generative AI models."
+      },
+      {
+        "icon": "\u26a1",
+        "text": "Blazing-Fast Inference Speeds: Delivers real-time performance for AI applications, enhancing user experience."
+      },
+      {
+        "icon": "\ud83c\udf0d",
+        "text": "Democratized Access: Makes advanced AI capabilities accessible to a wider range of businesses, regardless of size or expertise."
+      },
+      {
+        "icon": "\ud83c\udfad",
+        "text": "Custom Model Fine-Tuning: Empowers users to fine-tune and deploy their own custom models for tailored AI solutions."
+      }
+    ],
+    "target_customers": [],
+    "who_to_target": [
+      {
+        "group_title": "AI Application Developers",
+        "description": "Developers building AI-powered applications who need a fast and scalable inference platform. They are looking to reduce deployment complexity and improve the performance of their AI models."
+      },
+      {
+        "group_title": "Enterprises Integrating Generative AI",
+        "description": "Large organizations across various industries seeking to integrate generative AI into their workflows and products. They need a platform that simplifies deployment and allows for custom model fine-tuning."
+      },
+      {
+        "group_title": "Startups Leveraging LLMs",
+        "description": "Early-stage companies building innovative products and services using Large Language Models. They require a cost-effective and easy-to-use platform to deploy and scale their AI applications."
+      }
+    ],
+    "event_strategies": {
+      "find_buyers": {
+        "goal_title": "For Finding Buyers/Users",
+        "goal_icon": "\ud83d\udcb0",
+        "event_types": [
+          "AI and Machine Learning Conferences focused on deployment and infrastructure",
+          "Industry-specific events showcasing AI applications in various sectors",
+          "Developer conferences and hackathons where potential users are actively building AI solutions"
+        ]
+      },
+      "business_partners": {
+        "goal_title": "For Meeting Business Partners",
+        "goal_icon": "\ud83e\udd1d",
+        "event_types": [
+          "Cloud computing and infrastructure conferences where potential integration partners are present",
+          "AI ecosystem events focused on partnerships and collaborations"
+        ]
+      },
+      "recruit_talent": {
+        "goal_title": "For Recruiting Talent",
+        "goal_icon": "\ud83d\udc65",
+        "event_types": [
+          "University career fairs at top engineering and computer science programs"
+        ]
+      },
+      "investors": {
+        "goal_title": "For Connecting with Investors",
+        "goal_icon": "\ud83d\udcbc",
+        "event_types": [
+          "Venture capital conferences focused on AI and machine learning startups"
+        ]
+      },
+      "networking": {
+        "goal_title": "For General Networking",
+        "goal_icon": "\ud83c\udf10",
+        "event_types": [
+          "Industry mixers and meetups for AI professionals and enthusiasts"
+        ]
+      }
+    },
+    "specific_events": [
+      {
+        "title": "AI Summit",
+        "meta": "May 8-9, 2024 \u2022 New York, NY \u2022 Conference",
+        "description": "Connect with enterprise AI leaders and explore the latest advancements in AI deployment and infrastructure. A great opportunity to showcase Fireworks AI's platform to potential customers and partners.",
+        "primary_goal": "find_buyers"
+      },
+      {
+        "title": "re:Invent",
+        "meta": "December 2-6, 2024 \u2022 Las Vegas, NV \u2022 Conference",
+        "description": "Meet with cloud computing professionals and explore partnership opportunities with AWS and other cloud providers. Ideal for showcasing Fireworks AI's integration with leading cloud platforms.",
+        "primary_goal": "business_partners"
+      }
+    ],
+    "business_profile": {
+      "description": "Okay, here's an insightful summary based on the provided information:\n\nFireworks AI offers a platform designed to accelerate and simplify the deployment of generative AI models for businesses. They cater to organizations looking to leverage state-of-the-art, open-source Large Language Models (LLMs) and image models without the complexities of infrastructure management. Their core value proposition centers around providing blazing-fast inference speeds, enabling real-time applications and improved user experiences. Furthermore, Fireworks AI empowers users to fine-tune and deploy their own custom models, offering flexibility and control. By removing cost barriers and streamlining deployment, Fireworks AI aims to democratize access to advanced AI capabilities, making them accessible to a wider range of businesses regardless of their size or technical expertise. This positions them as a key enabler for companies seeking to integrate generative AI into their workflows and products efficiently.",
+      "visibility_notice": {
+        "title": "\ud83d\udc41\ufe0f Profile Visibility",
+        "message": "Your business profile and differentiators will be shown to target customers, potential partners, and recruits when you connect through Network AI."
+      }
+    }
+  },
+  "tradeshows": [
+    {
+      "Event_Title": "AI Dev World",
+      "Event_Date": "2025-10-07",
+      "Event_Location": "Santa Clara, CA",
+      "Event_Description": "AI Dev World is the world's largest AI developer conference, focusing on practical AI development and deployment. It covers a wide range of topics, including machine learning, deep learning, natural language processing, and computer vision. This event is highly relevant to Fireworks AI as it directly targets AI application developers, a key segment for their platform. Showcasing Fireworks AI's capabilities in simplifying and accelerating AI model deployment at this event can attract potential users and generate valuable leads.",
+      "Event_Keywords": "AI, Machine Learning, Deep Learning, AI Development, AI Deployment, MLOps",
+      "Conversion_Path": "Focus on demonstrating the speed and ease of deploying generative AI models using Fireworks AI. Offer workshops or demos showcasing the platform's capabilities. Collect leads by offering free trials or access to exclusive resources. Network with attendees to understand their AI deployment challenges and position Fireworks AI as the ideal solution.",
+      "Event_Official_Website": "https://aidevworld.com/",
+      "Conversion_Score": 90
+    },
+    {
+      "Event_Title": "AI Summit Silicon Valley",
+      "Event_Date": "2025-09-30",
+      "Event_Location": "Santa Clara, CA",
+      "Event_Description": "AI Summit Silicon Valley is a major event focused on the business applications of AI. It brings together business leaders, technology experts, and AI innovators to discuss the latest trends and challenges in AI adoption. This event is relevant to Fireworks AI because it targets enterprises integrating generative AI, a key segment for their platform. Demonstrating how Fireworks AI can help businesses overcome the complexities of AI deployment can attract potential customers.",
+      "Event_Keywords": "AI, Machine Learning, AI Applications, Business AI, Enterprise AI, AI Strategy",
+      "Conversion_Path": "Sponsor a keynote session or panel discussion on the business value of generative AI. Host a VIP dinner or networking event for key decision-makers. Offer a free consultation or assessment to help businesses identify AI opportunities. Collect leads by offering a case study showcasing how Fireworks AI has helped a business achieve its AI goals.",
+      "Event_Official_Website": "https://theaisummit.com/silicon-valley/",
+      "Conversion_Score": 88
+    },
+    {
+      "Event_Title": "MLOps World",
+      "Event_Date": "2025-11-17",
+      "Event_Location": "San Francisco, CA",
+      "Event_Description": "MLOps World is a conference dedicated to the emerging field of MLOps, which focuses on streamlining the development, deployment, and management of machine learning models. It covers topics such as model monitoring, version control, and automated deployment pipelines. This event is highly relevant to Fireworks AI as it directly addresses the challenges of AI deployment and infrastructure management. Showcasing Fireworks AI's platform at this event can attract potential users looking for solutions to simplify their MLOps workflows.",
+      "Event_Keywords": "MLOps, Machine Learning, AI Deployment, AI Infrastructure, Model Monitoring, DevOps",
+      "Conversion_Path": "Present a technical talk or workshop on best practices for MLOps with Fireworks AI. Sponsor the event to increase brand visibility and attract attendees to your booth. Offer a free trial of Fireworks AI to attendees. Network with speakers and attendees to identify potential customers and partners.",
+      "Event_Official_Website": "https://mlopsworld.com/",
+      "Conversion_Score": 91
+    },
+    {
+      "Event_Title": "The AI Summit San Francisco",
+      "Event_Date": "2025-09-24",
+      "Event_Location": "San Francisco, CA",
+      "Event_Description": "The AI Summit is a global series of events focused on the business applications of AI. The San Francisco edition brings together business leaders, AI experts, and technology providers to explore the latest trends and challenges in AI adoption. This event is highly relevant to Fireworks AI as it provides a platform to connect with enterprises looking to leverage AI for business transformation and showcase their platform's ability to remove cost barriers and streamline deployment.",
+      "Event_Keywords": "AI, Artificial Intelligence, Machine Learning, Deep Learning, AI Applications, Business AI, AI Strategy, AI Transformation",
+      "Conversion_Path": "Fireworks AI can leverage The AI Summit to target enterprises seeking to integrate generative AI into their business processes. They should emphasize the cost-effectiveness and ease of deployment offered by their platform, highlighting how it democratizes access to advanced AI capabilities. Participating in executive roundtables, presenting case studies of successful AI implementations, and offering personalized demos can help them build relationships with potential clients and secure new business opportunities.",
+      "Event_Official_Website": "https://theaisummit.com/san-francisco/",
+      "Conversion_Score": 80
+    },
+    {
+      "Event_Title": "GPU Technology Conference (GTC)",
+      "Event_Date": "2025-03-17",
+      "Event_Location": "San Jose, CA",
+      "Event_Description": "GTC is a premier conference focused on accelerated computing and AI. Organized by NVIDIA, it brings together developers, researchers, and industry leaders to explore the latest advancements in GPUs, AI, and data science. This conference is highly relevant to Fireworks AI as it provides a platform to showcase their blazing-fast inference speeds and optimized deployment capabilities on NVIDIA GPUs, attracting AI application developers and enterprises seeking high-performance AI solutions.",
+      "Event_Keywords": "GPU, Accelerated Computing, AI, Machine Learning, Deep Learning, Data Science, NVIDIA, AI Infrastructure, High-Performance Computing",
+      "Conversion_Path": "Fireworks AI can leverage GTC to connect with AI developers and enterprises seeking to optimize their AI workloads on NVIDIA GPUs. They should showcase their platform's ability to accelerate inference speeds and simplify deployment on NVIDIA hardware. Partnering with NVIDIA on joint presentations, offering demos of their platform's performance, and participating in technical sessions can help them establish themselves as a leading provider of AI deployment solutions for NVIDIA GPUs.",
+      "Event_Official_Website": "https://www.nvidia.com/gtc/",
+      "Conversion_Score": 75
+    },
+    {
+      "Event_Title": "KubeCon + CloudNativeCon North America",
+      "Event_Date": "2025-11-17",
+      "Event_Location": "Seattle, WA",
+      "Event_Description": "KubeCon + CloudNativeCon is the leading conference for cloud-native technologies, including Kubernetes, containers, and microservices. It brings together developers, operators, and architects to share knowledge, network, and explore the latest trends in cloud-native computing. This event is relevant to Fireworks AI as it attracts enterprises integrating generative AI and startups leveraging LLMs in cloud-native environments, providing opportunities to showcase their platform's compatibility and ease of deployment in these environments.",
+      "Event_Keywords": "Kubernetes, Containers, Cloud-Native, Microservices, DevOps, AI, Machine Learning, LLMs, Generative AI",
+      "Conversion_Path": "Fireworks AI can leverage KubeCon + CloudNativeCon to target enterprises and startups deploying generative AI in cloud-native environments. They should highlight their platform's compatibility with Kubernetes and other cloud-native technologies, showcasing its ability to simplify deployment and management of AI models in these environments. Participating in workshops, presenting case studies of successful cloud-native AI deployments, and offering demos of their platform's integration with Kubernetes can help them attract potential customers and partners.",
+      "Event_Official_Website": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/",
+      "Conversion_Score": 70
+    },
+    {
+      "Event_Title": "AI & Big Data Expo North America",
+      "Event_Date": "2025-05-14",
+      "Event_Location": "Santa Clara, CA",
+      "Event_Description": "The AI & Big Data Expo brings together key industries across America for two days of top-level content and thought leadership discussions around AI, Big Data, IoT, Blockchain, and Cyber Security. This conference is designed for technology specialists, data scientists, developers, and business leaders. Fireworks AI can benefit from this event by connecting with a broad audience interested in AI and big data solutions, showcasing their platform's capabilities in simplifying AI deployment and accelerating inference speeds.",
+      "Event_Keywords": "AI, Big Data, Machine Learning, Deep Learning, Data Science, AI Applications, Deployment",
+      "Conversion_Path": "Fireworks AI can leverage this expo to showcase their platform's versatility in handling large datasets and complex AI models. They should focus on networking with data scientists, developers, and business leaders seeking to integrate AI into their workflows. Demonstrating the platform's ease of use and cost-effectiveness can attract potential customers. This event is suitable for generating leads and establishing connections with potential business partners.",
+      "Event_Official_Website": "https://www.ai-expo.net/northamerica/",
+      "Conversion_Score": 80
+    }
+  ],
+  "local_events": {
+    "trade_shows": [],
+    "local_events": [
+      {
+        "id": "local-1",
+        "name": "GGW Sharks. AI Founders & Investors",
+        "description": "This special edition of GGW Sharks will be fully dedicated to AI startups \u2014 the founders shaping the future with artificial intelligence! Imagine pitching your startup to real investors \u2014 no slides, no fluff, just pure energy. Get ready for the most electrifying startup pitch event connecting bold founders with top-tier investors. Five handpicked founders. Two minutes. One shot. No slides, no safety nets \u2014 just raw hustle, real innovation, and a panel of top investors ready to judge. If you\u2019re a founder, you\u2019ll get a chance to jump in and pitch your startup during our open mic session. No pressure \u2014 just the perfect opportunity to get noticed, share your vision, and connect. But it\u2019s not just about the pitch\u2026 This is where the magic happens: up-close networking with active investors, seasoned founders, and future partners from around the globe. Swap stories. Spark new connections. Walk away with the feedback \u2014 or funding \u2014 to go global. Whether you\u2019re a founder looking for your break or just want to feel the pulse of Silicon Valley \u2014 this is where you want to be. No cold emails. No waiting. Just real conversations and real opportunities. So \u2014 are you ready to bring your A-game?",
+        "url": "https://lu.ma/ka6hgab3",
+        "business_value_score": 0.85,
+        "conversion_score": 0.85,
+        "conversion_path": "Attend the GGW Sharks event and actively participate in the open mic session to pitch Fireworks AI's platform to the investors present. Focus on highlighting the platform's blazing-fast inference speeds and cost-effectiveness for deploying generative AI models. Network with the investors and other AI startup founders to explore potential partnerships and gather feedback on Fireworks AI's value proposition.",
+        "highlight": "",
+        "date": "June 27",
+        "location": "San Francisco, California",
+        "is_tradeshow": false,
+        "speakers": [
+          {
+            "name": "Not specified",
+            "role": "Not specified"
+          }
+        ]
+      },
+      {
+        "id": "local-2",
+        "name": "AI AGENT VC Panel Palo Alto",
+        "description": "We are Open Future Forum. We are leaders, investors, founders, and engineers based in the Bay Area CA.",
+        "url": "https://lu.ma/vfhb55ya",
+        "business_value_score": 0.85,
+        "conversion_score": 0.85,
+        "conversion_path": "Attend the Open Future Forum event and actively participate in the curated networking sessions to connect with VCs investing in AI agent startups and founders building AI agents. Engage with Helen H. Liang from FoundersX to explore potential investment or partnership opportunities, given her focus on early-stage deep tech and AI investments. Use the event to gather insights from the panel discussion and identify potential customers or partners for Fireworks AI's platform.",
+        "highlight": "",
+        "date": "May 29",
+        "location": "Palo Alto, California",
+        "is_tradeshow": false,
+        "speakers": [
+          {
+            "name": "Helen H. Liang, PhD",
+            "role": "General Partner"
+          },
+          {
+            "name": "David Gerster",
+            "role": "Partner",
+            "company": "Fusion Fund",
+            "background": "David Gerster is a Partner at Fusion Fund, a venture capital firm investing in early-stage deep tech companies"
+          },
+          {
+            "name": "Keshia Theobald-Van Gent",
+            "role": "VP",
+            "company": "BDev Ventures",
+            "background": "Keshia Theobald-Van Gent is the VP at BDev Ventures, a firm focused on venture building and strategic investments"
+          },
+          {
+            "name": "Alex Liang",
+            "role": "Not specified",
+            "company": "EnvisionX Capital",
+            "background": "Alex Liang is a Partner at EnvisionX Capital, a venture capital firm focused on pre-seed and seed-stage investments in artificial intelligence and deep technology"
+          }
+        ]
+      },
+      {
+        "id": "local-3",
+        "name": "AWS MCP Agents Hackathon",
+        "description": "Join us to build cutting-edge AI agents that push the limits of LLMs and AI applications!",
+        "url": "https://lu.ma/mcphack",
+        "business_value_score": 0.85,
+        "conversion_score": 0.85,
+        "conversion_path": "To maximize the value of this event, Fireworks AI should focus on showcasing their platform's capabilities in accelerating LLM deployment during the hackathon. They should network with judges from companies like Anthropic, Operant AI, and Future AGI to explore potential partnerships or integrations. Additionally, engaging with AWS representatives like Jon Turdiev and Venu Kanamatareddy could lead to valuable insights and collaborations within the AWS ecosystem.",
+        "highlight": "",
+        "date": "May 30",
+        "location": "San Francisco, California",
+        "is_tradeshow": false,
+        "speakers": [
+          {
+            "name": "Jon Turdiev",
+            "role": "Senior Solutions Architect"
+          },
+          {
+            "name": "Saptarshi Banerjee",
+            "role": "Senior Solutions Architect",
+            "company": "AWS",
+            "background": "Saptarshi Banerjee is a Senior Solutions Architect at Amazon Web Services (AWS)"
+          },
+          {
+            "name": "Ethan Dixon",
+            "role": "Applied AI",
+            "company": "Anthropic",
+            "background": "Ethan Dixon is a researcher at Anthropic, a company focused on building safe and reliable AI systems"
+          },
+          {
+            "name": "Carolyn Ryan",
+            "role": "Applied AI",
+            "company": "Anthropic",
+            "background": "Carolyn Ryan leads Applied AI at Anthropic, focusing on integrating and applying Claude (Anthropic's AI assistant) to real-world business problems"
+          },
+          {
+            "name": "Shreya Gupta",
+            "role": "Sr Developer Advocate",
+            "company": "Auth0",
+            "background": "Shreya Gupta is a Senior Developer Advocate at Auth0, passionate about making web authentication and authorization more accessible to developers"
+          },
+          {
+            "name": "Tony Holdstock-Brown",
+            "role": "Founder & CEO",
+            "company": "Inngest",
+            "background": "Tony Holdstock-Brown is the Founder and CEO of Inngest, a company focused on building a serverless framework for background jobs and workflows"
+          },
+          {
+            "name": "Bruno Scheufler",
+            "role": "Sr. Software Engineer",
+            "company": "Inngest",
+            "background": "Bruno Scheufler is a Senior Software Engineer at Inngest, where he focuses on building and improving their serverless function orchestration platform"
+          },
+          {
+            "name": "Upal Saha",
+            "role": "Co-founder & CTO",
+            "company": "bem",
+            "background": "Upal Saha is the Co-founder and CTO of bem, a company focused on revolutionizing manufacturing with AI and computer vision"
+          },
+          {
+            "name": "Jason Shum",
+            "role": "Tech Advisor",
+            "company": "MiniMax",
+            "background": "Jason Shum is a Tech Advisor at MiniMax, a Chinese AI startup focused on multimodal large language models"
+          },
+          {
+            "name": "Nikhil Pareek",
+            "role": "Founder & CEO",
+            "company": "Future AGI",
+            "background": "Nikhil Pareek is the Founder and CEO of Future AGI, a company focused on accelerating the development of safe and beneficial artificial general intelligence"
+          },
+          {
+            "name": "Priyanka Tembey",
+            "role": "Co-Founder & CTO",
+            "company": "Operant AI",
+            "background": "Priyanka Tembey is the Co-Founder and CTO of Operant AI, a company focused on building safer and more reliable AI systems"
+          },
+          {
+            "name": "Boris Toledano",
+            "role": "COO & Co-Founder",
+            "company": "Linkup",
+            "background": "Boris Toledano is the COO and Co-Founder of Linkup, a company focused on streamlining background checks and compliance processes"
+          },
+          {
+            "name": "Venkat Thiruvengadam",
+            "role": "Founder and CEO",
+            "company": "DuploCloud",
+            "background": "Venkat Thiruvengadam is the Founder and CEO of DuploCloud, a low-code/no-code platform aimed at simplifying cloud infrastructure management"
+          },
+          {
+            "name": "Jonathan Smeltser",
+            "role": "Solutions Engineer",
+            "company": "Make.com",
+            "background": "Jonathan Smeltser is a Solutions Engineer at Make.com, a leading integration platform as a service (iPaaS)"
+          },
+          {
+            "name": "Prev Wong",
+            "role": "Principal Product Engineer",
+            "company": "Taskade",
+            "background": "Prev Wong is a Principal Product Engineer at Taskade, focusing on building innovative collaboration and productivity tools"
+          },
+          {
+            "name": "Abhigyan Khaund",
+            "role": "Software Engineer",
+            "company": "Palantir",
+            "background": "Abhigyan Khaund is a Software Engineer at Palantir Technologies"
+          },
+          {
+            "name": "Vino Duraisamy",
+            "role": "Developer advocate",
+            "company": "Snowflake",
+            "background": "Vino Duraisamy is a Developer Advocate at Snowflake, focused on empowering developers and data professionals"
+          },
+          {
+            "name": "Shahriyar (Sako) Mammadov",
+            "role": "Sr. SWE",
+            "company": "Gladly",
+            "background": "Shahriyar (Sako) Mammadov is a Senior Software Engineer at Gladly"
+          },
+          {
+            "name": "Patrick Lundquist",
+            "role": "Staff Backend Engineer",
+            "company": "Clarifai",
+            "background": "Patrick Lundquist is a Staff Backend Engineer at Clarifai, specializing in distributed systems and infrastructure"
+          },
+          {
+            "name": "Venu Kanamatareddy",
+            "role": "Solutions Architect (ML & AI)",
+            "company": "AWS",
+            "background": "Venu Kanamatareddy is a Solutions Architect at AWS specializing in Machine Learning and Artificial Intelligence"
+          },
+          {
+            "name": "Ao Li",
+            "role": "Software Engineer, Blockchain",
+            "company": "Mastercard",
+            "background": "Ao Li is a Software Engineer at Mastercard, specializing in blockchain technologies"
+          },
+          {
+            "name": "Avnish Kumar",
+            "role": "Sr. SWE",
+            "company": "AWS",
+            "background": "Avnish Kumar is a Senior Software Engineer at Amazon Web Services (AWS)"
+          },
+          {
+            "name": "Anu Jayanthi",
+            "role": "Solutions Architect",
+            "company": "AWS",
+            "background": "Anu Jayanthi is a Solutions Architect at Amazon Web Services (AWS)"
+          },
+          {
+            "name": "Islombek Abdulakhatov",
+            "role": "CTO",
+            "company": "Aorta",
+            "background": "Islombek Abdulakhatov is the Chief Technology Officer (CTO) at Aorta, a company focused on developing intelligent digital infrastructure"
+          }
+        ]
+      },
+      {
+        "id": "local-4",
+        "name": "AI Investing In 2025",
+        "description": "We are Open Future Forum. We are leaders, investors, founders and engineers based in the Bay Area CA. Featuring: Sue Xu \u2013 Managing Partner, Amino Capital, Chris McCann \u2013 General Partner, Race Capital, Joli Zhang \u2013 VU Venture Partners. Who should attend: Are you a VC investing in AI Agent startups? Are you a founder building the next generation of AI agents? What to expect: Insightful panel discussion with leading investors, Networking with founders and VCs, Wine, light food, and great conversations.",
+        "url": "https://lu.ma/r8t4o2jr",
+        "business_value_score": 0.85,
+        "conversion_score": 0.85,
+        "conversion_path": "Attend the Open Future Forum to network with VCs and founders focused on AI agents. Engage with Sue Xu from Amino Capital to explore potential investment or partnership opportunities, given her expertise in AI and early-stage startups. Participate in the panel discussion to gain insights into the AI agent landscape and identify potential customers or collaborators.",
+        "highlight": "",
+        "date": "May 28",
+        "location": "Palo Alto, California",
+        "is_tradeshow": false,
+        "speakers": [
+          {
+            "name": "Sue Xu",
+            "role": "Managing Partner"
+          },
+          {
+            "name": "Chris McCann",
+            "role": "General Partner",
+            "company": "Race Capital",
+            "background": "Chris McCann is a General Partner at Race Capital, a venture capital firm focused on pre-seed and seed-stage investments"
+          },
+          {
+            "name": "Joli Zhang",
+            "role": "Not specified",
+            "company": "VU Venture Partners",
+            "background": "Joli Zhang is a Managing Partner at VU Venture Partners, focusing on investments in early-stage technology companies"
+          }
+        ]
+      },
+      {
+        "id": "local-5",
+        "name": "Techstars San Francisco Spring 2025 Demo Day",
+        "description": "Join us for Techstars San Francisco Demo Day and see our newest class of founders share the innovative companies they're building - featuring special live Q&As with our Entrepreneurs in Residence! These founders are building the next generation of AI vertical solutions for sales enablement, adtech, healthcare, legaltech and so much more. Join us in celebrating their progress over the last 3 months!",
+        "url": "https://lu.ma/kdhrflmt",
+        "business_value_score": 0.75,
+        "conversion_score": 0.75,
+        "conversion_path": "Attend the Techstars San Francisco Demo Day to identify potential early-stage companies building AI vertical solutions that could benefit from Fireworks AI's platform. During the cocktail networking hour, engage with founders in the sales enablement, adtech, healthcare, and legaltech sectors to explore partnership opportunities or understand their current AI deployment challenges and how Fireworks AI can address them.",
+        "highlight": "",
+        "date": "May 29",
+        "location": "San Francisco, California",
+        "is_tradeshow": false,
+        "speakers": [
+          {
+            "name": "Chloe Lannert",
+            "role": "Program Manager"
+          },
+          {
+            "name": "Andrea Perdomo",
+            "role": "Not specified",
+            "company": "Techstars San Francisco",
+            "background": "Andrea Perdomo is the Managing Director of Techstars San Francisco, focusing on investing in early-stage startups"
+          },
+          {
+            "name": "Umar",
+            "role": "Not specified",
+            "company": "Techstars San Francisco",
+            "background": "Umar is a Managing Director at Techstars San Francisco, focusing on early-stage investments"
+          }
+        ]
+      },
+      {
+        "id": "local-6",
+        "name": "HUMAN+TECH SUMMIT: Human Potential in the Age of AI",
+        "description": "The Human+Tech Summit (June 17-19), with over 100 Speakers and Thought Leaders, is the centerpiece of Human+Tech Week. Connect with Human+Tech Speakers, Thought Leaders, and Attendees, and hear about all the amazing sessions and experiences you'll encounter \u2013 before the Event!",
+        "url": "https://lu.ma/humantech",
+        "business_value_score": 0.75,
+        "conversion_score": 0.75,
+        "conversion_path": "To find potential buyers, Fireworks AI should focus on networking during the Human+Tech Summit, especially targeting attendees from Inflection AI and Magic, as they are mentioned as sponsors and are relevant to AI applications. Engage with speakers like Nichol Bradford and explore the exhibits and roundtable discussions to identify companies seeking to integrate generative AI for wellbeing and performance, aligning with Fireworks AI's value proposition.",
+        "highlight": "",
+        "date": "Tuesday, June 17",
+        "location": "1 Beach St, San Francisco, California",
+        "is_tradeshow": false,
+        "speakers": [
+          {
+            "name": "Nichol Bradford",
+            "role": "Founder & Exec. Producer"
+          },
+          {
+            "name": "Steven Echtman",
+            "role": "Producer & Co-Creator",
+            "company": "Not specified",
+            "background": "Steven Echtman is a television producer and co-creator known for his work in animation"
+          }
+        ]
+      },
+      {
+        "id": "local-7",
+        "name": "AI Agents and Startup talks @ GitHub",
+        "description": "An evening for AI developers, startups founders, data scientists, and AI enthusiasts to explore the latest advancements in artificial intelligence with lightning talks, real-world agent use cases, and networking opportunities.",
+        "url": "https://lu.ma/mu2o8aqb",
+        "business_value_score": 0.75,
+        "conversion_score": 0.75,
+        "conversion_path": "Attend the AI event on June 11th to network with AI developers, startup founders, and data scientists. Engage in conversations during the networking session (8:00-8:30pm) to identify potential buyers for Fireworks AI's platform. Listen to the talks by AI startup founders and industry leaders to understand their needs and challenges related to deploying generative AI models, and then follow up with them afterwards.",
+        "highlight": "",
+        "date": "June 11",
+        "location": "GitHub, 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA",
+        "is_tradeshow": false,
+        "speakers": [
+          {
+            "name": "Brooke Hopkins",
+            "role": "Founder"
+          }
+        ]
+      },
+      {
+        "id": "local-8",
+        "name": "Stanford Founders Demo Day | Spring 2025",
+        "description": "The Stanford Founders Demo Day \u2013 Spring 2025 is a premier gathering designed to foster innovation, showcase talent, and ignite meaningful connections within the Stanford entrepreneurial ecosystem.",
+        "url": "https://lu.ma/0fwfboti",
+        "business_value_score": 0.75,
+        "conversion_score": 0.75,
+        "conversion_path": "Given Fireworks AI's focus on generative AI deployment, attending the Stanford Founders Demo Day offers several valuable opportunities. Connect with Sophie Ren to explore potential strategic investments and partnerships within the venture ecosystem. Furthermore, engage with startups pitching in the AI space to identify potential synergies or collaboration opportunities for accelerating generative AI model deployment.",
+        "highlight": "",
+        "date": "May 29",
+        "location": "Stanford, California",
+        "is_tradeshow": false,
+        "speakers": [
+          {
+            "name": "Johnny Chang",
+            "role": "Host"
+          },
+          {
+            "name": "Francesco Marchioni",
+            "role": "Host",
+            "company": "Stanford Founders",
+            "background": "Francesco Marchioni is a serial entrepreneur and venture capitalist focused on supporting early-stage startups"
+          },
+          {
+            "name": "Rohan Parekh",
+            "role": "Host",
+            "company": "Stanford Founders",
+            "background": "Rohan Parekh is the host of the popular \"Stanford Founders\" podcast, which spotlights the journeys and insights of successful Stanford entrepreneurs"
+          },
+          {
+            "name": "Chris Bradbury",
+            "role": "Host",
+            "company": "Stanford Founders",
+            "background": "Chris Bradbury is the host of the popular \"Stanford Founders\" podcast, where he interviews successful Stanford alumni entrepreneurs about their journeys and insights"
+          },
+          {
+            "name": "Sophie R",
+            "role": "Host",
+            "company": "Stanford Founders",
+            "background": "Sophie R is a host at Stanford Founders, engaging with entrepreneurs and exploring their journeys"
+          },
+          {
+            "name": "Trishia El Chemaly",
+            "role": "Host",
+            "company": "Stanford Founders",
+            "background": "Trishia El Chemaly is a prominent figure within Stanford's entrepreneurship ecosystem, known for her role as a host and facilitator for Stanford Founders"
+          }
+        ]
+      },
+      {
+        "id": "local-9",
+        "name": "MCP Hackathon w/ Featureform, Cased, & Ridge Ventures",
+        "description": "Join Featureform, Cased, and Ridge Ventures for a weekend of hands-on building with the Model Context Protocol (MCP), the emerging standard for connecting models to tools and data. You\u2019ll be building alongside other developers, researchers, and engineers, solving real problems using MCP. Whether you\u2019re creating an MCP server, building an application on top, or experimenting with new ideas, this is your space to explore and ship. Expect lightning talks, technical deep dives, and casual discussions from some of the best minds in AI infrastructure. At the end of the weekend, you\u2019ll demo your work in front of a panel of top engineers, founders, and investors.",
+        "url": "https://lu.ma/qjvixbq0",
+        "business_value_score": 0.75,
+        "conversion_score": 0.75,
+        "conversion_path": "This hackathon offers a great opportunity to connect with developers and engineers working on AI infrastructure, particularly around model deployment. Engage with Simba Khadder from Featureform to discuss how their platform addresses the challenges of feature engineering and model deployment, aligning with Fireworks AI's focus on simplifying generative AI deployment. Participate in the hackathon to explore the Model Context Protocol (MCP) and potentially build a demo showcasing Fireworks AI's capabilities within the MCP framework, gaining visibility among top engineers, founders, and investors.",
+        "highlight": "",
+        "date": "Saturday, June 14",
+        "location": "San Francisco, California",
+        "is_tradeshow": false,
+        "speakers": [
+          {
+            "name": "Simba Khadder",
+            "role": "Founder"
+          }
+        ]
+      },
+      {
+        "id": "local-10",
+        "name": "AGI Builders Meetup SF w/ HumanLayer, Freestyle Cloud",
+        "description": "Open stage for AI builders, researchers and enthusiasts to share, inspire and transform.",
+        "url": "https://lu.ma/3bigh570",
+        "business_value_score": 0.75,
+        "conversion_score": 0.75,
+        "conversion_path": "Attend the AGI Builders Meetup and prioritize networking during the 7:30-8:00 PM slot. Engage with speakers like Max Gerber from Stytch to explore AI applications in authentication and security, aligning with Fireworks AI's focus on secure and efficient AI deployment. Also, connect with founders and CTOs from companies like PayOS, Qodex.ai, and Codeintegrity.ai during the community demos to identify potential clients or partners interested in accelerating their generative AI deployments.",
+        "highlight": "",
+        "date": "Thursday, May 29",
+        "location": "San Francisco, California",
+        "is_tradeshow": false,
+        "speakers": [
+          {
+            "name": "Max Gerber",
+            "role": "Tech Lead for AI Agents"
+          },
+          {
+            "name": "Dexter Horthy",
+            "role": "Founder & CEO",
+            "company": "HumanLayer",
+            "background": "Dexter Horthy is the Founder and CEO of HumanLayer, a company focused on creating more human-centered technologies and experiences"
+          },
+          {
+            "name": "Johnathan McGowan",
+            "role": "Founder & CEO",
+            "company": "PayOS",
+            "background": "Jonathan McGowan is the Founder and CEO of PayOS, a unified commerce platform for omnichannel retailers"
+          },
+          {
+            "name": "Siddhant Mohan",
+            "role": "Co-founder",
+            "company": "Qodex.ai",
+            "background": "Siddhant Mohan is a co-founder of Qodex.ai, a company focused on using AI to improve the security and efficiency of software development"
+          },
+          {
+            "name": "Abi Raghuram",
+            "role": "CTO",
+            "company": "Codeintegrity.ai",
+            "background": "Abi Raghuram is the Chief Technology Officer at Code Integrity AI, specializing in AI-driven code integrity and software assurance solutions"
+          },
+          {
+            "name": "Jacob Rafati, PhD",
+            "role": "CTO",
+            "company": "VibeFlows",
+            "background": "Jacob Rafati is the CTO of VibeFlows, a company focused on AI-powered music creation tools"
+          },
+          {
+            "name": "Kimi Kong",
+            "role": "Co-founder",
+            "company": "Energent AI",
+            "background": "Kimi Kong is a co-founder of Energent AI, a company focused on leveraging AI to optimize energy consumption and grid management"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -17,11 +17,11 @@ from quart import Quart, render_template, request, jsonify, send_file, Response,
 from core.flow_controller import FlowController
 from core.question_engine import QuestionEngine
 from dotenv import load_dotenv
-from events.event_search_agent import validate_event_url
+from event_search_agent import validate_event_url
 import sys
 
-# Import the website analyzer
-from core.website_analyzer import analyze_website, analyze_website_with_browser as browser_analyze_website
+# Import the enhanced website analyzer
+from core.enhanced_website_analyzer import analyze_website, analyze_website_with_ui_data
 
 # Load environment variables
 load_dotenv()
@@ -37,9 +37,26 @@ logger = logging.getLogger(__name__)
 
 # Create Quart app
 app = Quart(__name__, static_folder="static", template_folder="templates")
+
+@app.route("/ui_data.json")
+async def serve_ui_data():
+    from quart import send_file
+    import os
+    ui_data_path = os.path.join(os.path.dirname(__file__), "ui_data.json")
+    if os.path.exists(ui_data_path):
+        return await send_file(ui_data_path)
+    else:
+        return ("{}", 200, {"Content-Type": "application/json"})
+
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Add CORS headers to all responses
+
+@app.route("/")
+async def index():
+    await flow_controller.reset()
+    return await render_template("network_ai_landing.html", version=VERSION)
+
 @app.after_request
 async def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
@@ -56,11 +73,18 @@ flow_controller = FlowController.get_instance()
 # Initialize core components
 question_engine = QuestionEngine()
 
-@app.route("/")
-async def index():
-    # Simply use await directly
+    
+@app.route("/goals")
+async def goals_page():
+    # Reset flow and show goals page
     await flow_controller.reset()
-    return await render_template("user_type_selection.html", version=VERSION)
+    return await render_template("network_ai_goals.html", version=VERSION)
+    
+@app.route("/company_url")
+async def company_url_page():
+    # Show the product question page with Mac Pro UI
+    question = "Enter your company website"
+    return await render_template("product_question_mac_pro.html", question=question, version=VERSION)
 
 @app.route("/founder")
 async def founder_flow():
@@ -82,74 +106,99 @@ async def vc_flow():
 
 @app.route("/event_goal_question")
 async def event_goal_question():
-    # Render the event goal question page
-    return await render_template("event_goal_question.html", version=VERSION)
+    return "Event goal question placeholder"
 
 @app.route("/business_profile", methods=["GET", "POST"])
 async def business_profile():
+    """Fixed business profile route with proper data handling"""
+    import traceback, json
     # Check if this is a form submission from event_goal_question
     if request.method == "POST":
         try:
             form = await request.form
             logger.info(f"Received form submission to business_profile: {list(form.keys())}")
             logger.info(f"Full form data: {dict(form)}")
-            
-            # Process the form data
             step = form.get("step")
             answer = form.get("answer", "")
             action = form.get("action", "")
-            
             logger.info(f"Form data - step: {step}, action: {action}")
             logger.info(f"Form data - answer: {answer}")
-            
+            selected_goals_json = form.get("selected_goals", "")
+            if selected_goals_json:
+                try:
+                    flow_controller.selected_goals = json.loads(selected_goals_json)
+                    logger.info(f"Loaded selected goals from form: {flow_controller.selected_goals}")
+                    primary_goal = form.get("primary_goal", "")
+                    if primary_goal:
+                        flow_controller.primary_goal = primary_goal
+                        logger.info(f"Loaded primary goal from form: {primary_goal}")
+                except Exception as e:
+                    logger.error(f"Error processing selected goals from form: {e}")
             if step == "event_interests":
-                # Validate that at least one goal is selected
                 try:
                     selected_goals = json.loads(answer) if answer else []
-                    if not selected_goals:
-                        logger.warning("No goals selected in form submission")
-                        # Redirect back to event_goal_question page
-                        return redirect("/event_goal_question")
-                except json.JSONDecodeError as e:
-                    logger.error(f"Error parsing selected goals JSON: {answer}")
-                    logger.error(f"JSON decode error: {str(e)}")
-                    # Redirect back to event_goal_question page
-                    return redirect("/event_goal_question")
-                
-                # Store the answer in the flow controller
-                await flow_controller.store_answer(step, answer)
-                
-                # Process the primary goal if provided
-                primary_goal = form.get("primary_goal", "")
-                logger.info(f"Form data - primary_goal: {primary_goal}")
-                
-                if primary_goal:
-                    logger.info(f"Setting primary goal: {primary_goal}")
-                    flow_controller.primary_goal = primary_goal
-                else:
-                    logger.warning("No primary goal provided in form")
+                    if selected_goals:
+                        flow_controller.selected_goals = selected_goals
+                        primary_goal = form.get("primary_goal", "")
+                        if primary_goal:
+                            flow_controller.primary_goal = primary_goal
                     
-                # Force the primary goal to be set if it's not already
-                if not flow_controller.primary_goal and flow_controller.selected_goals:
-                    flow_controller.primary_goal = flow_controller.selected_goals[0]
-                    logger.info(f"Forcing primary goal to first selected goal: {flow_controller.primary_goal}")
+                    logger.info(f"  - Selected goals: {flow_controller.selected_goals}")
+                    logger.info(f"  - Primary goal: {flow_controller.primary_goal}")
+                    logger.info(f"  - Buyer focus: {flow_controller.buyer_focus}")
+                    logger.info(f"  - Recruitment focus: {flow_controller.recruitment_focus}")
+                except Exception as e:
+                    logger.error(f"Error processing event interests: {e}")
+            elif step == "product":
+                try:
+                    # Store the website URL in the flow controller
+                    flow_controller.website = answer
+                    flow_controller.current_product_line = answer
                     
-                # Additional validation: Ensure the primary goal is one of the selected goals
-                if flow_controller.primary_goal and flow_controller.primary_goal not in flow_controller.selected_goals:
-                    logger.warning(f"Primary goal '{flow_controller.primary_goal}' not in selected goals. Adding it.")
-                    flow_controller.selected_goals.append(flow_controller.primary_goal)
-                
-                # Log final state
-                logger.info(f"Final state after processing:")
-                logger.info(f"  - Selected goals: {flow_controller.selected_goals}")
-                logger.info(f"  - Primary goal: {flow_controller.primary_goal}")
-                logger.info(f"  - Buyer focus: {flow_controller.buyer_focus}")
-                logger.info(f"  - Recruitment focus: {flow_controller.recruitment_focus}")
+                    # Analyze the website if it's a URL
+                    if await flow_controller.is_url(answer):
+                        # If it's a URL but doesn't start with http:// or https://, add https://
+                        url = answer.strip()
+                        if not url.startswith(("http://", "https://")):
+                            url = f"https://{url}"
+                        
+                        logger.info(f"Analyzing website: {url}")
+                        
+                        try:
+                            # Analyze the website
+                            website_data = await analyze_website(url)
+                            if website_data:
+                                flow_controller.website_analysis_results = website_data
+                                flow_controller.user_summary = website_data.get('company_summary', '')
+                                flow_controller.keywords = website_data.get('keywords', [])
+                                logger.info(f"Website analysis successful for {url}")
+                            else:
+                                logger.error(f"Website analysis failed for {url}")
+                                # Set a default summary if website analysis failed
+                                flow_controller.user_summary = f"Business that provides {answer}"
+                                flow_controller.keywords = ["business", "networking", "events"]
+                        except Exception as web_error:
+                            logger.error(f"Error in website analysis: {web_error}")
+                            logger.error(f"Traceback: {traceback.format_exc()}")
+                            # Set a default summary if website analysis failed
+                            flow_controller.user_summary = f"Business that provides {answer}"
+                            flow_controller.keywords = ["business", "networking", "events"]
+                    else:
+                        logger.info(f"Input is not a URL, treating as product description: {answer[:50]}...")
+                        flow_controller.user_summary = answer
+                        # Set default keywords if not a URL
+                        if not flow_controller.keywords:
+                            flow_controller.keywords = ["business", "networking", "events"]
+                except Exception as e:
+                    logger.error(f"Error processing product step: {e}")
+                    logger.error(f"Traceback: {traceback.format_exc()}")
+                    # Set defaults in case of error
+                    flow_controller.user_summary = f"Business that provides {answer}"
+                    flow_controller.keywords = ["business", "networking", "events"]
                     
         except Exception as e:
             logger.error(f"Error processing form submission: {str(e)}")
             logger.error(f"Traceback: {traceback.format_exc()}")
-    
     # Get the business profile, target events, and keywords from the flow controller
     business_profile = flow_controller.user_summary or "No business profile available."
     product_url = flow_controller.current_product_line if flow_controller.current_product_line.startswith("http") else ""
@@ -161,8 +210,14 @@ async def business_profile():
     logger.info(f"Business profile route - Primary goal: {flow_controller.primary_goal if hasattr(flow_controller, 'primary_goal') else 'None'}")
     
     # Generate target events recommendation based on business profile and goals
-    target_events = await flow_controller.generate_target_events_recommendation()
-    logger.info(f"Generated target events: {len(target_events) if target_events else 0} chars")
+    try:
+        target_events = await flow_controller.generate_target_events_recommendation()
+        logger.info(f"Generated target events: {len(target_events) if target_events else 0} chars")
+    except Exception as e:
+        logger.error(f"Error generating target events: {e}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        # Provide a fallback response if target events generation fails
+        target_events = "Based on your business profile, we recommend attending industry-specific conferences, local networking events, and trade shows where you can connect with potential customers, partners, and talent. Look for events that focus on your specific industry and target market to maximize your networking opportunities."
     
     # Store the target events text in the flow controller
     flow_controller.target_events_text = target_events
@@ -193,31 +248,192 @@ async def business_profile():
                     combined_keywords.append(keyword)
             
             # Update the keywords list
-            flow_controller.keywords = combined_keywords[:15]  # Limit to 15 keywords
-            logger.info(f"Updated keywords with target events keywords: {flow_controller.keywords}")
-    
-    # Get keywords - ensure we have some default keywords if none are available
     keywords = flow_controller.keywords
-    if not keywords or len(keywords) == 0:
-        keywords = ["networking", "events", "business"]
-        flow_controller.keywords = keywords
+    auto_search = request.args.get('auto_search', 'false').lower() == 'true'
+    product_url = flow_controller.current_product_line if hasattr(flow_controller, 'current_product_line') and flow_controller.current_product_line.startswith("http") else ""
     
-    # Get location information if available
-    location = flow_controller.zip_code or ""
+    # Log website analysis results for debugging
+    logger.info(f"Website analysis results: {flow_controller.website_analysis_results}")
+    if 'ui_data' in flow_controller.website_analysis_results:
+        logger.info(f"UI data: {flow_controller.website_analysis_results['ui_data']}")
     
-    # Prepare for event search
-    auto_search = True
+    # Initialize website_analysis_results if it's empty
+    if not flow_controller.website_analysis_results:
+        flow_controller.website_analysis_results = {'ui_data': {}}
     
-    # Render the business_profile_events_fixed.html template with the current context
+    # Generate the event data using the flow controller
+    ui_data = await flow_controller.generate_target_events_recommendation()
+    
+    # Store the raw text for debugging
+    target_events = flow_controller.target_events_text if hasattr(flow_controller, 'target_events_text') else ""
+    
+    # Check if ui_data is a string (old format) or a dictionary (new format)
+    if isinstance(ui_data, str):
+        # Convert to dictionary if it's a string
+        ui_data = {
+            "target_events_text": ui_data,
+            "keywords": [{'text': keyword, 'selected': True} for keyword in keywords[:10]],
+            "event_strategies": {},
+            "specific_events": []
+        }
+    else:
+        # Add keywords to the UI data
+        ui_data["keywords"] = [{'text': keyword, 'selected': True} for keyword in keywords[:10]]
+        
+        # Add target_events_text for backward compatibility
+        ui_data["target_events_text"] = target_events
+    
+    # Log the UI data for debugging
+    logger.info(f"Generated UI data structure: {list(ui_data.keys()) if ui_data else 'None'}")
+    
+    # Use the dynamically generated UI data
+    event_data_json = ui_data
+    
     return await render_template(
-        "business_profile_events_fixed.html",
-        user_summary=business_profile,
+        "network_ai_mainflow.html",
+        business_profile=business_profile,
+        target_customers="",
         target_events=target_events,
+        event_data_json=event_data_json,
         keywords=keywords,
-        location=location,
         auto_search=auto_search,
-        product_url=product_url,
-        version=VERSION
+        product_url=product_url
+                        # If it's a URL but doesn't start with http:// or https://, add https://
+                        url = answer.strip()
+                        if not url.startswith(("http://", "https://")):
+                            url = f"https://{url}"
+                            
+                        logger.info(f"Analyzing website: {url}")
+                        
+                        try:
+                            # Analyze the website
+                            website_data = await analyze_website(url)
+                            if website_data:
+                                flow_controller.website_analysis_results = website_data
+                                flow_controller.user_summary = website_data.get('company_summary', '')
+                                flow_controller.keywords = website_data.get('keywords', [])
+                                logger.info(f"Website analysis successful for {url}")
+                            else:
+                                logger.error(f"Website analysis failed for {url}")
+                                # Set a default summary if website analysis failed
+                                flow_controller.user_summary = f"Business that provides {answer}"
+                                flow_controller.keywords = ["business", "networking", "events"]
+                        except Exception as web_error:
+                            logger.error(f"Error in website analysis: {web_error}")
+                            logger.error(f"Traceback: {traceback.format_exc()}")
+                            # Set a default summary if website analysis failed
+                            flow_controller.user_summary = f"Business that provides {answer}"
+                            flow_controller.keywords = ["business", "networking", "events"]
+                    else:
+                        logger.info(f"Input is not a URL, treating as product description: {answer[:50]}...")
+                        flow_controller.user_summary = answer
+                        # Set default keywords if not a URL
+                        if not flow_controller.keywords:
+                            flow_controller.keywords = ["business", "networking", "events"]
+                except Exception as e:
+                    logger.error(f"Error processing product step: {e}")
+                    logger.error(f"Traceback: {traceback.format_exc()}")
+                    # Set defaults in case of error
+                    flow_controller.user_summary = f"Business that provides {answer}"
+                    flow_controller.keywords = ["business", "networking", "events"]
+                    
+        except Exception as e:
+            logger.error(f"Error processing form submission: {str(e)}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
+    
+    # Get the business profile, target events, and keywords from the flow controller
+    business_profile = flow_controller.user_summary or "No business profile available."
+    product_url = flow_controller.current_product_line if flow_controller.current_product_line.startswith("http") else ""
+    
+    # Log the current state of the flow controller
+    logger.info(f"Business profile route - User summary: {len(business_profile) if business_profile else 0} chars")
+    logger.info(f"Business profile route - Keywords: {flow_controller.keywords}")
+    logger.info(f"Business profile route - Selected goals: {flow_controller.selected_goals if hasattr(flow_controller, 'selected_goals') else []}")
+    logger.info(f"Business profile route - Primary goal: {flow_controller.primary_goal if hasattr(flow_controller, 'primary_goal') else 'None'}")
+    
+    # Generate target events recommendation based on business profile and goals
+    try:
+        target_events = await flow_controller.generate_target_events_recommendation()
+        logger.info(f"Generated target events: {len(target_events) if target_events else 0} chars")
+    except Exception as e:
+        logger.error(f"Error generating target events: {e}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        # Provide a fallback response if target events generation fails
+        target_events = "Based on your business profile, we recommend attending industry-specific conferences, local networking events, and trade shows where you can connect with potential customers, partners, and talent. Look for events that focus on your specific industry and target market to maximize your networking opportunities."
+    
+    # Store the target events text in the flow controller
+    flow_controller.target_events_text = target_events
+    
+    # Also save to the database if we have a product URL
+    if product_url:
+        from target_events_db import save_target_events
+        save_target_events(product_url, business_profile, flow_controller.keywords, target_events)
+    
+    # Extract keywords from target events and update the flow_controller keywords
+    from target_events_keywords import extract_keywords_from_target_events
+    if target_events and len(target_events) > 50:
+        event_keywords = await extract_keywords_from_target_events(target_events, flow_controller.question_engine)
+        
+        # Merge with existing keywords, prioritizing event keywords
+        if event_keywords:
+            # Keep some of the existing keywords if they exist
+            existing_keywords = flow_controller.keywords[:5] if flow_controller.keywords else []
+            
+            # Combine event keywords with existing keywords, removing duplicates
+            combined_keywords = []
+            for keyword in event_keywords:
+                if keyword.lower() not in [k.lower() for k in combined_keywords]:
+                    combined_keywords.append(keyword)
+            
+            for keyword in existing_keywords:
+                if keyword.lower() not in [k.lower() for k in combined_keywords]:
+                    combined_keywords.append(keyword)
+            
+            # Update the keywords list
+    keywords = flow_controller.keywords
+    auto_search = request.args.get('auto_search', 'false').lower() == 'true'
+    product_url = flow_controller.current_product_line if hasattr(flow_controller, 'current_product_line') and flow_controller.current_product_line.startswith("http") else ""
+    
+    # Log website analysis results for debugging
+    logger.info(f"Website analysis results: {flow_controller.website_analysis_results}")
+    if 'ui_data' in flow_controller.website_analysis_results:
+        logger.info(f"UI data: {flow_controller.website_analysis_results['ui_data']}")
+    
+    # Initialize website_analysis_results if it's empty
+    if not flow_controller.website_analysis_results:
+        flow_controller.website_analysis_results = {'ui_data': {}}
+    
+    # Generate the event data using the flow controller
+    ui_data = await flow_controller.generate_target_events_recommendation()
+    
+    # Store the raw text for debugging
+    target_events = flow_controller.target_events_text if hasattr(flow_controller, 'target_events_text') else ""
+    
+    # Check if ui_data is a string (old format) or a dictionary (new format)
+    if isinstance(ui_data, str):
+        # Convert to dictionary if it's a string
+        ui_data = {
+            "target_events_text": ui_data,
+            "keywords": [{'text': keyword, 'selected': True} for keyword in keywords[:10]],
+            "event_strategies": {},
+            "specific_events": []
+        }
+    else:
+        # Add keywords to the UI data
+        ui_data["keywords"] = [{'text': keyword, 'selected': True} for keyword in keywords[:10]]
+        
+        # Add target_events_text for backward compatibility
+        ui_data["target_events_text"] = target_events
+    
+    # Log the UI data for debugging
+    logger.info(f"Generated UI data structure: {list(ui_data.keys()) if ui_data else 'None'}")
+    
+    # Use the dynamically generated UI data
+    event_data_json = ui_data
+    
+    return await render_template(
+        "network_ai_mainflow.html",
+        business_profile=business_profile,
     )
 
 @app.route("/business_profile_with_events")
@@ -246,7 +462,8 @@ async def business_profile_with_events():
                     user_summary=business_profile,
                     keywords=keywords,
                     target_events=target_events,
-                    product_url=product_url
+                    product_url=product_url,
+                    event_data_json=event_data_json  # Pass structured data
                 )
                 logger.info(f"Found {len(gemini_tradeshows)} tradeshows using Gemini-2.0-flash")
                 
@@ -256,10 +473,9 @@ async def business_profile_with_events():
                     formatted_show = {
                         'id': f"gemini-{hash(show.get('title', ''))}" if 'title' in show else f"gemini-{len(formatted_tradeshows)}",
                         'name': show.get('title', 'Unknown Event'),
-                        'description': show.get('conversion_path', ''),
+                        'conversion_path': show.get('conversion_path', ''),
                         'url': show.get('website', ''),
-                        'business_value_score': show.get('conversion_score', 0),  # Match expected field name
-                        'score': show.get('conversion_score', 0),  # Provide both for compatibility
+                        'conversion_score': show.get('conversion_score', 0),
                         'highlight': show.get('keywords', ''),
                         'date': show.get('date', 'Upcoming'),  # Use provided date or default
                         'location': show.get('location', 'Various locations'),  # Use provided location or default
@@ -283,7 +499,8 @@ async def business_profile_with_events():
                 keywords=keywords,
                 location=location,
                 user_summary=business_profile,
-                target_events=target_events
+                target_events=target_events,
+                event_data_json=event_data_json  # Pass structured data
             )
             
             # Extract local events from the result
@@ -540,8 +757,8 @@ async def onboarding_step():
             
             if use_browser:
                 logger.info(f"Using browser-based website analyzer to analyze website: {answer}")
-                # The browser_analyze_website function will analyze the website using Cline's browser_action tool
-                website_data = await browser_analyze_website(answer)
+                # The analyze_website function will analyze the website using Playwright
+                website_data = await analyze_website(answer)
                 
                 if website_data:
                     logger.info(f"Browser-based website analysis successful for {answer}")
@@ -1159,25 +1376,49 @@ async def test_mcp():
         logger.error(f"Error in test_mcp: {str(e)}")
         return jsonify({"success": False, "error": str(e)})
 
-async def search_tradeshows_with_gemini(user_summary, keywords, target_events, product_url="", user_type="founder", location="sf"):
+async def search_tradeshows_with_gemini(user_summary, keywords, target_events, product_url="", user_type="founder", location="sf", event_data_json=None):
     """Search for tradeshows using Gemini-2.0-flash model with multiple parallel API calls
     
     Args:
         user_summary (str): The user's business profile summary
         keywords (list): List of keywords related to the user's business
-        target_events (str): Target events recommendation text
+        target_events (str): Target events recommendation text (legacy)
         product_url (str, optional): The user's product/company website URL
         user_type (str, optional): The type of user (founder, sales, etc.)
         location (str, optional): The preferred location for events (default: sf)
+        event_data_json (dict, optional): Structured JSON data from generate_target_events_recommendation
         
     Returns:
         list: List of tradeshow events with details
     """
     try:
-        # Extract goals from target events
-        goals_pattern = r"(?:Goals|Objectives|Aims):[^\n]*(?:\n[^\n]+)*"
-        goals_match = re.search(goals_pattern, target_events, re.IGNORECASE)
-        goals = goals_match.group(0) if goals_match else ""
+        # Extract goals from structured data if available, otherwise from target events text
+        goals = ""
+        
+        if event_data_json and isinstance(event_data_json, dict):
+            # Extract goals from event_strategies
+            if 'event_strategies' in event_data_json and isinstance(event_data_json['event_strategies'], dict):
+                strategy_goals = []
+                for goal, strategy in event_data_json['event_strategies'].items():
+                    if isinstance(strategy, dict) and 'goal_title' in strategy:
+                        strategy_goals.append(f"{strategy['goal_title']}")
+                if strategy_goals:
+                    goals = "Goals: " + ", ".join(strategy_goals)
+            
+            # If no goals found in event_strategies, try who_to_target
+            if not goals and 'who_to_target' in event_data_json and isinstance(event_data_json['who_to_target'], list):
+                target_goals = []
+                for target in event_data_json['who_to_target']:
+                    if isinstance(target, dict) and 'group_title' in target:
+                        target_goals.append(target['group_title'])
+                if target_goals:
+                    goals = "Target Audience: " + ", ".join(target_goals)
+        
+        # Fall back to regex extraction if no structured data or no goals found
+        if not goals and target_events:
+            goals_pattern = r"(?:Goals|Objectives|Aims):[^\n]*(?:\n[^\n]+)*"
+            goals_match = re.search(goals_pattern, target_events, re.IGNORECASE)
+            goals = goals_match.group(0) if goals_match else ""
         
         # Make 3 parallel API calls with slightly different prompts to get diverse results
         all_tradeshows = []
@@ -1194,8 +1435,72 @@ async def search_tradeshows_with_gemini(user_summary, keywords, target_events, p
         # Create tasks for parallel execution
         tasks = []
         for i, prompt_prefix in enumerate(prompts):
+            # Prepare structured data sections if available
+            structured_data_sections = []
+            
+            if event_data_json and isinstance(event_data_json, dict):
+                # Add WHO TO TARGET section if available
+                if 'who_to_target' in event_data_json and isinstance(event_data_json['who_to_target'], list):
+                    who_to_target_items = []
+                    for target in event_data_json['who_to_target']:
+                        if isinstance(target, dict):
+                            group_title = target.get('group_title', '')
+                            group_detail = target.get('group_detail', '')
+                            if group_title or group_detail:
+                                who_to_target_items.append(f"{group_title}: {group_detail}")
+                    if who_to_target_items:
+                        structured_data_sections.append(f"WHO TO TARGET:\n{chr(10).join(who_to_target_items)}")
+                
+                # Add Target Customers section if available
+                if 'target_customers' in event_data_json and isinstance(event_data_json['target_customers'], list):
+                    target_customer_items = []
+                    for customer in event_data_json['target_customers']:
+                        if isinstance(customer, dict):
+                            industry = customer.get('industry', '')
+                            size = customer.get('size', '')
+                            why_good_fit = customer.get('why_good_fit', '')
+                            target_customer_items.append(f"{industry} - {size} - {why_good_fit}")
+                    if target_customer_items:
+                        structured_data_sections.append(f"Target Customers:\n{chr(10).join(target_customer_items)}")
+                
+                # Add Event Strategies section if available
+                if 'event_strategies' in event_data_json and isinstance(event_data_json['event_strategies'], dict):
+                    strategy_items = []
+                    for goal, strategy in event_data_json['event_strategies'].items():
+                        if isinstance(strategy, dict):
+                            goal_title = strategy.get('goal_title', '')
+                            if 'strategy' in strategy and isinstance(strategy['strategy'], str):
+                                # New format with direct strategy field
+                                strategy_items.append(f"{goal_title} - {strategy['strategy']}")
+                            elif 'event_types' in strategy and isinstance(strategy['event_types'], list):
+                                # Legacy format support
+                                for event_type in strategy['event_types']:
+                                    if isinstance(event_type, dict):
+                                        type_title = event_type.get('type_title', '')
+                                        why_works = event_type.get('why_works', '')
+                                        strategy_items.append(f"{goal_title} - {type_title}: {why_works}")
+                                    elif isinstance(event_type, str):
+                                        # Handle event_type as a string
+                                        strategy_items.append(f"{goal_title} - {event_type}")
+                                    else:
+                                        # Handle any other type by converting to string
+                                        strategy_items.append(f"{goal_title} - {str(event_type)}")
+                    if strategy_items:
+                        structured_data_sections.append(f"Event Strategies:\n{chr(10).join(strategy_items)}")
+            
+            # Combine structured data sections
+            structured_data = "\n\n".join(structured_data_sections)
+            
             # Create a complete prompt for each API call
-            full_prompt = f"{prompt_prefix}\n\nUser profile: {user_summary}\n\nKeywords: {', '.join(keywords)}\n\nLocation preference: {location}\n\nFor each tradeshow, provide the following information in a structured format:\n- Event Title\n- Event Date (must be in 2025 or later)\n- Event Location\n- Event Description: Provide at least 3 detailed sentences - 1-2 sentences about the event itself (history, scope, importance) and 1-2 sentences about why it's specifically relevant to the user's product/business\n- Event Keywords\n- Conversion Path: Provide a detailed, actionable 3-4 sentence strategy for how this user can best leverage this event to achieve their goals (e.g. find future buyers/business partners etc.)\n- Event Official Website: MUST provide a valid website URL for each event. If you can't find the official website, provide the most relevant website related to the event or organization.\n- Conversion Score (0-100): How well this event aligns with the user's goals\n\nEnsure the Event Title is clear and properly formatted as it will be highlighted in the UI.\nMake sure the Event Description is insightful and specific to the user's business needs.\nEVERY event MUST have a website URL - this is critical for the application.\n\nReturn the results as a JSON array of objects, each with the above attributes."
+            full_prompt = f"{prompt_prefix}\n\nUser profile: {user_summary}\n\n"
+            
+            # Add structured data if available, otherwise use goals
+            if structured_data:
+                full_prompt += f"{structured_data}\n\n"
+            elif goals:
+                full_prompt += f"{goals}\n\n"
+                
+            full_prompt += f"Keywords: {', '.join(keywords)}\n\nLocation preference: {location}\n\nFor each tradeshow, provide the following information in a structured format:\n- Event Title\n- Event Date (must be in 2025 or later)\n- Event Location\n- Event Description: Provide at least 3 detailed sentences - 1-2 sentences about the event itself (history, scope, importance) and 1-2 sentences about why it's specifically relevant to the user's product/business\n- Event Keywords\n- Conversion Path: Provide a detailed, actionable 3-4 sentence strategy for how this user can best leverage this event to achieve their goals (e.g. find future buyers/business partners etc.)\n- Event Official Website: MUST provide a valid website URL for each event. If you can't find the official website, provide the most relevant website related to the event or organization.\n- Conversion Score (0-100): How well this event aligns with the user's goals\n\nEnsure the Event Title is clear and properly formatted as it will be highlighted in the UI.\nMake sure the Event Description is insightful and specific to the user's business needs.\nEVERY event MUST have a website URL - this is critical for the application.\n\nReturn the results as a JSON array of objects, each with the above attributes."
             
             # Create a task for each API call
             for j in range(3):
@@ -1554,11 +1859,19 @@ async def call_gemini_api(prompt, call_id):
 
 
 if __name__ == "__main__":
-    # Use a dynamic port or default to 13306
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--port', type=int, default=13306, help='Port to run the server on')
-    args = parser.parse_args()
-    port = args.port
-    print(f"Starting server on port {port}")
-    app.run(debug=True, port=port)
+    # Try to use port 18080, but if it's in use, try other ports
+    port = 18080
+    max_port = 18090
+    
+    while port <= max_port:
+        try:
+            print(f"Starting server on port {port}")
+            app.run(debug=True, port=port)
+            break
+        except OSError as e:
+            if "Address already in use" in str(e) and port < max_port:
+                print(f"Port {port} is already in use, trying port {port+1}")
+                port += 1
+            else:
+                # If we've tried all ports or got a different error, re-raise
+                raise

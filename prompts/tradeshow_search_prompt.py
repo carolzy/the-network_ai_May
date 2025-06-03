@@ -31,7 +31,7 @@ async def search_tradeshows_with_gemini_test():
         return []
     
     # Construct the prompt
-    prompt = f"""Search for most relevant **15** tradeshows leveraging websites such as 10times.com for this {user_type} at their company. The tradeshows MUST happen in the future, specifically from 2025 onwards (current year is 2025). DO NOT include any events from 2024 or earlier.
+    prompt = f"""Search for the most relevant **15** tradeshows using ONLY 10times.com as your source for this {user_type} at their company. The tradeshows MUST happen in the future, specifically from 2025 onwards (current year is 2025). DO NOT include any events from 2024 or earlier.
 
 User profile: {user_summary}
 
@@ -43,18 +43,20 @@ For each tradeshow, provide the following information in a structured format:
 - Event Title
 - Event Date (must be in 2025 or later)
 - Event Location
-- Event Description: Provide at least 3 detailed sentences - 1-2 sentences about the event itself (history, scope, importance) and 1-2 sentences about why it's specifically relevant to the user's business
+- Event Description: Provide at least 3 detailed sentences—1-2 sentences about the event itself (history, scope, importance) and 1-2 sentences about why it's specifically relevant to the user's business
 - Event Keywords
 - Conversion Path: Provide a detailed, actionable 3-4 sentence strategy for how this user can best leverage this event to achieve their goals (e.g. find future buyers/business partners etc.)
-- Event Official Website: MUST provide a valid website URL for each event. If you can't find the official website, provide the most relevant website related to the event or organization.
+- Event Official Website: MUST be a valid URL from 10times.com for each event. If you can't find the official 10times.com URL, DO NOT include the event.
 - Conversion Score (0-100): How well this event aligns with the user's goals
 
-EVERY event MUST have a website URL - this is critical for the application.
+EVERY event MUST have a website URL from 10times.com—this is critical for the application. Do NOT use any websites or sources other than 10times.com for any part of this task.
 
 Ensure the Event Title is clear and properly formatted as it will be highlighted in the UI.
 Make sure the Event Description is insightful and specific to the user's business needs.
 
 Return the results as a JSON array of objects, each with the above attributes.
+
+Remember: Only use 10times.com as your source. Do not include any events from any other website.
 """
 
     # Call the Gemini API

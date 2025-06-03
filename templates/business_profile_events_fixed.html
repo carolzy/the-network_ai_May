@@ -2088,10 +2088,10 @@
                         // Determine which score to display based on user type
                         let scoreValue, scoreLabel;
                         if (userType === 'founder') {
-                            scoreValue = event.business_value_score || event.score || Math.round(event.conversion_potential * 100) || 0;
+                            scoreValue = event.business_value_score || event.score || Math.round(event.conversion_score * 100) || 0;
                             scoreLabel = 'Conversion Potential';
                         } else {
-                            scoreValue = event.investment_potential_score || event.score || Math.round(event.conversion_potential * 100) || 0;
+                            scoreValue = event.investment_potential_score || event.score || Math.round(event.conversion_score * 100) || 0;
                             scoreLabel = 'Investment Potential';
                         }                      
                         let eventContent = `

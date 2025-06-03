@@ -1,0 +1,225 @@
+{
+  "website_data": {
+    "url": "https://www.anthropic.com",
+    "title": "Home \\ Anthropic",
+    "description": "Anthropic is an AI safety and research company that's working to build reliable, interpretable, and steerable AI systems.",
+    "main_features": [],
+    "target_audience": "",
+    "industries": []
+  },
+  "customer_intelligence": {
+    "pages_analyzed": 7,
+    "customer_pages_found": [
+      "https://www.anthropic.com/customers",
+      "https://www.anthropic.com/legal/commercial-terms",
+      "https://www.anthropic.com/startups",
+      "https://www.anthropic.com/enterprise"
+    ],
+    "content_pages_found": [
+      "https://www.anthropic.com/research",
+      "https://www.anthropic.com/research#entry:8@1:url",
+      "https://www.anthropic.com/news/visible-extended-thinking"
+    ],
+    "raw_customer_data": [
+      {
+        "customers": [
+          "Claude Co",
+          "Apple Co",
+          "Augment Co",
+          "StudyIG Group",
+          "StudyWedia Group",
+          "IG Group",
+          "Wedia Group"
+        ],
+        "industries": [
+          "healthcare",
+          "insurance",
+          "technology",
+          "education",
+          "energy",
+          "media",
+          "entertainment",
+          "travel",
+          "legal",
+          "automotive"
+        ],
+        "caseStudies": [
+          "Panorama unlocks student success with Claude in Amazon Bedrock",
+          "WRTN pioneers AI entertainment and storytelling across Asia with Claude"
+        ],
+        "textSample": "Skip to main contentSkip to footerClaudeAPISolutionsResearchCommitmentsLearnNewsTry ClaudeBuild with  Claude Businesses trust Claude as their AI solution. Leading enterprises and startups use our API for financial services, healthcare, and legal applications, while equipping their teams with Claude for Work to enhance productivity and problem-solving across the organization.Hear from our customersNo results found.Case StudyTRY accelerates creative excellence with ClaudeMay 28, 2025Case StudyGenspark builds the future of AI agents with ClaudeMay 27, 2025Case StudyNRI cuts document review time in half with Claude in Amazon BedrockMay 27, 2025Case StudyAmira helps millions of students master reading with the Science of Reading and ClaudeMay 21, 2025Case StudyBluenote powers intelligent agents for life sciences with ClaudeMay 20, 2025Case StudyJetBrains builds developer tools with Claude in Amazon BedrockMay 16, 2025Case StudySendbird delivers reliable, enterprise-grade AI customer service with ClaudeMay 13, 2025Case StudyVanta streamlines compliance remediation with ClaudeMay 7, 2025Case StudyBenchling accelerates scientific discovery with Claude in Amazon BedrockMay 6, 2025Case StudyTriple Whale drives business growth with ClaudeMay 6, 2025Case StudyFutureHouse powers scientific discovery agents with ClaudeMay 6, 2025Case StudyHow Ramp's engineering operates at hyperspeed with Claude CodeApr 30, 2025Case StudyLotte Homeshopping improves QA efficiency and partner satisfaction with Claude and SendbirdApr 29, 2025Case StudyLokalise improves translation quality with ClaudeApr 29, 2025Case StudyIG Group boosts productivity and saves operational costs with Claude for WorkApr 28, 2025Case StudyTrellix deploys autonomous security agents with Claude in Amazon BedrockApr 25, 2025Case StudyPanther launches AI security teams can trust, powered by Claude in Amazon BedrockApr 22, 2025Case StudyPanorama unlocks student success with Claude in Amazon BedrockApr 18, 2025Case StudyHow S"
+      },
+      {
+        "customers": [
+          "These Co",
+          "Customer Co",
+          "Electronic Co",
+          "Claude Co",
+          "Apple Co",
+          "for"
+        ],
+        "industries": [
+          "healthcare",
+          "technology",
+          "education",
+          "media",
+          "legal"
+        ],
+        "caseStudies": [],
+        "textSample": "Skip to main contentSkip to footerClaudeAPISolutionsResearchCommitmentsLearnNewsTry ClaudeCommercial Terms of ServiceEffective February 24, 2025Previous VersionWelcome to Anthropic! Before accessing our Services, please read these Commercial Terms of Service.These Commercial Terms of Service (\u201cTerms\u201d) are an agreement between Anthropic and you or the organization, company, or other entity that you represent (\u201cCustomer\u201d). \u201cAnthropic\u201d means Anthropic Ireland, Limited if Customer resides in the European Economic Area (\u201cEEA\u201d), Switzerland or UK, and Anthropic, PBC if Customer resides anywhere else. They govern Customer\u2019s use of Anthropic API keys and any other Anthropic offerings that references these Terms, as well as all related Anthropic tools, documentation and services (the \u201cServices\u201d). These Terms are effective on the earlier of the date that Customer first electronically consents to a version of these Terms and the date that Customer first accesses the Services (\u201cEffective Date\u201d).Please note: You may not enter into these Terms on behalf of an organization, company, or other entity unless you have the legal authority to bind that entity. Services under these Terms are not for consumer use. Our consumer offerings (e.g., Claude.ai) are governed by our Consumer Terms of Service instead.A. ServicesOverview. Subject to these Terms, Anthropic gives Customer permission to use the Services, including to power products and services Customer makes available to its own customers and end users (\u201cUsers\u201d).Third Party Features. Customer may elect (in its sole discretion) to use features, services or other content made available by third parties to Customer through the Services (\u201cThird Party Features\u201d). Customer acknowledges and agrees that Third Party Features are not Services and, accordingly, Anthropic is not responsible for them.Feedback. If Customer provides (in its sole discretion) Anthropic with feedback regarding the Services, Anthropic may use that feedback at its own ri"
+      },
+      {
+        "customers": [
+          "Child Co",
+          "Clickable Co",
+          "Claude Co",
+          "Augment Co",
+          "AI Software",
+          "Our website",
+          "EN",
+          "Graphite",
+          "Leading companies build with Claude"
+        ],
+        "industries": [
+          "technology",
+          "education",
+          "utilities",
+          "media",
+          "legal"
+        ],
+        "caseStudies": [],
+        "textSample": "\n  :root {\n    --site--max-width: min(var(--site--width), 100vw);\n    --container--main: calc(var(--site--max-width) - var(--site--margin) * 2);\n    --container--full: calc(100% - 4rem);\n    --container--small: calc(var(--column-width--plus-gutter) * (var(--site--column-count) - 4) - var(--site--gutter));\n    --site--gutter-total: calc(var(--site--gutter) * (var(--site--column-count) - 1));\n    --column-width--1: calc((var(--container--main) - var(--site--gutter-total)) / var(--site--column-count));\n    --column-width--plus-gutter: calc(var(--column-width--1) + var(--site--gutter));\n    --column-width--2: calc(var(--column-width--plus-gutter) * 2 - var(--site--gutter));\n    --column-width--3: calc(var(--column-width--plus-gutter) * 3 - var(--site--gutter));\n    --column-width--4: calc(var(--column-width--plus-gutter) * 4 - var(--site--gutter));\n    --column-width--5: calc(var(--column-width--plus-gutter) * 5 - var(--site--gutter));\n    --column-width--6: calc(var(--column-width--plus-gutter) * 6 - var(--site--gutter));\n    --column-width--7: calc(var(--column-width--plus-gutter) * 7 - var(--site--gutter));\n    --column-width--8: calc(var(--column-width--plus-gutter) * 8 - var(--site--gutter));\n    --column-width--9: calc(var(--column-width--plus-gutter) * 9 - var(--site--gutter));\n    --column-width--10: calc(var(--column-width--plus-gutter) * 10 - var(--site--gutter));\n    --column-width--11: calc(var(--column-width--plus-gutter) * 11 - var(--site--gutter));\n    --column-width--12: calc(var(--column-width--plus-gutter) * 12 - var(--site--gutter));\n    --column-margin--1: calc(var(--column-width--plus-gutter) * 1);\n    --column-margin--2: calc(var(--column-width--plus-gutter) * 2);\n    --column-margin--3: calc(var(--column-width--plus-gutter) * 3);\n    --column-margin--4: calc(var(--column-width--plus-gutter) * 4);\n    --column-margin--5: calc(var(--column-width--plus-gutter) * 5);\n    --column-margin--6: calc(var(--column-width--plus-gutter) * 6);\n    --column-marg"
+      },
+      {
+        "customers": [
+          "Child Co",
+          "Clickable Co",
+          "Deloitte Co",
+          "Source Co",
+          "Claude Co",
+          "IG Group",
+          "Our website",
+          "EN",
+          "Deloitte"
+        ],
+        "industries": [
+          "technology",
+          "education",
+          "utilities",
+          "media",
+          "legal",
+          "consulting"
+        ],
+        "caseStudies": [],
+        "textSample": "\n  :root {\n    --site--max-width: min(var(--site--width), 100vw);\n    --container--main: calc(var(--site--max-width) - var(--site--margin) * 2);\n    --container--full: calc(100% - 4rem);\n    --container--small: calc(var(--column-width--plus-gutter) * (var(--site--column-count) - 4) - var(--site--gutter));\n    --site--gutter-total: calc(var(--site--gutter) * (var(--site--column-count) - 1));\n    --column-width--1: calc((var(--container--main) - var(--site--gutter-total)) / var(--site--column-count));\n    --column-width--plus-gutter: calc(var(--column-width--1) + var(--site--gutter));\n    --column-width--2: calc(var(--column-width--plus-gutter) * 2 - var(--site--gutter));\n    --column-width--3: calc(var(--column-width--plus-gutter) * 3 - var(--site--gutter));\n    --column-width--4: calc(var(--column-width--plus-gutter) * 4 - var(--site--gutter));\n    --column-width--5: calc(var(--column-width--plus-gutter) * 5 - var(--site--gutter));\n    --column-width--6: calc(var(--column-width--plus-gutter) * 6 - var(--site--gutter));\n    --column-width--7: calc(var(--column-width--plus-gutter) * 7 - var(--site--gutter));\n    --column-width--8: calc(var(--column-width--plus-gutter) * 8 - var(--site--gutter));\n    --column-width--9: calc(var(--column-width--plus-gutter) * 9 - var(--site--gutter));\n    --column-width--10: calc(var(--column-width--plus-gutter) * 10 - var(--site--gutter));\n    --column-width--11: calc(var(--column-width--plus-gutter) * 11 - var(--site--gutter));\n    --column-width--12: calc(var(--column-width--plus-gutter) * 12 - var(--site--gutter));\n    --column-margin--1: calc(var(--column-width--plus-gutter) * 1);\n    --column-margin--2: calc(var(--column-width--plus-gutter) * 2);\n    --column-margin--3: calc(var(--column-width--plus-gutter) * 3);\n    --column-margin--4: calc(var(--column-width--plus-gutter) * 4);\n    --column-margin--5: calc(var(--column-width--plus-gutter) * 5);\n    --column-margin--6: calc(var(--column-width--plus-gutter) * 6);\n    --column-marg"
+      },
+      {
+        "customers": [
+          "Collective Co",
+          "Understandable Co",
+          "Claude Co",
+          "Apple Co",
+          "Societal Impacts team",
+          "anticipate future"
+        ],
+        "industries": [
+          "healthcare",
+          "technology",
+          "education",
+          "media",
+          "legal"
+        ],
+        "caseStudies": [
+          "Evaluating feature steering: A case study in mitigating social biases",
+          "Evaluating feature steering: A case study in mitigating social biases",
+          "Evaluating feature steering: A case study in mitigating social biases"
+        ],
+        "textSample": "Skip to main contentSkip to footerClaudeAPISolutionsResearchCommitmentsLearnNewsTry ClaudeResearching  at the frontier At Anthropic, we develop large-scale AI systems, and our research teams help us to create safer, steerable, and more reliable models.See open rolesOverviewInterpretabilityAlignmentSocietal ImpactsOur MissionOur research teams investigate the safety, inner workings, and societal impact of AI models \u2014 so that artificial intelligence has a positive impact on society as it becomes increasingly advanced and capable.Research TeamsInterpretabilityThe mission of the Interpretability team is to discover and understand how large language models work internally \u2014 the foundation of ensuring safety and positive outcomes.Learn moreAlignmentThe Alignment teams works to understand and develop ways to keep future advancements in AI helpful, honest, and harmless.Learn moreSocietal ImpactsWorking closely with the Anthropic Policy and Trust & Safety teams, the Societal Impacts team is a technical research team that looks to ensure AI interacts positively with people.Learn moreFeatured paperTracing the thoughts of a large language modelFeatured paperAlignment faking in large language modelsFeatured paperConstitutional Classifiers: Defending against universal jailbreaksFeatured newsExploring model welfareResearch Principles01AI as a Systematic ScienceInspired by the universality of scaling in statistical physics, we develop scaling laws to help us do systematic, empirically-driven research. We search for simple relations among data, compute, parameters, and performance of large-scale networks. Then we leverage these relations to train networks more efficiently and predictably, and to evaluate our own progress. We\u2019re also investigating what scaling laws for the safety of AI systems might look like, and this will inform our future research.02Safety and ScalingAt Anthropic we believe safety research is most useful when performed on highly capable models. Every year, we see "
+      },
+      {
+        "customers": [
+          "Collective Co",
+          "Understandable Co",
+          "Claude Co",
+          "Apple Co",
+          "Societal Impacts team",
+          "anticipate future"
+        ],
+        "industries": [
+          "healthcare",
+          "technology",
+          "education",
+          "media",
+          "legal"
+        ],
+        "caseStudies": [
+          "Evaluating feature steering: A case study in mitigating social biases",
+          "Evaluating feature steering: A case study in mitigating social biases",
+          "Evaluating feature steering: A case study in mitigating social biases"
+        ],
+        "textSample": "Skip to main contentSkip to footerClaudeAPISolutionsResearchCommitmentsLearnNewsTry ClaudeResearching  at the frontier At Anthropic, we develop large-scale AI systems, and our research teams help us to create safer, steerable, and more reliable models.See open rolesOverviewInterpretabilityAlignmentSocietal ImpactsOur MissionOur research teams investigate the safety, inner workings, and societal impact of AI models \u2014 so that artificial intelligence has a positive impact on society as it becomes increasingly advanced and capable.Research TeamsInterpretabilityThe mission of the Interpretability team is to discover and understand how large language models work internally \u2014 the foundation of ensuring safety and positive outcomes.Learn moreAlignmentThe Alignment teams works to understand and develop ways to keep future advancements in AI helpful, honest, and harmless.Learn moreSocietal ImpactsWorking closely with the Anthropic Policy and Trust & Safety teams, the Societal Impacts team is a technical research team that looks to ensure AI interacts positively with people.Learn moreFeatured paperTracing the thoughts of a large language modelFeatured paperAlignment faking in large language modelsFeatured paperConstitutional Classifiers: Defending against universal jailbreaksFeatured newsExploring model welfareResearch Principles01AI as a Systematic ScienceInspired by the universality of scaling in statistical physics, we develop scaling laws to help us do systematic, empirically-driven research. We search for simple relations among data, compute, parameters, and performance of large-scale networks. Then we leverage these relations to train networks more efficiently and predictably, and to evaluate our own progress. We\u2019re also investigating what scaling laws for the safety of AI systems might look like, and this will inform our future research.02Safety and ScalingAt Anthropic we believe safety research is most useful when performed on highly capable models. Every year, we see "
+      },
+      {
+        "customers": [
+          "Claude Co",
+          "Apple Co"
+        ],
+        "industries": [
+          "healthcare",
+          "technology",
+          "education",
+          "media",
+          "legal"
+        ],
+        "caseStudies": [],
+        "textSample": "Skip to main contentSkip to footerClaudeAPISolutionsResearchCommitmentsLearnNewsTry ClaudeAnnouncementsClaude\u2019s extended thinkingFeb 24, 2025Some things come to us nearly instantly: \u201cwhat day is it today?\u201d Others take much more mental stamina, like solving a cryptic crossword or debugging a complex piece of code. We can choose to apply more or less cognitive effort depending on the task at hand.Now, Claude has that same flexibility. With the new Claude 3.7 Sonnet, users can toggle \u201cextended thinking mode\u201d on or off, directing the model to think more deeply about trickier questions1. And developers can even set a \u201cthinking budget\u201d to control precisely how long Claude spends on a problem.Extended thinking mode isn\u2019t an option that switches to a different model with a separate strategy. Instead, it\u2019s allowing the very same model to give itself more time, and expend more effort, in coming to an answer.Claude's new extended thinking capability gives it an impressive boost in intelligence. But it also raises many important questions for those interested in how AI models work, how to evaluate them, and how to improve their safety. In this post, we share some of the insights we've gained.The visible thought processAs well as giving Claude the ability to think for longer and thus answer tougher questions, we\u2019ve decided to make its thought process visible in raw form. This has several benefits:Trust. Being able to observe the way Claude thinks makes it easier to understand and check its answers\u2014and might help users get better outputs.Alignment. In some of our previous Alignment Science research, we\u2019ve used contradictions between what the model inwardly thinks and what it outwardly says to identify when it might be engaging in concerning behaviors like deception.Interest. It\u2019s often fascinating to watch Claude think. Some of our researchers with math and physics backgrounds have noted how eerily similar Claude\u2019s thought process is to their own way of reasoning through difficul"
+      }
+    ]
+  },
+  "strategic_analysis": {
+    "validated_customers": [
+      "Child Co",
+      "Collective Co",
+      "Augment Co",
+      "StudyWedia Group",
+      "Clickable Co",
+      "Wedia Group",
+      "Electronic Co",
+      "Graphite",
+      "StudyIG Group",
+      "Deloitte",
+      "Apple Co",
+      "Source Co"
+    ],
+    "primary_industries": [
+      "technology",
+      "education",
+      "media",
+      "consulting",
+      "entertainment"
+    ],
+    "target_recommendations": [
+      {
+        "company_name": "Coursera",
+        "industry": "Education Technology",
+        "size": "Enterprise",
+        "website": "https://www.coursera.org/",
+        "why_good_fit": "Coursera, a leading online learning platform, is experiencing rapid growth and faces challenges in ensuring the reliability, interpretability, and steerability of AI-powered learning tools. As they integrate more AI into course recommendations, personalized learning paths, and automated grading, the need for robust AI safety measures becomes paramount. Anthropic's focus on building reliable and steerable AI systems directly addresses Coursera's need to maintain trust and efficacy in its AI-driven educational offerings. Furthermore, the case study involving Panorama unlocking student success with Claude highlights the potential for similar integrations within Coursera's platform to improve student outcomes."
+      },
+      {
+        "company_name": "Netflix",
+        "industry": "Entertainment Technology",
+        "size": "Enterprise",
+        "website": "https://www.netflix.com/",
+        "why_good_fit": "Netflix heavily relies on AI for content recommendation, personalization, and content creation. As their AI models become more complex, ensuring their safety, fairness, and alignment with user preferences is crucial. Anthropic's expertise in AI safety and steerability can help Netflix mitigate potential risks associated with biased recommendations, algorithmic discrimination, and the misuse of AI-generated content. The WRTN case study showcasing AI entertainment and storytelling across Asia provides a compelling example of how Anthropic's technology can be applied to enhance Netflix's content offerings and personalization strategies while maintaining ethical AI practices. The scale of Netflix's operations and the potential impact of AI failures make them an ideal candidate for Anthropic's solutions."
+      },
+      {
+        "company_name": "Accenture",
+        "industry": "Consulting",
+        "size": "Enterprise",
+        "website": "https://www.accenture.com/",
+        "why_good_fit": "Accenture, a global consulting firm, is increasingly integrating AI solutions into its client engagements across various industries. They need to ensure that the AI systems they deploy are reliable, interpretable, and aligned with their clients' business objectives and ethical standards. Anthropic's AI safety and research capabilities can provide Accenture with a competitive advantage by enabling them to offer more robust and trustworthy AI solutions. Furthermore, Accenture's broad industry reach aligns well with Anthropic's desire to impact multiple sectors. A partnership could involve co-developing AI safety frameworks and best practices for different industries, leveraging Anthropic's research to enhance Accenture's AI consulting services."
+      }
+    ]
+  }
+}
